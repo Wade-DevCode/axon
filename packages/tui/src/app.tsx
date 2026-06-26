@@ -83,6 +83,13 @@ import * as TuiAudio from "./audio"
 import { win32DisableProcessedInput, win32FlushInputBuffer } from "./terminal-win32"
 import { destroyRenderer } from "./util/renderer"
 import { cliErrorMessage, errorFormat } from "./util/error"
+import { registerSpinner } from "opentui-spinner/solid"
+
+// Register the <spinner> element with the OpenTUI reconciler explicitly. The bare
+// side-effect `import "opentui-spinner/solid"` gets tree-shaken out of the compiled
+// binary (only explicit extend()/register calls survive), which otherwise causes a
+// "[Reconciler] Unknown component type: spinner" crash at render time.
+registerSpinner()
 
 const appGlobalBindingCommands = [
   "session.list",
