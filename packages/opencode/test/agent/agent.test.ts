@@ -74,6 +74,50 @@ it.instance("build agent has correct default properties", () =>
   }),
 )
 
+it.instance("returns code and review native primary agents", () =>
+  Effect.gen(function* () {
+    const agents = yield* load((svc) => svc.list())
+    const names = agents.map((a) => a.name)
+    expect(names).toContain("build")
+    expect(names).toContain("code")
+    expect(names).toContain("review")
+
+    const code = yield* load((svc) => svc.get("code"))
+    const review = yield* load((svc) => svc.get("review"))
+    expect(code?.mode).toBe("primary")
+    expect(code?.native).toBe(true)
+    expect(review?.mode).toBe("primary")
+    expect(review?.native).toBe(true)
+    expect(review?.hidden).toBeUndefined()
+  }),
+)
+
+it.instance("code agent preserves build permissions in phase one", () =>
+  Effect.gen(function* () {
+    const build = yield* load((svc) => svc.get("build"))
+    const code = yield* load((svc) => svc.get("code"))
+    expect(code).toBeDefined()
+    expect(build).toBeDefined()
+    expect(evalPerm(code, "edit")).toBe(evalPerm(build, "edit"))
+    expect(evalPerm(code, "bash")).toBe(evalPerm(build, "bash"))
+    expect(Permission.evaluate("plan_enter", "*", code!.permission).action).toBe(
+      Permission.evaluate("plan_enter", "*", build!.permission).action,
+    )
+  }),
+)
+
+it.instance("review agent has a review prompt and asks before generic edits", () =>
+  Effect.gen(function* () {
+    const review = yield* load((svc) => svc.get("review"))
+    expect(review).toBeDefined()
+    expect(review?.description).toContain("Review")
+    expect(review?.prompt).toContain("code reviewer")
+    expect(evalPerm(review, "read")).toBe("allow")
+    expect(evalPerm(review, "grep")).toBe("allow")
+    expect(evalPerm(review, "edit")).toBe("ask")
+  }),
+)
+
 it.instance("plan agent denies edits except .opencode/plans/*", () =>
   Effect.gen(function* () {
     const plan = yield* load((svc) => svc.get("plan"))
@@ -753,6 +797,11 @@ it.instance(
     config: {
       agent: {
         build: { disable: true },
+        code: { disable: true },
+        ask: { disable: true },
+        debug: { disable: true },
+        review: { disable: true },
+        orchestrator: { disable: true },
         plan: { disable: true },
       },
     },

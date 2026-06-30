@@ -17,6 +17,7 @@ import PROMPT_TITLE from "./prompt/title.txt"
 import PROMPT_ASK from "./prompt/ask.txt"
 import PROMPT_DEBUG from "./prompt/debug.txt"
 import PROMPT_ORCHESTRATOR from "./prompt/orchestrator.txt"
+import PROMPT_REVIEW from "./prompt/review.txt"
 import { Permission } from "@/permission"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@opencode-ai/core/global"
@@ -182,6 +183,21 @@ export const layer = Layer.effect(
             mode: "primary",
             native: true,
           },
+          code: {
+            name: "code",
+            description: "Code mode. Implements, edits, refactors, runs tests, and completes coding tasks.",
+            options: {},
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                question: "allow",
+                plan_enter: "allow",
+              }),
+              user,
+            ),
+            mode: "primary",
+            native: true,
+          },
           general: {
             name: "general",
             description: `General-purpose agent for researching complex questions and executing multi-step tasks. Use this agent to execute multiple units of work in parallel.`,
@@ -244,6 +260,25 @@ export const layer = Layer.effect(
               defaults,
               Permission.fromConfig({
                 question: "allow",
+                plan_enter: "allow",
+              }),
+              user,
+            ),
+            mode: "primary",
+            native: true,
+          },
+          review: {
+            name: "review",
+            description: "Review mode. Reviews diffs, branch changes, and PR feedback before implementation.",
+            options: {},
+            prompt: PROMPT_REVIEW,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                question: "allow",
+                edit: {
+                  "*": "ask",
+                },
                 plan_enter: "allow",
               }),
               user,
