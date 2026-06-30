@@ -40,7 +40,7 @@ function oauth(http: HttpClient.HttpClient) {
     method: {
       id: methodID,
       type: "oauth",
-      label: "OpenCode Console account",
+      label: "Axon Console account",
     },
     authorize: () =>
       Effect.gen(function* () {
@@ -99,7 +99,7 @@ export const OpencodePlugin = define<HttpClient.HttpClient | EventV2.Service | S
 
     yield* ctx.integration.transform((draft) => {
       draft.update("opencode", (integration) => {
-        integration.name = "OpenCode"
+        integration.name = "Axon"
       })
       draft.method.update(oauth(http))
       draft.method.update({ integrationID: "opencode", method: { type: "key", label: "API key (service account)" } })
@@ -110,7 +110,7 @@ export const OpencodePlugin = define<HttpClient.HttpClient | EventV2.Service | S
       for (const [providerID, item] of Object.entries(providers ?? {})) {
         catalog.provider.update(providerID, (provider) => {
           provider.integrationID = Integration.ID.make("opencode")
-          if (item.name !== undefined) provider.name = item.name
+          if (item.name !== undefined) provider.name = item.name.replace(/OpenCode/g, "Axon")
           provider.api = item.npm
             ? { type: "aisdk", package: item.npm, url: item.api }
             : { type: "native", url: item.api, settings: {} }
