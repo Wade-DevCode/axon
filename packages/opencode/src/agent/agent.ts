@@ -14,6 +14,9 @@ import PROMPT_COMPACTION from "./prompt/compaction.txt"
 import PROMPT_EXPLORE from "./prompt/explore.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
+import PROMPT_ASK from "./prompt/ask.txt"
+import PROMPT_DEBUG from "./prompt/debug.txt"
+import PROMPT_ORCHESTRATOR from "./prompt/orchestrator.txt"
 import { Permission } from "@/permission"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@opencode-ai/core/global"
@@ -214,6 +217,54 @@ export const layer = Layer.effect(
             prompt: PROMPT_EXPLORE,
             options: {},
             mode: "subagent",
+            native: true,
+          },
+          ask: {
+            name: "ask",
+            description: "Q&A mode. Read-only: explains code and answers questions without modifying files.",
+            options: {},
+            prompt: PROMPT_ASK,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                question: "allow",
+                edit: { "*": "deny" },
+              }),
+              user,
+            ),
+            mode: "primary",
+            native: true,
+          },
+          debug: {
+            name: "debug",
+            description: "Debug mode. Systematically diagnoses and fixes the root cause of failures.",
+            options: {},
+            prompt: PROMPT_DEBUG,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                question: "allow",
+                plan_enter: "allow",
+              }),
+              user,
+            ),
+            mode: "primary",
+            native: true,
+          },
+          orchestrator: {
+            name: "orchestrator",
+            description: "Orchestrator mode. Breaks complex work into subtasks and delegates/coordinates.",
+            options: {},
+            prompt: PROMPT_ORCHESTRATOR,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                question: "allow",
+                plan_enter: "allow",
+              }),
+              user,
+            ),
+            mode: "primary",
             native: true,
           },
           compaction: {
