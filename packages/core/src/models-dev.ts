@@ -206,7 +206,20 @@ export const layer = Layer.effect(
         }),
       )
       return JSON.parse(text) as Record<string, Provider>
-    }).pipe(Effect.withSpan("ModelsDev.populate"), Effect.orDie)
+    })
+      .pipe(
+        Effect.map((data) => {
+          // Axon fork: rebrand opencode provider display names everywhere downstream
+          // (footer, model selector, etc.), regardless of whether the data came from the
+          // on-disk cache, a live fetch, or the bundled snapshot. Provider IDs stay "opencode".
+          for (const provider of Object.values(data)) {
+            if (typeof provider?.name === "string") provider.name = provider.name.replace(/OpenCode/g, "Axon")
+          }
+          return data
+        }),
+        Effect.withSpan("ModelsDev.populate"),
+        Effect.orDie,
+      )
 
     const [cachedGet, invalidate] = yield* Effect.cachedInvalidateWithTTL(populate, Duration.infinity)
 
