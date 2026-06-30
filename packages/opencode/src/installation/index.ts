@@ -38,7 +38,7 @@ export const Info = Schema.Struct({
 export type Info = Schema.Schema.Type<typeof Info>
 
 export function userAgent(client = "cli") {
-  return `opencode/${InstallationChannel}/${InstallationVersion}/${client}`
+  return `axon/${InstallationChannel}/${InstallationVersion}/${client}`
 }
 
 export const USER_AGENT = userAgent()
@@ -143,7 +143,9 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | AppProce
 
     const upgradeCurl = Effect.fnUntraced(
       function* (target: string) {
-        const response = yield* httpOk.execute(HttpClientRequest.get("https://opencode.ai/install"))
+        const response = yield* httpOk.execute(
+          HttpClientRequest.get("https://raw.githubusercontent.com/Wade-DevCode/axon/dev/install"),
+        )
         const body = yield* response.text
         const bodyBytes = new TextEncoder().encode(body)
         const shell = yield* upgradeScriptShell()
@@ -171,6 +173,7 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | AppProce
         }
       }),
       method: Effect.fn("Installation.method")(function* () {
+        if (process.execPath.includes(path.join(".axon", "bin"))) return "curl" as Method
         if (process.execPath.includes(path.join(".opencode", "bin"))) return "curl" as Method
         if (process.execPath.includes(path.join(".local", "bin"))) return "curl" as Method
         const exec = process.execPath.toLowerCase()
@@ -180,9 +183,9 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | AppProce
           { name: "yarn", command: () => text(["yarn", "global", "list"]) },
           { name: "pnpm", command: () => text(["pnpm", "list", "-g", "--depth=0"]) },
           { name: "bun", command: () => text(["bun", "pm", "ls", "-g"]) },
-          { name: "brew", command: () => text(["brew", "list", "--formula", "opencode"]) },
-          { name: "scoop", command: () => text(["scoop", "list", "opencode"]) },
-          { name: "choco", command: () => text(["choco", "list", "--limit-output", "opencode"]) },
+          { name: "brew", command: () => text(["brew", "list", "--formula", "axon"]) },
+          { name: "scoop", command: () => text(["scoop", "list", "axon"]) },
+          { name: "choco", command: () => text(["choco", "list", "--limit-output", "axon"]) },
         ]
 
         checks.sort((a, b) => {
@@ -196,7 +199,7 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | AppProce
         for (const check of checks) {
           const output = yield* check.command()
           const installedName =
-            check.name === "brew" || check.name === "choco" || check.name === "scoop" ? "opencode" : "@wanghuimvp/axon"
+            check.name === "brew" || check.name === "choco" || check.name === "scoop" ? "axon" : "@wanghuimvp/axon"
           if (output.includes(installedName)) {
             return check.name
           }

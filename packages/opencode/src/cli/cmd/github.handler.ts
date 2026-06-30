@@ -140,7 +140,7 @@ type IssueQueryResponse = {
 
 const AGENT_USERNAME = "opencode-agent[bot]"
 const AGENT_REACTION = "eyes"
-const WORKFLOW_FILE = ".github/workflows/opencode.yml"
+const WORKFLOW_FILE = ".github/workflows/axon.yml"
 
 // Event categories for routing
 // USER_EVENTS: triggered by user actions, have actor/issueId, support reactions/comments
@@ -198,7 +198,7 @@ export const githubInstall = Effect.fn("Cli.github.install")(function* () {
             `    1. Commit the \`${WORKFLOW_FILE}\` file and push`,
             step2,
             "",
-            "    3. Go to a GitHub issue and comment `/oc summarize` to see the agent in action",
+            "    3. Go to a GitHub issue and comment `/axon summarize` to see the agent in action",
             "",
             "   Learn more about the GitHub agent - https://opencode.ai/docs/github/#usage-examples",
           ].join("\n"),
@@ -334,7 +334,7 @@ export const githubInstall = Effect.fn("Cli.github.install")(function* () {
 
         await Filesystem.write(
           path.join(app.root, WORKFLOW_FILE),
-          `name: opencode
+          `name: axon
 
 on:
   issue_comment:
@@ -343,8 +343,12 @@ on:
     types: [created]
 
 jobs:
-  opencode:
+  axon:
     if: |
+      contains(github.event.comment.body, ' /axon') ||
+      startsWith(github.event.comment.body, '/axon') ||
+      contains(github.event.comment.body, ' /ax') ||
+      startsWith(github.event.comment.body, '/ax') ||
       contains(github.event.comment.body, ' /oc') ||
       startsWith(github.event.comment.body, '/oc') ||
       contains(github.event.comment.body, ' /opencode') ||
@@ -361,8 +365,8 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run opencode
-        uses: anomalyco/opencode/github@latest${envStr}
+      - name: Run Axon
+        uses: Wade-DevCode/axon/github@latest${envStr}
         with:
           model: ${provider}/${model}`,
         )
@@ -494,7 +498,7 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
         await addReaction(commentType)
       }
 
-      // Setup opencode session
+      // Setup Axon session
       const repoData = await fetchRepo()
       session = await runLocalEffect(
         sessionSvc.create({
@@ -514,7 +518,7 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
         await runLocalEffect(sessionShare.share(session.id))
         return session.id.slice(-8)
       })()
-      console.log("opencode session", session.id)
+      console.log("Axon session", session.id)
 
       // Handle event types:
       // REPO_EVENTS (schedule, workflow_dispatch): no issue/PR context, output to logs/PR only
@@ -736,7 +740,7 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
       }
 
       const reviewContext = getReviewCommentContext()
-      const mentions = (process.env["MENTIONS"] || "/opencode,/oc")
+      const mentions = (process.env["MENTIONS"] || "/axon,/ax,/oc,/opencode")
         .split(",")
         .map((m) => m.trim().toLowerCase())
         .filter(Boolean)
@@ -887,7 +891,7 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
     }
 
     async function chat(message: string, files: PromptFiles = []) {
-      console.log("Sending message to opencode...")
+      console.log("Sending message to Axon...")
 
       return runLocalEffect(
         Effect.gen(function* () {
@@ -975,7 +979,7 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
 
     async function getOidcToken() {
       try {
-        return await core.getIDToken("opencode-github-action")
+        return await core.getIDToken("axon-github-action")
       } catch (error) {
         console.error("Failed to get OIDC token:", error instanceof Error ? error.message : error)
         throw new Error(
@@ -1076,9 +1080,9 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
         .join("")
       if (type === "schedule" || type === "dispatch") {
         const hex = crypto.randomUUID().slice(0, 6)
-        return `opencode/${type}-${hex}-${timestamp}`
+        return `axon/${type}-${hex}-${timestamp}`
       }
-      return `opencode/${type}${issueId}-${timestamp}`
+      return `axon/${type}${issueId}-${timestamp}`
     }
 
     async function pushToNewBranch(summary: string, branch: string, commit: boolean, isSchedule: boolean) {
@@ -1352,7 +1356,7 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
 
         return `<a href="${shareBaseUrl}/s/${shareId}"><img width="200" alt="${titleAlt}" src="https://social-cards.sst.dev/opencode-share/${title64}.png?model=${providerID}/${modelID}&version=${session.version}&id=${shareId}" /></a>\n`
       })()
-      const shareUrl = shareId ? `[opencode session](${shareBaseUrl}/s/${shareId})&nbsp;&nbsp;|&nbsp;&nbsp;` : ""
+      const shareUrl = shareId ? `[Axon session](${shareBaseUrl}/s/${shareId})&nbsp;&nbsp;|&nbsp;&nbsp;` : ""
       return `\n\n${image}${shareUrl}[github run](${runUrl})`
     }
 
@@ -1413,7 +1417,7 @@ query($owner: String!, $repo: String!, $number: Int!) {
       return [
         "<github_action_context>",
         "You are running as a GitHub Action. Important:",
-        "- Git push and PR creation are handled AUTOMATICALLY by the opencode infrastructure after your response",
+        "- Git push and PR creation are handled AUTOMATICALLY by the Axon infrastructure after your response",
         "- Do NOT include warnings or disclaimers about GitHub tokens, workflow permissions, or PR creation capabilities",
         "- Do NOT suggest manual steps for creating PRs or pushing code - this happens automatically",
         "- Focus only on the code changes and your analysis/response",
@@ -1551,7 +1555,7 @@ query($owner: String!, $repo: String!, $number: Int!) {
       return [
         "<github_action_context>",
         "You are running as a GitHub Action. Important:",
-        "- Git push and PR creation are handled AUTOMATICALLY by the opencode infrastructure after your response",
+        "- Git push and PR creation are handled AUTOMATICALLY by the Axon infrastructure after your response",
         "- Do NOT include warnings or disclaimers about GitHub tokens, workflow permissions, or PR creation capabilities",
         "- Do NOT suggest manual steps for creating PRs or pushing code - this happens automatically",
         "- Focus only on the code changes and your analysis/response",

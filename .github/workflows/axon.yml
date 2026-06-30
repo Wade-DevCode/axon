@@ -1,4 +1,4 @@
-name: opencode
+name: axon
 
 on:
   issue_comment:
@@ -7,8 +7,12 @@ on:
     types: [created]
 
 jobs:
-  opencode:
+  axon:
     if: |
+      contains(github.event.comment.body, ' /axon') ||
+      startsWith(github.event.comment.body, '/axon') ||
+      contains(github.event.comment.body, ' /ax') ||
+      startsWith(github.event.comment.body, '/ax') ||
       contains(github.event.comment.body, ' /oc') ||
       startsWith(github.event.comment.body, '/oc') ||
       contains(github.event.comment.body, ' /opencode') ||
@@ -25,8 +29,8 @@ jobs:
 
       - uses: ./.github/actions/setup-bun
 
-      - name: Run opencode
-        uses: anomalyco/opencode/github@2c14fc5586fe0b88e5c04732d2e846769cc35671 # latest
+      - name: Run Axon
+        uses: Wade-DevCode/axon/github@2c14fc5586fe0b88e5c04732d2e846769cc35671 # latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           OPENCODE_PERMISSION: '{"bash": "deny"}'

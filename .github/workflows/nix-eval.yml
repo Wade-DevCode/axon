@@ -50,9 +50,9 @@ jobs:
             for pkg in $PACKAGES; do
               printf "  %s: " "$pkg"
               if output=$(nix eval ".#packages.$system.$pkg.drvPath" --raw 2>&1); then
-                echo "âœ“"
+                echo "âœ?
               else
-                echo "âœ—"
+                echo "âœ?
                 echo "::error::Evaluation failed for packages.$system.$pkg"
                 echo "$output"
                 exit 1
@@ -68,9 +68,9 @@ jobs:
             for pkg in $OPTIONAL_PACKAGES; do
               printf "  %s: " "$pkg"
               if output=$(nix eval ".#packages.$system.$pkg.drvPath" --raw 2>&1); then
-                echo "âœ“"
+                echo "âœ?
               else
-                echo "âœ—"
+                echo "âœ?
                 echo "::warning::Evaluation failed for packages.$system.$pkg"
                 echo "$output"
               fi
@@ -82,9 +82,9 @@ jobs:
           for system in $SYSTEMS; do
             printf "%s: " "$system"
             if output=$(nix eval ".#devShells.$system.default.drvPath" --raw 2>&1); then
-              echo "âœ“"
+              echo "âœ?
             else
-              echo "âœ—"
+              echo "âœ?
               echo "::error::Evaluation failed for devShells.$system.default"
               echo "$output"
               exit 1
