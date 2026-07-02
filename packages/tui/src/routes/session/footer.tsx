@@ -5,6 +5,7 @@ import { useDirectory } from "../../context/directory"
 import { useConnected } from "../../component/use-connected"
 import { createStore } from "solid-js/store"
 import { useRoute } from "../../context/route"
+import { TextAttributes } from "@opentui/core"
 
 export function Footer() {
   const { theme } = useTheme()
@@ -25,7 +26,6 @@ export function Footer() {
   })
 
   onMount(() => {
-    // Track all timeouts to ensure proper cleanup
     const timeouts: ReturnType<typeof setTimeout>[] = []
 
     function tick() {
@@ -39,7 +39,6 @@ export function Footer() {
       if (store.welcome) {
         setStore("welcome", false)
         timeouts.push(setTimeout(() => tick(), 10_000))
-        return
       }
     }
     timeouts.push(setTimeout(() => tick(), 10_000))
@@ -61,25 +60,31 @@ export function Footer() {
           </Match>
           <Match when={connected()}>
             <Show when={permissions().length > 0}>
-              <text fg={theme.warning}>
-                <span style={{ fg: theme.warning }}>△</span> {permissions().length} Permission
-                {permissions().length > 1 ? "s" : ""}
+              <text fg={theme.text}>
+                <span style={{ fg: theme.warning, attributes: TextAttributes.BOLD }}>!</span>{" "}
+                <span style={{ fg: theme.warning }}>{permissions().length}</span>{" "}
+                <span style={{ fg: theme.textMuted }}>Permission{permissions().length > 1 ? "s" : ""}</span>
               </text>
             </Show>
             <text fg={theme.text}>
-              <span style={{ fg: lsp().length > 0 ? theme.success : theme.textMuted }}>•</span> {lsp().length} LSP
+              <span
+                style={{ fg: lsp().length > 0 ? theme.success : theme.textMuted, attributes: TextAttributes.BOLD }}
+              >
+                LSP
+              </span>{" "}
+              <span style={{ fg: theme.textMuted }}>{lsp().length}</span>
             </text>
             <Show when={mcp()}>
               <text fg={theme.text}>
                 <Switch>
                   <Match when={mcpError()}>
-                    <span style={{ fg: theme.error }}>⊙ </span>
+                    <span style={{ fg: theme.error, attributes: TextAttributes.BOLD }}>MCP</span>
                   </Match>
                   <Match when={true}>
-                    <span style={{ fg: theme.success }}>⊙ </span>
+                    <span style={{ fg: theme.success, attributes: TextAttributes.BOLD }}>MCP</span>
                   </Match>
                 </Switch>
-                {mcp()} MCP
+                <span style={{ fg: theme.textMuted }}> {mcp()}</span>
               </text>
             </Show>
             <text fg={theme.textMuted}>/status</text>
