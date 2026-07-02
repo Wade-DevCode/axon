@@ -1,11 +1,6 @@
-export const logo = {
-  left: ["         ", "▄▀▀▄ █  █", "█▄▄█  ██ ", "▀  ▀ █  █"],
-  right: ["         ", "█▀▀█ █▀▀█", "█__█ █__█", "▀▀▀▀ ▀__▀"],
-}
+export const logo = "AXON"
 
 export const go = {
-  left: ["    ", "█▀▀▀", "█_^█", "▀▀▀▀"],
-  right: ["    ", "█▀▀█", "█__█", "▀▀▀▀"],
+  left: ["AX"],
+  right: ["ON"],
 }
-
-export const marks = "_^~,"
