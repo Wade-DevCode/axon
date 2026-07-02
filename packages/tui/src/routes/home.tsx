@@ -12,6 +12,9 @@ import { useEditorContext } from "../context/editor"
 import { useTerminalDimensions } from "@opentui/solid"
 import { useTuiConfig } from "../config"
 import { HomeSessionDestinationProvider } from "./home/session-destination"
+import { useTheme } from "../context/theme"
+import { TextAttributes } from "@opentui/core"
+import { Product } from "../util/product"
 
 let once = false
 const placeholder = {
@@ -30,6 +33,7 @@ export function Home() {
   const editor = useEditorContext()
   const dimensions = useTerminalDimensions()
   const tuiConfig = useTuiConfig()
+  const { theme } = useTheme()
   const promptMaxWidth = createMemo(() => {
     const configured = tuiConfig.prompt?.max_width
     if (configured === "auto") return Math.max(75, Math.floor(dimensions().width * 0.7))
@@ -76,6 +80,11 @@ export function Home() {
           <pluginRuntime.Slot name="home_logo" mode="replace">
             <Logo />
           </pluginRuntime.Slot>
+        </box>
+        <box flexShrink={0} paddingTop={1}>
+          <text fg={theme.textMuted} attributes={TextAttributes.BOLD}>
+            {Product.info.authorSignature}
+          </text>
         </box>
         <box height={1} minHeight={0} flexShrink={1} />
         <box width="100%" maxWidth={promptMaxWidth()} zIndex={1000} paddingTop={1} flexShrink={0}>

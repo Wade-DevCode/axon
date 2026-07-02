@@ -4,6 +4,7 @@ import { useTheme } from "../context/theme"
 import { useDialog } from "../ui/dialog"
 import { useSync } from "../context/sync"
 import { For, Match, Switch, Show, createMemo } from "solid-js"
+import { Product } from "../util/product"
 
 export type DialogStatusProps = {}
 
@@ -48,6 +49,20 @@ export function DialogStatus() {
         </text>
         <text fg={theme.textMuted} onMouseUp={() => dialog.clear()}>
           esc
+        </text>
+      </box>
+      <box border={["left"]} borderColor={theme.borderSubtle} paddingLeft={1}>
+        <text fg={theme.text}>
+          Product <span style={{ fg: theme.textMuted }}>{Product.info.name}</span>
+        </text>
+        <text fg={theme.text}>
+          Author <span style={{ fg: theme.textMuted }}>{Product.info.author}</span>
+        </text>
+        <text fg={theme.text}>
+          Package <span style={{ fg: theme.textMuted }}>{Product.info.packageName}</span>
+        </text>
+        <text fg={theme.text}>
+          Version <span style={{ fg: theme.textMuted }}>{Product.info.version}</span>
         </text>
       </box>
       <Show when={Object.keys(sync.data.mcp).length > 0} fallback={<text fg={theme.text}>No MCP Servers</text>}>
