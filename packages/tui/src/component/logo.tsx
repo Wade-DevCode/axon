@@ -1,20 +1,26 @@
 import { TextAttributes } from "@opentui/core"
+import { For } from "solid-js"
 import { useTheme } from "../context/theme"
 import { logo } from "../logo"
 
 export function Logo() {
   const { theme } = useTheme()
+  const lines = logo.split("\n")
 
   return (
     <box flexDirection="column" alignItems="center">
-      <box flexDirection="row" gap={1}>
-        <text fg={theme.primary} attributes={TextAttributes.BOLD} selectable={false}>
-          {logo.slice(0, 2)}
-        </text>
-        <text fg={theme.text} attributes={TextAttributes.BOLD} selectable={false}>
-          {logo.slice(2)}
-        </text>
-      </box>
+      <For each={lines}>
+        {(line, index) => (
+          <text
+            fg={index() < 2 ? theme.primary : theme.text}
+            attributes={TextAttributes.BOLD}
+            selectable={false}
+            wrapMode="none"
+          >
+            {line}
+          </text>
+        )}
+      </For>
     </box>
   )
 }
