@@ -488,7 +488,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
       <box paddingLeft={4} paddingRight={4}>
         <box flexDirection="row" justifyContent="space-between">
           {props.titleView ?? (
-            <text fg={theme.text} attributes={TextAttributes.BOLD}>
+            <text fg={theme.primary} attributes={TextAttributes.BOLD}>
               {props.title}
             </text>
           )}
@@ -506,9 +506,9 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
                   props.onFilter?.(e)
                 })
               }}
-              focusedBackgroundColor={theme.backgroundPanel}
+              focusedBackgroundColor={theme.backgroundElement}
               cursorColor={theme.primary}
-              focusedTextColor={theme.textMuted}
+              focusedTextColor={theme.text}
               ref={(r) => {
                 input = r
                 input.traits = { status: "FILTER" }
