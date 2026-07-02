@@ -1,44 +1,44 @@
 {
   "$schema": "https://opencode.ai/theme.json",
   "defs": {
-    "darkStep1": "#0a0a0a",
-    "darkStep2": "#141414",
-    "darkStep3": "#1e1e1e",
-    "darkStep4": "#282828",
-    "darkStep5": "#323232",
-    "darkStep6": "#3c3c3c",
-    "darkStep7": "#484848",
-    "darkStep8": "#606060",
-    "darkStep9": "#fab283",
-    "darkStep10": "#ffc09f",
-    "darkStep11": "#808080",
-    "darkStep12": "#eeeeee",
-    "darkSecondary": "#5c9cf5",
-    "darkAccent": "#9d7cd8",
-    "darkRed": "#e06c75",
-    "darkOrange": "#f5a742",
-    "darkGreen": "#7fd88f",
-    "darkCyan": "#56b6c2",
-    "darkYellow": "#e5c07b",
-    "lightStep1": "#ffffff",
-    "lightStep2": "#fafafa",
-    "lightStep3": "#f5f5f5",
-    "lightStep4": "#ebebeb",
-    "lightStep5": "#e1e1e1",
-    "lightStep6": "#d4d4d4",
-    "lightStep7": "#b8b8b8",
-    "lightStep8": "#a0a0a0",
-    "lightStep9": "#3b7dd8",
-    "lightStep10": "#2968c3",
-    "lightStep11": "#8a8a8a",
-    "lightStep12": "#1a1a1a",
-    "lightSecondary": "#7b5bb6",
-    "lightAccent": "#d68c27",
-    "lightRed": "#d1383d",
-    "lightOrange": "#d68c27",
-    "lightGreen": "#3d9a57",
-    "lightCyan": "#318795",
-    "lightYellow": "#b0851f"
+    "darkStep1": "#0b0f14",
+    "darkStep2": "#10161d",
+    "darkStep3": "#17212b",
+    "darkStep4": "#1f2b36",
+    "darkStep5": "#293642",
+    "darkStep6": "#34434f",
+    "darkStep7": "#465664",
+    "darkStep8": "#637382",
+    "darkStep9": "#5eead4",
+    "darkStep10": "#8cf7e8",
+    "darkStep11": "#8a9aa8",
+    "darkStep12": "#e8eef4",
+    "darkSecondary": "#7aa2f7",
+    "darkAccent": "#f4c06a",
+    "darkRed": "#ff6b7a",
+    "darkOrange": "#f2a65a",
+    "darkGreen": "#78dba9",
+    "darkCyan": "#67d8ef",
+    "darkYellow": "#e7c76f",
+    "lightStep1": "#fbfcfd",
+    "lightStep2": "#f3f6f8",
+    "lightStep3": "#e9eef3",
+    "lightStep4": "#dfe7ee",
+    "lightStep5": "#d1dbe5",
+    "lightStep6": "#bfccd8",
+    "lightStep7": "#98a8b8",
+    "lightStep8": "#6f8191",
+    "lightStep9": "#087c8f",
+    "lightStep10": "#056b7b",
+    "lightStep11": "#697886",
+    "lightStep12": "#111923",
+    "lightSecondary": "#2f68c4",
+    "lightAccent": "#a76512",
+    "lightRed": "#c83245",
+    "lightOrange": "#b96e1b",
+    "lightGreen": "#21885d",
+    "lightCyan": "#087c8f",
+    "lightYellow": "#8d6b12"
   },
   "theme": {
     "primary": {
@@ -102,52 +102,52 @@
       "light": "lightStep6"
     },
     "diffAdded": {
-      "dark": "#4fd6be",
-      "light": "#1e725c"
+      "dark": "#78dba9",
+      "light": "#21885d"
     },
     "diffRemoved": {
-      "dark": "#c53b53",
-      "light": "#c53b53"
+      "dark": "#ff6b7a",
+      "light": "#c83245"
     },
     "diffContext": {
-      "dark": "#828bb8",
-      "light": "#7086b5"
+      "dark": "#8a9aa8",
+      "light": "#697886"
     },
     "diffHunkHeader": {
-      "dark": "#828bb8",
-      "light": "#7086b5"
+      "dark": "#7aa2f7",
+      "light": "#2f68c4"
     },
     "diffHighlightAdded": {
-      "dark": "#b8db87",
-      "light": "#4db380"
+      "dark": "#a4f3c8",
+      "light": "#21885d"
     },
     "diffHighlightRemoved": {
-      "dark": "#e26a75",
-      "light": "#f52a65"
+      "dark": "#ff99a4",
+      "light": "#c83245"
     },
     "diffAddedBg": {
-      "dark": "#20303b",
-      "light": "#d5e5d5"
+      "dark": "#123025",
+      "light": "#dceee5"
     },
     "diffRemovedBg": {
-      "dark": "#37222c",
-      "light": "#f7d8db"
+      "dark": "#351b23",
+      "light": "#f5dce1"
     },
     "diffContextBg": {
       "dark": "darkStep2",
       "light": "lightStep2"
     },
     "diffLineNumber": {
-      "dark": "#8f8f8f",
-      "light": "#595959"
+      "dark": "#748493",
+      "light": "#697886"
     },
     "diffAddedLineNumberBg": {
-      "dark": "#1b2b34",
-      "light": "#c5d5c5"
+      "dark": "#0f2a21",
+      "light": "#cfe5d8"
     },
     "diffRemovedLineNumberBg": {
-      "dark": "#2d1f26",
-      "light": "#e7c8cb"
+      "dark": "#2b1820",
+      "light": "#eacbd2"
     },
     "markdownText": {
       "dark": "darkStep12",
