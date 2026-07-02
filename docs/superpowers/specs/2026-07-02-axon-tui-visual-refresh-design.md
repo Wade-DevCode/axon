@@ -24,7 +24,7 @@ The theme must preserve:
 Add a restrained author signature on the home/start surface:
 
 ```text
-by 王辉
+author: WANGHUI
 ```
 
 The signature should sit near the Axon logo or product title, not in the always-visible session footer. It should be visible enough to establish authorship, but secondary to the product name and current task entry point.
@@ -34,7 +34,7 @@ The signature should sit near the Axon logo or product title, not in the always-
 Expose author information in the status/about-style surface alongside product metadata:
 
 - Product: Axon
-- Author: 王辉
+- Author: WANGHUI
 - Package: `@wanghuimvp/axon`
 - Version: current runtime version
 
@@ -102,7 +102,7 @@ Run focused tests after implementation:
 
 Manual verification should include:
 
-- home screen shows `by 王辉`
+- home screen shows `author: WANGHUI`
 - status/about surface shows author and package metadata
 - dialog selector remains usable at common terminal widths
 - session footer remains readable
