@@ -65,7 +65,11 @@ describe("toolRow", () => {
     expect(toolRow(completed("task", { description: "Inspect metadata" }, {})).target).toBe("Inspect metadata")
     expect(toolRow(completed("write", {}, {})).target).toBe("Completed title")
     expect(
-      toolRow(completed("edit", { filePath: "src/a.ts" }, { diff: "--- old\n+++ new\n-old\n+new\n+extra" })),
+      toolRow(
+        completed("edit", { filePath: "src/a.ts" }, {
+          diff: "--- old\n+++ new\n@@ -1 +1,2 @@\n-old\n+new\n+extra",
+        }),
+      ),
     ).toMatchObject({ additions: 2, deletions: 1 })
   })
 
@@ -105,8 +109,8 @@ describe("toolRow", () => {
       toolRow(
         completed("apply_patch", {}, {
           files: [
-            { relativePath: "a.ts", patch: "+one\n-two" },
-            { relativePath: "b.ts", patch: "+three\n+four" },
+            { relativePath: "a.ts", patch: "--- old\n+++ new\n@@ -1 +1 @@\n-one\n+two" },
+            { relativePath: "b.ts", patch: "--- old\n+++ new\n@@ -0,0 +1,2 @@\n+three\n+four" },
           ],
         }),
       ),
@@ -125,13 +129,31 @@ describe("changeSummary", () => {
     ).toEqual([{ path: "src/a.ts", additions: 2, deletions: 1 }])
   })
 
+  test("does not mistake content beginning with three signs for diff headers", () => {
+    expect(
+      changeSummary([
+        completed("edit", { filePath: "src/a.ts" }, {
+          diff: "--- a/src/a.ts\n+++ b/src/a.ts\n@@ -1 +1 @@\n----old\n++++new",
+        }),
+      ]),
+    ).toEqual([{ path: "src/a.ts", additions: 1, deletions: 1 }])
+  })
+
+  test("does not prove zero counts from an arbitrary string", () => {
+    expect(
+      changeSummary([completed("edit", { filePath: "src/a.ts" }, { diff: "not a unified diff" })]),
+    ).toEqual([{ path: "src/a.ts" }])
+  })
+
   test("supports Write metadata while omitting unprovable counts", () => {
     expect(changeSummary([completed("write", { filePath: "src/write.ts" }, { filepath: "src/write.ts" })])).toEqual([
       { path: "src/write.ts" },
     ])
     expect(
       changeSummary([
-        completed("write", { filePath: "src/write.ts" }, { diff: "--- old\n+++ new\n-old\n+new" }),
+        completed("write", { filePath: "src/write.ts" }, {
+          diff: "--- old\n+++ new\n@@ -1 +1 @@\n-old\n+new",
+        }),
       ]),
     ).toEqual([{ path: "src/write.ts", additions: 1, deletions: 1 }])
   })
@@ -146,7 +168,7 @@ describe("changeSummary", () => {
             {
               relativePath: "src/a.ts",
               filePath: "C:/repo/src/a.ts",
-              patch: "--- old\n+++ new\n-one\n+two",
+              patch: "--- old\n+++ new\n@@ -1 +1 @@\n-one\n+two",
               additions: 99,
               deletions: 99,
             },
@@ -162,9 +184,11 @@ describe("changeSummary", () => {
   test("merges duplicate proven counts and sorts paths", () => {
     expect(
       changeSummary([
-        completed("edit", { filePath: "z.ts" }, { diff: "+one" }),
-        completed("write", { filePath: "a.ts" }, { diff: "-one" }),
-        completed("edit", { filePath: "z.ts" }, { diff: "+two\n-three" }),
+        completed("edit", { filePath: "z.ts" }, { diff: "--- old\n+++ new\n@@ -0,0 +1 @@\n+one" }),
+        completed("write", { filePath: "a.ts" }, { diff: "--- old\n+++ new\n@@ -1 +0,0 @@\n-one" }),
+        completed("edit", { filePath: "z.ts" }, {
+          diff: "--- old\n+++ new\n@@ -1 +1 @@\n-three\n+two",
+        }),
       ]),
     ).toEqual([
       { path: "a.ts", additions: 0, deletions: 1 },
@@ -175,7 +199,7 @@ describe("changeSummary", () => {
   test("keeps a known path but drops counts when duplicate metadata is incomplete", () => {
     expect(
       changeSummary([
-        completed("edit", { filePath: "src/a.ts" }, { diff: "+one" }),
+        completed("edit", { filePath: "src/a.ts" }, { diff: "--- old\n+++ new\n@@ -0,0 +1 @@\n+one" }),
         completed("write", { filePath: "src/a.ts" }, {}),
       ]),
     ).toEqual([{ path: "src/a.ts" }])

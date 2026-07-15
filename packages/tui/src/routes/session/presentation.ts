@@ -157,13 +157,21 @@ function patchFiles(value: unknown): ChangeFile[] {
 
 function diffCounts(value: unknown) {
   if (typeof value !== "string") return {}
-  return value.split(/\r?\n/).reduce(
+  const lines = value.split(/\r?\n/)
+  const headers = lines.some((line, index) => diffHeader(line, "---") && diffHeader(lines[index + 1] ?? "", "+++"))
+  const hunk = lines.some((line) => /^@@ -\d+(?:,\d+)? \+\d+(?:,\d+)? @@(?: .*)?$/.test(line))
+  if (!headers || !hunk) return {}
+  return lines.reduce(
     (counts, line) => ({
-      additions: counts.additions + (line.startsWith("+") && !line.startsWith("+++") ? 1 : 0),
-      deletions: counts.deletions + (line.startsWith("-") && !line.startsWith("---") ? 1 : 0),
+      additions: counts.additions + (line.startsWith("+") && !diffHeader(line, "+++") ? 1 : 0),
+      deletions: counts.deletions + (line.startsWith("-") && !diffHeader(line, "---") ? 1 : 0),
     }),
     { additions: 0, deletions: 0 },
   )
+}
+
+function diffHeader(line: string, marker: "---" | "+++") {
+  return line.startsWith(marker) && (line.length === marker.length || /\s/.test(line.charAt(marker.length)))
 }
 
 function record(value: unknown) {
