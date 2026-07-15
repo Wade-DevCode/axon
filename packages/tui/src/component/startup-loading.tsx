@@ -1,7 +1,7 @@
 import { InstallationVersion } from "@opencode-ai/core/installation/version"
 import { useTerminalDimensions } from "@opentui/solid"
-import { TextAttributes } from "@opentui/core"
 import { createMemo, Show } from "solid-js"
+import { AxonLogo } from "./axon-logo"
 import { useKV } from "../context/kv"
 import { useStartupProgress } from "../context/startup"
 import { useTheme } from "../context/theme"
@@ -49,13 +49,7 @@ export function StartupLoading() {
         </box>
         <box flexGrow={1} minHeight={0} />
         <box alignItems="center" flexDirection="column" flexShrink={0}>
-          <Show when={showSplashArtwork(dimensions().width, dimensions().height)}>
-            <text fg={theme.primary} attributes={TextAttributes.BOLD}>/\  /\</text>
-            <text fg={theme.primary} attributes={TextAttributes.BOLD}> A X</text>
-            <box height={1} />
-          </Show>
-          <text fg={theme.text} attributes={TextAttributes.BOLD}>A X O N</text>
-          <text fg={theme.textMuted}>Developer Agent for the Terminal</text>
+          <AxonLogo size={showSplashArtwork(dimensions().width, dimensions().height) ? "full" : "compact"} />
           <box height={2} />
           <text fg={snapshot().error ? theme.error : theme.text}>{snapshot().label}</text>
           <text fg={theme.primary}>{track()}</text>

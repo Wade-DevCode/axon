@@ -1,6 +1,7 @@
 import { Prompt, type PromptRef } from "../component/prompt"
 import { createEffect, createMemo, createSignal, onMount } from "solid-js"
-import { Logo } from "../component/logo"
+import { AxonLogo } from "../component/axon-logo"
+import { AxonComposer } from "../component/axon-composer"
 import { useSync } from "../context/sync"
 import { Toast } from "../ui/toast"
 import { useArgs } from "../context/args"
@@ -12,9 +13,7 @@ import { useEditorContext } from "../context/editor"
 import { useTerminalDimensions } from "@opentui/solid"
 import { useTuiConfig } from "../config"
 import { HomeSessionDestinationProvider } from "./home/session-destination"
-import { useTheme } from "../context/theme"
-import { TextAttributes } from "@opentui/core"
-import { Product } from "../util/product"
+import { brandDensity } from "../util/brand-layout"
 
 let once = false
 const placeholder = {
@@ -33,7 +32,7 @@ export function Home() {
   const editor = useEditorContext()
   const dimensions = useTerminalDimensions()
   const tuiConfig = useTuiConfig()
-  const { theme } = useTheme()
+  const density = createMemo(() => brandDensity(dimensions().width, dimensions().height))
   const promptMaxWidth = createMemo(() => {
     const configured = tuiConfig.prompt?.max_width
     if (configured === "auto") return Math.max(75, Math.floor(dimensions().width * 0.7))
@@ -78,19 +77,16 @@ export function Home() {
         <box height={4} minHeight={0} flexShrink={1} />
         <box flexShrink={0}>
           <pluginRuntime.Slot name="home_logo" mode="replace">
-            <Logo />
+            <AxonLogo size={density() === "compact" ? "compact" : "full"} />
           </pluginRuntime.Slot>
-        </box>
-        <box flexShrink={0} paddingTop={1}>
-          <text fg={theme.textMuted} attributes={TextAttributes.BOLD}>
-            {Product.info.authorSignature}
-          </text>
         </box>
         <box height={1} minHeight={0} flexShrink={1} />
         <box width="100%" maxWidth={promptMaxWidth()} zIndex={1000} paddingTop={1} flexShrink={0}>
-          <pluginRuntime.Slot name="home_prompt" mode="replace" ref={bind}>
-            <Prompt ref={bind} right={<pluginRuntime.Slot name="home_prompt_right" />} placeholders={placeholder} />
-          </pluginRuntime.Slot>
+          <AxonComposer density={density()} focused>
+            <pluginRuntime.Slot name="home_prompt" mode="replace" ref={bind}>
+              <Prompt ref={bind} right={<pluginRuntime.Slot name="home_prompt_right" />} placeholders={placeholder} />
+            </pluginRuntime.Slot>
+          </AxonComposer>
         </box>
         <pluginRuntime.Slot name="home_bottom" />
         <box flexGrow={1} minHeight={0} />
