@@ -145,6 +145,8 @@ export type TuiInput = {
   url: string
   args: Args
   config: TuiConfig.Resolved
+  // Keeps renderer-backed route tests isolated from process-global module mocks.
+  createRenderer?: () => Promise<CliRenderer>
   onSnapshot?: () => Promise<string[]>
   directory?: string
   fetch?: typeof fetch
@@ -192,19 +194,21 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
     Effect.gen(function* () {
       const renderer = yield* Effect.acquireRelease(
         Effect.tryPromise(() =>
-          createCliRenderer({
-            externalOutputMode: "passthrough",
-            targetFps: 60,
-            gatherStats: false,
-            exitOnCtrlC: false,
-            useKittyKeyboard: {},
-            autoFocus: false,
-            openConsoleOnError: false,
-            useMouse: !Flag.OPENCODE_DISABLE_MOUSE && input.config.mouse,
-            consoleOptions: {
-              keyBindings: [{ name: "y", ctrl: true, action: "copy-selection" }],
-            },
-          }),
+          input.createRenderer
+            ? input.createRenderer()
+            : createCliRenderer({
+                externalOutputMode: "passthrough",
+                targetFps: 60,
+                gatherStats: false,
+                exitOnCtrlC: false,
+                useKittyKeyboard: {},
+                autoFocus: false,
+                openConsoleOnError: false,
+                useMouse: !Flag.OPENCODE_DISABLE_MOUSE && input.config.mouse,
+                consoleOptions: {
+                  keyBindings: [{ name: "y", ctrl: true, action: "copy-selection" }],
+                },
+              }),
         ),
         (renderer) =>
           Effect.sync(() => {

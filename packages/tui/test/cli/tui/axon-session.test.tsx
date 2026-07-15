@@ -1,5 +1,5 @@
 /** @jsxImportSource @opentui/solid */
-import { expect, mock, test } from "bun:test"
+import { expect, test } from "bun:test"
 import { createTestRenderer } from "@opentui/core/testing"
 import { Effect } from "effect"
 import type { TuiPluginApi, TuiPromptRef } from "@opencode-ai/plugin/tui"
@@ -97,11 +97,9 @@ function completedTool(id: string, tool: string, input: Record<string, unknown>,
   }
 }
 
-test.serial("renders the real session hierarchy responsively and preserves the Prompt plugin contract", async () => {
+test("renders the real session hierarchy responsively and preserves the Prompt plugin contract", async () => {
   const setup = await createTestRenderer({ width: 140, height: 40, useThread: false })
   setup.renderer.waitForThemeMode = async () => "dark"
-  const core = await import("@opentui/core")
-  mock.module("@opentui/core", () => ({ ...core, createCliRenderer: async () => setup.renderer }))
   const events = createEventSource()
   const calls = createFetch((url) => {
     const model = {
@@ -161,6 +159,7 @@ test.serial("renders the real session hierarchy responsively and preserves the P
         fetch: calls.fetch,
         events: events.source,
         args: {},
+        createRenderer: async () => setup.renderer,
         pluginHost: {
           async start(input) {
             api = input.api
@@ -250,9 +249,8 @@ test.serial("renders the real session hierarchy responsively and preserves the P
   } finally {
     if (!setup.renderer.isDestroyed) setup.renderer.destroy()
     await task
-    mock.restore()
   }
-}, 30_000)
+})
 
 async function capture(setup: Awaited<ReturnType<typeof createTestRenderer>>, content: string) {
   for (let attempt = 0; attempt < 100; attempt++) {

@@ -1,5 +1,5 @@
 /** @jsxImportSource @opentui/solid */
-import { expect, mock, test } from "bun:test"
+import { expect, test } from "bun:test"
 import { mkdir } from "node:fs/promises"
 import path from "node:path"
 import type { TuiPluginApi, TuiPromptRef } from "@opencode-ai/plugin/tui"
@@ -78,11 +78,9 @@ test("keeps Logo as a full Axon compatibility wrapper", async () => {
   expect(frame).not.toMatch(/[█▀▄]/)
 })
 
-test.serial("renders the real responsive Home route and preserves its plugin and Prompt paths", async () => {
+test("renders the real responsive Home route and preserves its plugin and Prompt paths", async () => {
   const setup = await createTestRenderer({ width: 72, height: 20, useThread: false })
   setup.renderer.waitForThemeMode = async () => "dark"
-  const core = await import("@opentui/core")
-  mock.module("@opentui/core", () => ({ ...core, createCliRenderer: async () => setup.renderer }))
   const events = createEventSource()
   const calls = createFetch((url) => {
     const model = {
@@ -132,6 +130,7 @@ test.serial("renders the real responsive Home route and preserves its plugin and
         fetch: calls.fetch,
         events: events.source,
         args: {},
+        createRenderer: async () => setup.renderer,
         pluginHost: {
           async start(input) {
             api = input.api
@@ -232,7 +231,6 @@ test.serial("renders the real responsive Home route and preserves its plugin and
   } finally {
     if (!setup.renderer.isDestroyed) setup.renderer.destroy()
     await task
-    mock.restore()
   }
 })
 
