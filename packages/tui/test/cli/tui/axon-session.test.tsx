@@ -133,7 +133,10 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
     if (url.pathname === "/project/current") return json({ id: "proj_test", worktree })
     if (url.pathname === "/project/proj_test/directory") return json([{ directory: worktree }])
     if (url.pathname === "/agent")
-      return json([{ name: "build", description: "Build agent", mode: "primary", hidden: false, permission: {} }])
+      return json([
+        { name: "build", description: "Build agent", mode: "primary", hidden: false, permission: {} },
+        { name: "review", description: "Review agent", mode: "primary", hidden: false, permission: {} },
+      ])
     if (url.pathname === "/session") return json([session])
     if (url.pathname === `/session/${sessionID}`) return json(session)
     if (url.pathname === `/session/${sessionID}/message`) return json(messages)
@@ -193,12 +196,75 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
     expect(wide).toContain("2 files changed")
     expect(wide).toContain("12 ms")
 
-    api!.kv.set("tool_details_visibility", true)
+    api!.keymap.dispatchCommand("session.toggle.actions")
     const detailed = await capture(setup, "1 - old")
     expect(detailed).not.toContain("Change Summary")
     expect(detailed).toContain("Edit src\\auth.ts")
-    api!.kv.set("tool_details_visibility", false)
+    api!.keymap.dispatchCommand("session.toggle.actions")
     await capture(setup, "Change Summary")
+
+    api!.keymap.dispatchCommand("agent.cycle")
+    const selectedAgent = await capture(setup, "REVIEW  cmd.exe")
+    expect(selectedAgent).toContain("REVIEW  cmd.exe")
+
+    events.emit({
+      directory,
+      project: "proj_test",
+      payload: {
+        id: "evt_permission",
+        type: "permission.asked",
+        properties: {
+          id: "permission_test",
+          sessionID,
+          permission: "edit",
+          patterns: [],
+          metadata: {},
+          always: [],
+        },
+      },
+    })
+    const permission = await capture(setup, "Permission required")
+    expect(permission).not.toContain("Ask Axon")
+    events.emit({
+      directory,
+      project: "proj_test",
+      payload: {
+        id: "evt_permission_done",
+        type: "permission.replied",
+        properties: { sessionID, requestID: "permission_test", reply: "once" },
+      },
+    })
+    events.emit({
+      directory,
+      project: "proj_test",
+      payload: {
+        id: "evt_question",
+        type: "question.asked",
+        properties: {
+          id: "question_test",
+          sessionID,
+          questions: [
+            {
+              question: "Choose a path",
+              header: "Path",
+              options: [{ label: "Continue", description: "Keep going" }],
+            },
+          ],
+        },
+      },
+    })
+    const question = await capture(setup, "Choose a path")
+    expect(question).not.toContain("Ask Axon")
+    events.emit({
+      directory,
+      project: "proj_test",
+      payload: {
+        id: "evt_question_done",
+        type: "question.rejected",
+        properties: { sessionID, requestID: "question_test" },
+      },
+    })
+    expect(await capture(setup, "Ask Axon")).toContain("Ask Axon")
 
     setup.renderer.resize(100, 30)
     const normal = await capture(setup, "Change Summary")

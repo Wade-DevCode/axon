@@ -289,7 +289,7 @@ export function Session() {
   const projectName = createMemo(() =>
     path.basename(project.data.project.worktree ?? session()?.directory ?? project.instance.directory()),
   )
-  const mode = createMemo(() => lastAssistant()?.mode ?? local.agent.current()?.name ?? OPENCODE_BASE_MODE)
+  const mode = createMemo(() => local.agent.current()?.name ?? lastAssistant()?.mode ?? OPENCODE_BASE_MODE)
 
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
   const toast = useToast()

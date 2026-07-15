@@ -1,8 +1,9 @@
 import type { ToolPart } from "@opencode-ai/sdk/v2"
 import { TextAttributes } from "@opentui/core"
-import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js"
+import { createEffect, createMemo, createSignal, For, onCleanup, Show } from "solid-js"
 import { useTheme } from "../../context/theme"
 import type { BrandDensity } from "../../util/brand-layout"
+import { Locale } from "../../util/locale"
 import { toolRow, type ToolRowStatus } from "./presentation"
 
 export function AxonToolPanel(props: {
@@ -15,8 +16,9 @@ export function AxonToolPanel(props: {
   const [now, setNow] = createSignal(props.now ?? Date.now())
   const rows = createMemo(() => props.parts.map((part) => ({ part, row: toolRow(part, now()) })))
 
-  onMount(() => {
+  createEffect(() => {
     if (props.now !== undefined || !props.parts.some((part) => part.state.status === "running")) return
+    setNow(Date.now())
     const timer = setInterval(() => setNow(Date.now()), 1000)
     onCleanup(() => clearInterval(timer))
   })
@@ -27,6 +29,8 @@ export function AxonToolPanel(props: {
     if (status === "failed") return theme.error
     return theme.textMuted
   }
+  const error = (value?: string) =>
+    value ? Locale.truncate(value, props.density === "compact" ? 48 : props.density === "normal" ? 60 : 80) : undefined
 
   return (
     <Show when={rows().length > 0}>
@@ -58,6 +62,11 @@ export function AxonToolPanel(props: {
                   </box>
                   <box flexDirection="row" gap={1}>
                     <text fg={color(item.row.status)}>{item.row.status}</text>
+                    <Show when={error(item.row.error)}>
+                      <text fg={color(item.row.status)} wrapMode="none">
+                        {error(item.row.error)}
+                      </text>
+                    </Show>
                     <Show when={item.row.additions !== undefined}>
                       <text fg={theme.diffAdded}>+{item.row.additions}</text>
                       <text fg={theme.diffRemoved}>-{item.row.deletions}</text>
@@ -76,11 +85,12 @@ export function AxonToolPanel(props: {
                   </text>
                   <text fg={color(item.row.status)}>{item.row.status}</text>
                 </box>
-                <Show when={item.row.target}>
-                  <text fg={theme.textMuted} wrapMode="none">
-                    {item.row.target}
-                  </text>
-                </Show>
+                <text fg={theme.textMuted} wrapMode="none">
+                  {item.row.target || "-"}
+                  <Show when={error(item.row.error)}>
+                    <span style={{ fg: color(item.row.status) }}> · {error(item.row.error)}</span>
+                  </Show>
+                </text>
               </box>
             </Show>
           )}
