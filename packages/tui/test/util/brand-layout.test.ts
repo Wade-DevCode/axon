@@ -12,5 +12,8 @@ describe("Axon brand layout", () => {
   test("omits large splash art in short terminals", () => {
     expect(showSplashArtwork(120, 14)).toBe(false)
     expect(showSplashArtwork(120, 24)).toBe(true)
+    expect(showSplashArtwork(79, 18)).toBe(false)
+    expect(showSplashArtwork(80, 17)).toBe(false)
+    expect(showSplashArtwork(80, 18)).toBe(true)
   })
 })
