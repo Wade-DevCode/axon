@@ -158,20 +158,70 @@ function patchFiles(value: unknown): ChangeFile[] {
 function diffCounts(value: unknown) {
   if (typeof value !== "string") return {}
   const lines = value.split(/\r?\n/)
-  const headers = lines.some((line, index) => diffHeader(line, "---") && diffHeader(lines[index + 1] ?? "", "+++"))
-  const hunk = lines.some((line) => /^@@ -\d+(?:,\d+)? \+\d+(?:,\d+)? @@(?: .*)?$/.test(line))
-  if (!headers || !hunk) return {}
-  return lines.reduce(
-    (counts, line) => ({
-      additions: counts.additions + (line.startsWith("+") && !diffHeader(line, "+++") ? 1 : 0),
-      deletions: counts.deletions + (line.startsWith("-") && !diffHeader(line, "---") ? 1 : 0),
-    }),
-    { additions: 0, deletions: 0 },
+  const firstHunk = lines.findIndex((line) => hunkHeader(line) !== undefined)
+  const fileHeader = lines.findIndex(
+    (line, index) => index < firstHunk && diffHeader(line, "---") && diffHeader(lines[index + 1] ?? "", "+++"),
   )
+  if (firstHunk < 0 || fileHeader < 0 || firstHunk !== fileHeader + 2) return {}
+  return hunkCounts(lines, firstHunk)
 }
 
 function diffHeader(line: string, marker: "---" | "+++") {
-  return line.startsWith(marker) && (line.length === marker.length || /\s/.test(line.charAt(marker.length)))
+  return line.startsWith(marker) && /\s/.test(line.charAt(marker.length)) && line.slice(marker.length).trim().length > 0
+}
+
+function hunkHeader(line: string) {
+  const match = line.match(/^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(?: .*)?$/)
+  if (!match) return
+  const oldLines = Number(match[2] ?? 1)
+  const newLines = Number(match[4] ?? 1)
+  if (!Number.isSafeInteger(oldLines) || !Number.isSafeInteger(newLines)) return
+  return { oldLines, newLines }
+}
+
+function hunkCounts(lines: string[], start: number) {
+  let index = start
+  let additions = 0
+  let deletions = 0
+  while (index < lines.length) {
+    const header = hunkHeader(lines[index])
+    if (!header) return {}
+    index++
+    let oldLines = 0
+    let newLines = 0
+    let allowsNoNewlineMarker = false
+    while (index < lines.length && hunkHeader(lines[index]) === undefined) {
+      const line = lines[index]
+      if (line === "" && lines.slice(index).every((item) => item === "")) {
+        index = lines.length
+        break
+      }
+      if (line === "\\ No newline at end of file" && allowsNoNewlineMarker) {
+        allowsNoNewlineMarker = false
+        index++
+        continue
+      }
+      if (line.startsWith(" ")) {
+        oldLines++
+        newLines++
+        allowsNoNewlineMarker = false
+      } else if (line.startsWith("+")) {
+        newLines++
+        additions++
+        allowsNoNewlineMarker = true
+      } else if (line.startsWith("-")) {
+        oldLines++
+        deletions++
+        allowsNoNewlineMarker = true
+      } else {
+        return {}
+      }
+      if (oldLines > header.oldLines || newLines > header.newLines) return {}
+      index++
+    }
+    if (oldLines !== header.oldLines || newLines !== header.newLines) return {}
+  }
+  return { additions, deletions }
 }
 
 function record(value: unknown) {

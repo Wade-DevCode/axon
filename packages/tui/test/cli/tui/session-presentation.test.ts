@@ -123,7 +123,7 @@ describe("changeSummary", () => {
     expect(
       changeSummary([
         completed("edit", { filePath: "src/a.ts" }, {
-          diff: "--- a/src/a.ts\n+++ b/src/a.ts\n@@ -1 +1,2 @@\n-old\n+new\n+extra\n context",
+          diff: "--- a/src/a.ts\n+++ b/src/a.ts\n@@ -1,2 +1,3 @@\n-old\n+new\n+extra\n context",
         }),
       ]),
     ).toEqual([{ path: "src/a.ts", additions: 2, deletions: 1 }])
@@ -137,6 +137,47 @@ describe("changeSummary", () => {
         }),
       ]),
     ).toEqual([{ path: "src/a.ts", additions: 1, deletions: 1 }])
+  })
+
+  test("counts header-lookalike lines inside a hunk body", () => {
+    expect(
+      changeSummary([
+        completed("edit", { filePath: "src/a.ts" }, {
+          diff: "--- src/a.ts\n+++ src/a.ts\n@@ -1 +1 @@\n--- old\n+++ new",
+        }),
+      ]),
+    ).toEqual([{ path: "src/a.ts", additions: 1, deletions: 1 }])
+  })
+
+  test("rejects invented hunks whose body does not match declared counts", () => {
+    expect(
+      changeSummary([
+        completed("edit", { filePath: "src/a.ts" }, {
+          diff: "--- src/a.ts\n+++ src/a.ts\n@@ -1,2 +1,2 @@\n-old\n+new",
+        }),
+      ]),
+    ).toEqual([{ path: "src/a.ts" }])
+  })
+
+  test("rejects invented hunks containing invalid body lines", () => {
+    expect(
+      changeSummary([
+        completed("edit", { filePath: "src/a.ts" }, {
+          diff: "--- src/a.ts\n+++ src/a.ts\n@@ -1 +1 @@\n?invented\n-old\n+new",
+        }),
+      ]),
+    ).toEqual([{ path: "src/a.ts" }])
+  })
+
+  test("validates multiple hunks and no-newline markers", () => {
+    expect(
+      changeSummary([
+        completed("edit", { filePath: "src/a.ts" }, {
+          diff:
+            "--- src/a.ts\n+++ src/a.ts\n@@ -1 +1 @@\n-old\n\\ No newline at end of file\n+new\n\\ No newline at end of file\n@@ -10 +10,2 @@\n context\n+extra",
+        }),
+      ]),
+    ).toEqual([{ path: "src/a.ts", additions: 2, deletions: 1 }])
   })
 
   test("does not prove zero counts from an arbitrary string", () => {
