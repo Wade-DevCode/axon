@@ -82,6 +82,13 @@ import { getRevertDiffFiles } from "../../util/revert-diff"
 import { OPENCODE_BASE_MODE, useBindings, useCommandShortcut, useOpencodeKeymap } from "../../keymap"
 import { usePathFormatter } from "../../context/path-format"
 import { LocationProvider } from "../../context/location"
+import { AxonComposer } from "../../component/axon-composer"
+import { brandDensity, type BrandDensity } from "../../util/brand-layout"
+import { Product } from "../../util/product"
+import { AxonChangeSummary } from "./change-summary"
+import { AxonSessionHeader, AxonStatusBar } from "./chrome"
+import { changeSummary } from "./presentation"
+import { AxonToolPanel } from "./tool-panel"
 
 addDefaultParsers(parsers.parsers)
 
@@ -162,11 +169,13 @@ const context = createContext<{
   showThinking: () => boolean
   showTimestamps: () => boolean
   showDetails: () => boolean
+  openDetails: () => void
   showGenericToolOutput: () => boolean
   diffWrapMode: () => "word" | "none"
   providers: () => ReadonlyMap<string, Provider>
   sync: ReturnType<typeof useSync>
   tui: ReturnType<typeof useTuiConfig>
+  density: () => BrandDensity
 }>()
 
 function use() {
@@ -186,6 +195,7 @@ export function Session() {
   const route = useRouteData("session")
   const { navigate } = useRoute()
   const sync = useSync()
+  const local = useLocal()
   const event = useEvent()
   const project = useProject()
   const paths = useTuiPaths()
@@ -253,7 +263,7 @@ export function Session() {
   const thinkingMode = thinking.mode
   const showThinking = createMemo(() => true)
   const [timestamps, setTimestamps] = kv.signal<"hide" | "show">("timestamps", "hide")
-  const [showDetails, setShowDetails] = kv.signal("tool_details_visibility", true)
+  const [showDetails, setShowDetails] = kv.signal("tool_details_visibility", false)
   const [showAssistantMetadata, _setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", false)
   const [diffWrapMode] = kv.signal<"word" | "none">("diff_wrap_mode", "word")
@@ -261,6 +271,7 @@ export function Session() {
   const [showGenericToolOutput, setShowGenericToolOutput] = kv.signal("generic_tool_output_visibility", false)
 
   const wide = createMemo(() => dimensions().width > 120)
+  const density = createMemo(() => brandDensity(dimensions().width, dimensions().height))
   const sidebarVisible = createMemo(() => {
     if (session()?.parentID) return false
     if (sidebarOpen()) return true
@@ -270,6 +281,15 @@ export function Session() {
   const showTimestamps = createMemo(() => timestamps() === "show")
   const contentWidth = createMemo(() => dimensions().width - (sidebarVisible() ? 42 : 0) - 4)
   const providers = createMemo(() => Model.index(sync.data.provider))
+  const terminalEnvironment = useTuiTerminalEnvironment()
+  const shell = createMemo(() => {
+    if (terminalEnvironment.platform === "win32") return path.win32.basename(process.env.ComSpec ?? "cmd.exe")
+    return path.basename(process.env.SHELL ?? "shell")
+  })
+  const projectName = createMemo(() =>
+    path.basename(project.data.project.worktree ?? session()?.directory ?? project.instance.directory()),
+  )
+  const mode = createMemo(() => lastAssistant()?.mode ?? local.agent.current()?.name ?? OPENCODE_BASE_MODE)
 
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
   const toast = useToast()
@@ -419,8 +439,6 @@ export function Session() {
       scroll.scrollTo(scroll.scrollHeight)
     }, 50)
   }
-
-  const local = useLocal()
 
   function enterChild(sessionID: string) {
     navigate({
@@ -1155,16 +1173,25 @@ export function Session() {
           showThinking,
           showTimestamps,
           showDetails,
+          openDetails: () => setShowDetails(() => true),
           showGenericToolOutput,
           diffWrapMode,
           providers,
           sync,
           tui: tuiConfig,
+          density,
         }}
       >
         <box flexDirection="row" flexGrow={1} minHeight={0}>
           <box flexGrow={1} minHeight={0} paddingBottom={1} paddingLeft={2} paddingRight={2} gap={1}>
             <Show when={session()}>
+              <AxonSessionHeader
+                project={projectName()}
+                branch={sync.data.vcs?.branch}
+                agent={local.agent.current()?.name ?? "agent"}
+                ready={sync.session.status(route.sessionID) === "idle"}
+                density={density()}
+              />
               <scrollbox
                 ref={(r) => (scroll = r)}
                 viewportOptions={{
@@ -1296,28 +1323,37 @@ export function Session() {
                   <SubagentFooter />
                 </Show>
                 <Show when={visible()}>
-                  <pluginRuntime.Slot
-                    name="session_prompt"
-                    mode="replace"
-                    session_id={route.sessionID}
-                    visible={visible()}
-                    disabled={disabled()}
-                    on_submit={toBottom}
-                    ref={bind}
-                  >
-                    <Prompt
+                  <AxonComposer density={density()}>
+                    <pluginRuntime.Slot
+                      name="session_prompt"
+                      mode="replace"
+                      session_id={route.sessionID}
                       visible={visible()}
-                      ref={bind}
                       disabled={disabled()}
-                      onSubmit={() => {
-                        toBottom()
-                      }}
-                      sessionID={route.sessionID}
-                      right={<pluginRuntime.Slot name="session_prompt_right" session_id={route.sessionID} />}
-                    />
-                  </pluginRuntime.Slot>
+                      on_submit={toBottom}
+                      ref={bind}
+                    >
+                      <Prompt
+                        visible={visible()}
+                        ref={bind}
+                        disabled={disabled()}
+                        onSubmit={() => {
+                          toBottom()
+                        }}
+                        sessionID={route.sessionID}
+                        right={<pluginRuntime.Slot name="session_prompt_right" session_id={route.sessionID} />}
+                      />
+                    </pluginRuntime.Slot>
+                  </AxonComposer>
                 </Show>
               </box>
+              <AxonStatusBar
+                mode={mode()}
+                shell={shell()}
+                version={Product.info.version}
+                changedFiles={(sync.data.session_diff[route.sessionID] ?? []).length}
+                density={density()}
+              />
             </Show>
             <Toast />
           </box>
@@ -1400,8 +1436,12 @@ function UserMessage(props: {
             paddingBottom={1}
             paddingLeft={2}
             backgroundColor={hover() ? theme.backgroundElement : theme.backgroundPanel}
+            flexDirection="column"
             flexShrink={0}
           >
+            <text fg={theme.primary} attributes={TextAttributes.BOLD}>
+              You
+            </text>
             <text fg={theme.text}>{text()}</text>
             <Show when={files().length}>
               <box flexDirection="row" paddingBottom={metadataVisible() ? 1 : 0} paddingTop={1} gap={1} flexWrap="wrap">
@@ -1474,16 +1514,26 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
 
   const childShortcut = useCommandShortcut("session.child.first")
   const backgroundShortcut = useCommandShortcut("session.background")
+  const tools = createMemo(() => props.parts.filter((part): part is ToolPart => part.type === "tool"))
+  const content = createMemo(() => props.parts.filter((part) => part.type !== "tool"))
+  const files = createMemo(() => changeSummary(tools()))
 
   return (
     <>
-      <For each={props.parts}>
+      <Show when={props.parts.length > 0}>
+        <box paddingLeft={3} marginTop={1} flexShrink={0}>
+          <text fg={theme.primary} attributes={TextAttributes.BOLD}>
+            Axon
+          </text>
+        </box>
+      </Show>
+      <For each={content()}>
         {(part, index) => {
           const component = createMemo(() => PART_MAPPING[part.type as keyof typeof PART_MAPPING])
           return (
             <Show when={component()}>
               <Dynamic
-                last={index() === props.parts.length - 1}
+                last={index() === content().length - 1}
                 component={component()}
                 part={part as any}
                 message={props.message}
@@ -1492,6 +1542,17 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
           )
         }}
       </For>
+      <Show when={!ctx.showDetails()}>
+        <AxonToolPanel parts={tools()} density={ctx.density()} onOpen={ctx.openDetails} />
+        <AxonChangeSummary files={files()} density={ctx.density()} />
+      </Show>
+      <Show when={ctx.showDetails()}>
+        <For each={tools()}>
+          {(part, index) => (
+            <ToolPart last={index() === tools().length - 1} part={part} message={props.message} />
+          )}
+        </For>
+      </Show>
       <Show when={props.parts.some((x) => x.type === "tool" && x.tool === "task")}>
         <box paddingTop={1} paddingLeft={3}>
           <text fg={theme.text}>

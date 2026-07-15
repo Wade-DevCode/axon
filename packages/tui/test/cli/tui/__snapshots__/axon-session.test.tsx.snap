@@ -1,0 +1,123 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`renders the real session hierarchy responsively and preserves the Prompt plugin contract: wide session 1`] = `
+"   AXON  opencode  feature/axon                                                AX Ready · build
+  ──────────────────────────────────────────────────────────────────────────────────────────────    Axon session layout
+                                                                                                    ses_axon_session
+  ┃
+  ┃  You
+  ┃  Please inspect auth
+  ┃
+
+     Axon
+
+     I found the issue.
+
+    │ Activity
+    │ Read src/auth.ts                                                             success 12 ms
+    │ Search refreshToken                                                          success 12 ms
+    │ Edit src/auth.ts                                                       success +1 -1 12 ms
+    │ Test bun test auth                                                           success 12 ms
+    │ Write src/session.ts                                                   success +1 -0 12 ms
+
+    │ Change Summary
+    │ src/auth.ts                                                                          +1 -1
+    │ src/session.ts                                                                       +1 -0
+
+     ▣  Build · Test Model · 29ms
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                            │
+  │  Ask Axon                                                           @agent /command #file  │
+  │                                                                                            │
+  │  ┃                                                                                         │
+  │  ┃                                                                                         │
+  │  ┃                                                                                         │
+  │  ┃  Code - Test Model Test                                                                 │
+  │  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  │
+  │                                                               tab agents  ctrl+p commands  │
+  │                                                                                            │
+  └────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   BUILD  cmd.exe  2 files changed                                                         vdev     • Axon local
+
+"
+`;
+
+exports[`renders the real session hierarchy responsively and preserves the Prompt plugin contract: normal session 1`] = `
+"   AXON feature/axon                                                                     AX build
+  ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    │ Read src/auth.ts                                                               success 12 ms
+    │ Search refreshToken                                                            success 12 ms
+    │ Edit src/auth.ts                                                         success +1 -1 12 ms
+    │ Test bun test auth                                                             success 12 ms
+    │ Write src/session.ts                                                     success +1 -0 12 ms
+
+    │ Change Summary
+    │ src/auth.ts                                                                            +1 -1
+    │ src/session.ts                                                                         +1 -0
+
+     ▣  Build · Test Model · 29ms
+
+  ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                              │
+  │  Ask Axon                                                             @agent /command #file  │
+  │                                                                                              │
+  │  ┃                                                                                           │
+  │  ┃                                                                                           │
+  │  ┃                                                                                           │
+  │  ┃  Code - Test Model Test                                                                   │
+  │  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  │
+  │                                                                 tab agents  ctrl+p commands  │
+  │                                                                                              │
+  └──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+   BUILD cmd.exe 2 files changed                                                             vdev
+
+"
+`;
+
+exports[`renders the real session hierarchy responsively and preserves the Prompt plugin contract: compact session 1`] = `
+"  feature/axon                                                AX build
+  ────────────────────────────────────────────────────────────────────
+
+
+     Axon
+
+     I found the issue.
+
+  │ Activity
+  │ Read                                                       success
+  │ src/auth.ts
+  │ Search                                                     success
+  │ refreshToken
+  │ Edit                                                       success
+  │ src/auth.ts
+  │ Test                                                       success
+  │ bun test auth
+  │ Write                                                      success
+  │ src/session.ts
+
+  │ Change Summary
+  │ src/auth.ts                                                  +1 -1
+  │ src/session.ts                                               +1 -0
+
+     ▣  Build · Test Model · 29ms
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                                                                  │
+  │ Ask Axon                                                         │
+  │ ┃                                                                │
+  │ ┃                                                                │
+  │ ┃                                                                │
+  │ ┃  Code - Test Model Test                                        │
+  │ ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ │
+  │                                      tab agents  ctrl+p commands │
+  │                                                                  │
+  └──────────────────────────────────────────────────────────────────┘
+
+  BUILD                                                           vdev
+
+"
+`;

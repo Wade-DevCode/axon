@@ -78,7 +78,7 @@ test("keeps Logo as a full Axon compatibility wrapper", async () => {
   expect(frame).not.toMatch(/[█▀▄]/)
 })
 
-test("renders the real responsive Home route and preserves its plugin and Prompt paths", async () => {
+test.serial("renders the real responsive Home route and preserves its plugin and Prompt paths", async () => {
   const setup = await createTestRenderer({ width: 72, height: 20, useThread: false })
   setup.renderer.waitForThemeMode = async () => "dark"
   const core = await import("@opentui/core")
