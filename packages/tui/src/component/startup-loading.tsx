@@ -1,27 +1,24 @@
 import { InstallationVersion } from "@opencode-ai/core/installation/version"
 import { useTerminalDimensions } from "@opentui/solid"
 import { TextAttributes } from "@opentui/core"
-import { createMemo, createSignal, onCleanup, Show } from "solid-js"
+import { createMemo, Show } from "solid-js"
 import { useKV } from "../context/kv"
 import { useStartupProgress } from "../context/startup"
 import { useTheme } from "../context/theme"
 import { brandDensity, showSplashArtwork } from "../util/brand-layout"
 import { startupMinimumDelay } from "../util/startup"
+import { createStartupVisibility } from "./startup-visibility"
 
 export function StartupLoading() {
   const dimensions = useTerminalDimensions()
   const startup = useStartupProgress()
   const theme = useTheme().theme
   const kv = useKV()
-  const minimum = startupMinimumDelay(
-    kv.get("animations_enabled", true),
-    dimensions().width,
-    dimensions().height,
+  const minimum = createMemo(() =>
+    startupMinimumDelay(kv.get("animations_enabled", true), dimensions().width, dimensions().height),
   )
-  const [minimumElapsed, setMinimumElapsed] = createSignal(minimum === 0)
-  const timer = minimum === 0 ? undefined : setTimeout(() => setMinimumElapsed(true), minimum).unref()
   const snapshot = createMemo(() => startup.snapshot())
-  const visible = createMemo(() => !snapshot().done || !minimumElapsed())
+  const visible = createStartupVisibility({ done: () => snapshot().done, minimum })
   const trackWidth = createMemo(() => {
     if (brandDensity(dimensions().width, dimensions().height) === "compact") return Math.max(1, dimensions().width - 6)
     if (brandDensity(dimensions().width, dimensions().height) === "normal") return 48
@@ -30,10 +27,6 @@ export function StartupLoading() {
   const track = createMemo(() => {
     const filled = Math.floor((trackWidth() * snapshot().percent) / 100)
     return `[${"=".repeat(filled)}${"-".repeat(trackWidth() - filled)}]`
-  })
-
-  onCleanup(() => {
-    if (timer) clearTimeout(timer)
   })
 
   return (

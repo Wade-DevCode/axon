@@ -38,3 +38,26 @@ export function startupSnapshot(phases: StartupPhases) {
 export function startupMinimumDelay(animationsEnabled: boolean, width: number, height: number) {
   return animationsEnabled && showSplashArtwork(width, height) ? 800 : 0
 }
+
+class StartupFetchError extends Error {
+  constructor(error: unknown) {
+    super(error instanceof Error ? error.message : String(error), { cause: error })
+    this.name = "StartupFetchError"
+  }
+}
+
+export function startupFetch<T>(promise: Promise<T>) {
+  return promise.catch((error) => {
+    throw new StartupFetchError(error)
+  })
+}
+
+export function startupFailureMode(error: unknown, input: { recoverable: boolean; fatal: boolean }) {
+  if (!input.fatal) return "throw" as const
+  if (input.recoverable && error instanceof StartupFetchError) return "recover" as const
+  return "exit" as const
+}
+
+export function startupFailure(errors: unknown[]) {
+  return errors.find((error) => !(error instanceof StartupFetchError)) ?? errors[0]
+}

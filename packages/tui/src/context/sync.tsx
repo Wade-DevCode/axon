@@ -26,12 +26,13 @@ import { useEvent } from "./event"
 import { useSDK } from "./sdk"
 import { useTuiStartup } from "./runtime"
 import { createSimpleContext } from "./helper"
+import { useExit } from "./exit"
 import { useArgs } from "./args"
 import { batch, onMount } from "solid-js"
 import path from "path"
 import { useKV } from "./kv"
 import { useStartupProgress } from "./startup"
-import { startupPhaseOrder, type StartupPhase } from "../util/startup"
+import { startupFailure, startupFailureMode, startupFetch, type StartupPhase } from "../util/startup"
 
 const emptyConsoleState: ConsoleState = {
   consoleManagedProviders: [],
@@ -431,8 +432,9 @@ export const {
     })
 
     const args = useArgs()
+    const exit = useExit()
 
-    async function bootstrap(input: { fatal?: boolean } = {}) {
+    async function bootstrap(input: { fatal?: boolean; recoverable?: boolean } = {}) {
       const fatal = input.fatal ?? true
       const workspace = project.workspace.current()
       const tracked = <T,>(name: StartupPhase, promise: Promise<T>) => {
@@ -448,116 +450,122 @@ export const {
           },
         )
       }
-      const projectPromise = tracked("workspace", project.sync())
-      const sessionListPromise = projectPromise.then(() => listSessions())
+      try {
+        const projectPromise = tracked("workspace", project.sync({ fetch: startupFetch }))
+        const sessionListPromise = args.continue
+          ? projectPromise.then(() => startupFetch(listSessions()))
+          : undefined
 
-      // blocking - include session.list when continuing a session
-      const providersPromise = sdk.client.config.providers({ workspace }, { throwOnError: true })
-      const providerListPromise = sdk.client.provider.list({ workspace }, { throwOnError: true })
-      const capabilitiesPromise = sdk.client.experimental.capabilities
-        .get({ workspace }, { throwOnError: true })
-        .then((x) => x.data)
-        .catch(() => undefined)
-      const consoleStatePromise = sdk.client.experimental.console
-        .get({ workspace }, { throwOnError: true })
-        .then((x) => x.data)
-        .catch(() => emptyConsoleState)
-      const providersStartupPromise = tracked(
-        "providers",
-        Promise.all([providersPromise, providerListPromise, capabilitiesPromise]),
-      )
-      const agentsPromise = tracked("agents", sdk.client.app.agents({ workspace }, { throwOnError: true }))
-      const configPromise = tracked("configuration", sdk.client.config.get({ workspace }, { throwOnError: true }))
-      const mcpPromise = tracked(
-        "mcp",
-        sdk.client.mcp.status({ workspace }, { throwOnError: true }).then((x) => x.data ?? {}),
-      )
-      await Promise.all([
-        providersStartupPromise,
-        agentsPromise,
-        configPromise,
-        projectPromise,
-        mcpPromise,
-        ...(args.continue ? [sessionListPromise] : []),
-      ])
-        .then(async () => {
-          const providersResponse = providersPromise.then((x) => x.data!)
-          const providerListResponse = providerListPromise.then((x) => x.data!)
-          const capabilitiesResponse = capabilitiesPromise
-          const consoleStateResponse = consoleStatePromise
-          const agentsResponse = agentsPromise.then((x) => x.data ?? [])
-          const configResponse = configPromise.then((x) => x.data!)
-          const sessionListResponse = args.continue ? sessionListPromise : undefined
+        // blocking - include session.list when continuing a session
+        const providersPromise = startupFetch(
+          sdk.client.config.providers({ workspace }, { throwOnError: true }),
+        )
+        const providerListPromise = startupFetch(sdk.client.provider.list({ workspace }, { throwOnError: true }))
+        const capabilitiesPromise = sdk.client.experimental.capabilities
+          .get({ workspace }, { throwOnError: true })
+          .then((x) => x.data)
+          .catch(() => undefined)
+        const consoleStatePromise = sdk.client.experimental.console
+          .get({ workspace }, { throwOnError: true })
+          .then((x) => x.data)
+          .catch(() => emptyConsoleState)
+        const providersStartupPromise = tracked(
+          "providers",
+          Promise.all([providersPromise, providerListPromise, capabilitiesPromise]),
+        )
+        const agentsPromise = tracked(
+          "agents",
+          startupFetch(sdk.client.app.agents({ workspace }, { throwOnError: true })),
+        )
+        const configPromise = tracked(
+          "configuration",
+          startupFetch(sdk.client.config.get({ workspace }, { throwOnError: true })),
+        )
+        const mcpPromise = tracked(
+          "mcp",
+          startupFetch(sdk.client.mcp.status({ workspace }, { throwOnError: true })).then((x) => x.data ?? {}),
+        )
+        const settled = await Promise.allSettled([
+          providersStartupPromise,
+          agentsPromise,
+          configPromise,
+          projectPromise,
+          mcpPromise,
+          ...(sessionListPromise ? [sessionListPromise] : []),
+        ])
+        const failures = settled.flatMap((result) => (result.status === "rejected" ? [result.reason] : []))
+        if (failures.length > 0) throw startupFailure(failures)
 
-          return Promise.all([
-            providersResponse,
-            providerListResponse,
-            capabilitiesResponse,
-            consoleStateResponse,
-            agentsResponse,
-            configResponse,
-            ...(sessionListResponse ? [sessionListResponse] : []),
-          ]).then((responses) => {
-            const providers = responses[0]
-            const providerList = responses[1]
-            const capabilities = responses[2]
-            const consoleState = responses[3]
-            const agents = responses[4]
-            const config = responses[5]
-            const sessions = responses[6]
+        const responses = await Promise.all([
+          providersPromise.then((x) => x.data!),
+          providerListPromise.then((x) => x.data!),
+          capabilitiesPromise,
+          consoleStatePromise,
+          agentsPromise.then((x) => x.data ?? []),
+          configPromise.then((x) => x.data!),
+          ...(sessionListPromise ? [sessionListPromise] : []),
+        ])
+        const providers = responses[0]
+        const providerList = responses[1]
+        const capabilities = responses[2]
+        const consoleState = responses[3]
+        const agents = responses[4]
+        const config = responses[5]
+        const sessions = responses[6]
 
-            batch(() => {
-              setStore("provider", reconcile(providers.providers))
-              setStore("provider_default", reconcile(providers.default))
-              setStore("provider_next", reconcile(providerList))
-              setStore("capabilities", "experimentalBackgroundSubagents", capabilities?.backgroundSubagents === true)
-              setStore("console_state", reconcile(consoleState))
-              setStore("agent", reconcile(agents))
-              setStore("config", reconcile(config))
-              if (sessions !== undefined) setStore("session", reconcile(sessions))
-            })
-          })
+        batch(() => {
+          setStore("provider", reconcile(providers.providers))
+          setStore("provider_default", reconcile(providers.default))
+          setStore("provider_next", reconcile(providerList))
+          setStore("capabilities", "experimentalBackgroundSubagents", capabilities?.backgroundSubagents === true)
+          setStore("console_state", reconcile(consoleState))
+          setStore("agent", reconcile(agents))
+          setStore("config", reconcile(config))
+          if (sessions !== undefined) setStore("session", reconcile(sessions))
         })
-        .then(() => {
-          if (store.status !== "complete") setStore("status", "partial")
-          // non-blocking
-          void Promise.all([
-            ...(args.continue ? [] : [sessionListPromise.then((sessions) => setStore("session", reconcile(sessions)))]),
-            consoleStatePromise.then((consoleState) => setStore("console_state", reconcile(consoleState))),
-            sdk.client.command.list({ workspace }).then((x) => setStore("command", reconcile(x.data ?? []))),
-            sdk.client.lsp.status({ workspace }).then((x) => setStore("lsp", reconcile(x.data ?? []))),
-            mcpPromise.then((mcp) => setStore("mcp", reconcile(mcp))),
-            sdk.client.experimental.resource
-              .list({ workspace })
-              .then((x) => setStore("mcp_resource", reconcile(x.data ?? {}))),
-            sdk.client.formatter.status({ workspace }).then((x) => setStore("formatter", reconcile(x.data ?? []))),
-            sdk.client.session.status({ workspace }).then((x) => {
-              setStore("session_status", reconcile(x.data ?? {}))
-            }),
-            sdk.client.provider.auth({ workspace }).then((x) => setStore("provider_auth", reconcile(x.data ?? {}))),
-            sdk.client.vcs.get({ workspace }).then((x) => setStore("vcs", reconcile(x.data))),
-            project.workspace.sync(),
-          ]).then(() => {
-            setStore("status", "complete")
-          })
+
+        if (store.status !== "complete") setStore("status", "partial")
+        const backgroundSessionListPromise = args.continue ? undefined : listSessions()
+        // non-blocking
+        void Promise.all([
+          ...(backgroundSessionListPromise
+            ? [backgroundSessionListPromise.then((sessions) => setStore("session", reconcile(sessions)))]
+            : []),
+          consoleStatePromise.then((consoleState) => setStore("console_state", reconcile(consoleState))),
+          sdk.client.command.list({ workspace }).then((x) => setStore("command", reconcile(x.data ?? []))),
+          sdk.client.lsp.status({ workspace }).then((x) => setStore("lsp", reconcile(x.data ?? []))),
+          mcpPromise.then((mcp) => setStore("mcp", reconcile(mcp))),
+          sdk.client.experimental.resource
+            .list({ workspace })
+            .then((x) => setStore("mcp_resource", reconcile(x.data ?? {}))),
+          sdk.client.formatter.status({ workspace }).then((x) => setStore("formatter", reconcile(x.data ?? []))),
+          sdk.client.session.status({ workspace }).then((x) => {
+            setStore("session_status", reconcile(x.data ?? {}))
+          }),
+          sdk.client.provider.auth({ workspace }).then((x) => setStore("provider_auth", reconcile(x.data ?? {}))),
+          sdk.client.vcs.get({ workspace }).then((x) => setStore("vcs", reconcile(x.data))),
+          project.workspace.sync(),
+        ]).then(() => {
+          setStore("status", "complete")
         })
-        .catch(async (e) => {
-          console.error("tui bootstrap failed", {
-            error: e instanceof Error ? e.message : String(e),
-            name: e instanceof Error ? e.name : undefined,
-            stack: e instanceof Error ? e.stack : undefined,
-          })
-          if (fatal) {
-            for (const phase of startupPhaseOrder) startupProgress.complete(phase)
-            setStore("status", "complete")
-            return
-          }
-          throw e
+      } catch (error) {
+        console.error("tui bootstrap failed", {
+          error: error instanceof Error ? error.message : String(error),
+          name: error instanceof Error ? error.name : undefined,
+          stack: error instanceof Error ? error.stack : undefined,
         })
+        const mode = startupFailureMode(error, { recoverable: input.recoverable ?? false, fatal })
+        if (mode === "recover") {
+          setStore("status", "complete")
+          return
+        }
+        if (mode === "throw") throw error
+        exit(error)
+      }
     }
 
     onMount(() => {
-      void bootstrap()
+      void bootstrap({ recoverable: true })
     })
 
     const result = {

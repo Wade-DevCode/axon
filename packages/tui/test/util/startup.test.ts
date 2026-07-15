@@ -1,5 +1,12 @@
 import { describe, expect, test } from "bun:test"
-import { initialStartupPhases, startupMinimumDelay, startupSnapshot } from "../../src/util/startup"
+import {
+  initialStartupPhases,
+  startupFailure,
+  startupFailureMode,
+  startupFetch,
+  startupMinimumDelay,
+  startupSnapshot,
+} from "../../src/util/startup"
 
 describe("startupSnapshot", () => {
   test("reports completed real phases without interpolating", () => {
@@ -43,4 +50,14 @@ describe("startupMinimumDelay", () => {
     expect(startupMinimumDelay(false, 120, 24)).toBe(0)
     expect(startupMinimumDelay(true, 80, 14)).toBe(0)
   })
+})
+
+test("only tagged startup fetch failures are recoverable", async () => {
+  const fetchFailure = await startupFetch(Promise.reject(new Error("offline"))).catch((error) => error)
+  const programmingFailure = new Error("reconcile failed")
+
+  expect(startupFailureMode(fetchFailure, { recoverable: true, fatal: true })).toBe("recover")
+  expect(startupFailureMode(programmingFailure, { recoverable: true, fatal: true })).toBe("exit")
+  expect(startupFailureMode(fetchFailure, { recoverable: true, fatal: false })).toBe("throw")
+  expect(startupFailure([fetchFailure, programmingFailure])).toBe(programmingFailure)
 })

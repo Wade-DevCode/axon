@@ -132,10 +132,19 @@ test("startup holds a recoverable failure before rendering the main UI and toast
   const core = await import("@opentui/core")
   mock.module("@opentui/core", () => ({ ...core, createCliRenderer: async () => setup.renderer }))
   const events = createEventSource()
+  let releaseAgent!: (response: Response) => void
+  let markAgentRequested!: () => void
+  const agentRequested = new Promise<void>((resolve) => (markAgentRequested = resolve))
+  const agentResponse = new Promise<Response>((resolve) => (releaseAgent = resolve))
   const calls = createFetch((url) => {
     if (url.pathname === "/config/providers") throw new Error("Provider configuration unavailable")
+    if (url.pathname === "/agent") {
+      markAgentRequested()
+      return agentResponse
+    }
     return undefined
   })
+  let pluginStarted = false
   let markStarted!: () => void
   const started = new Promise<void>((resolve) => (markStarted = resolve))
 
@@ -149,23 +158,30 @@ test("startup holds a recoverable failure before rendering the main UI and toast
         fetch: calls.fetch,
         events: events.source,
         args: {},
-        pluginHost: {
-          async start() {
-            markStarted()
+          pluginHost: {
+            async start() {
+              pluginStarted = true
+              markStarted()
           },
           async dispose() {},
         },
       }).pipe(Effect.provide(Global.defaultLayer)),
     )
 
+    await agentRequested
+    for (let index = 0; index < 8; index++) await Promise.resolve()
+    const startedBeforeAgentSettled = pluginStarted
+    releaseAgent(json([]))
     await started
+    expect(startedBeforeAgentSettled).toBe(false)
     for (let index = 0; index < 8; index++) {
       await Promise.resolve()
       await setup.renderOnce()
     }
     expect(setup.captureCharFrame()).toContain("Developer Agent for the Terminal")
 
-    await Bun.sleep(850)
+    setup.renderer.resize(120, 14)
+    await Promise.resolve()
     await setup.renderOnce()
     const failureFrame = setup.captureCharFrame()
     expect(setup.renderer.isDestroyed).toBe(false)

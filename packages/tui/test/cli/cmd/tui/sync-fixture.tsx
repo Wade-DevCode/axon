@@ -29,6 +29,7 @@ export async function mount(override?: FetchHandler, state?: string) {
   let project!: ReturnType<typeof useProject>
   let kv!: ReturnType<typeof useKV>
   let done!: () => void
+  let exitReason: unknown
   const ready = new Promise<void>((resolve) => {
     done = resolve
   })
@@ -47,7 +48,7 @@ export async function mount(override?: FetchHandler, state?: string) {
   const app = await testRender(() => (
     <TestTuiContexts paths={state ? { state } : undefined}>
       <ArgsProvider>
-        <ExitProvider exit={() => {}}>
+        <ExitProvider exit={(reason) => (exitReason = reason)}>
           <KVProvider>
             <SDKProvider url="http://test" directory={directory} fetch={calls.fetch} events={events.source}>
               <StartupProvider>
@@ -66,5 +67,5 @@ export async function mount(override?: FetchHandler, state?: string) {
 
   await ready
   await wait(() => sync.status === "complete")
-  return { app, emit: events.emit, kv, project, sync, session: calls.session }
+  return { app, emit: events.emit, exit: () => exitReason, kv, project, sync, session: calls.session }
 }
