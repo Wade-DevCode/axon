@@ -68,3 +68,24 @@ test("resizing below artwork height cancels the active hold", () => {
   dispose()
   jest.useRealTimers()
 })
+
+test("expanding after a zero-delay hide does not show the splash again", () => {
+  jest.useFakeTimers()
+  jest.setSystemTime(0)
+  const [done] = createSignal(true)
+  const [minimum, setMinimum] = createSignal(0)
+  let dispose!: () => void
+  let visible!: () => boolean
+
+  createRoot((cleanup) => {
+    dispose = cleanup
+    visible = createStartupVisibility({ done, minimum })
+  })
+
+  expect(visible()).toBe(false)
+  setMinimum(800)
+  expect(visible()).toBe(false)
+  expect(jest.getTimerCount()).toBe(0)
+  dispose()
+  jest.useRealTimers()
+})

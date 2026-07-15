@@ -11,6 +11,7 @@ export function createStartupVisibility(input: { done: Accessor<boolean>; minimu
       clearTimeout(timer)
       timer = undefined
     }
+    if (minimumElapsed()) return
     if (remaining <= 0) {
       setMinimumElapsed(true)
       return
