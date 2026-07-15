@@ -23,7 +23,7 @@ import {
   Show,
   on,
 } from "solid-js"
-import { TuiPathsProvider, TuiStartupProvider, TuiTerminalEnvironmentProvider, useTuiStartup } from "./context/runtime"
+import { TuiPathsProvider, TuiStartupProvider, TuiTerminalEnvironmentProvider } from "./context/runtime"
 import { DialogProvider, useDialog } from "./ui/dialog"
 import { DialogProvider as DialogProviderList } from "./component/dialog-provider"
 import { ErrorComponent } from "./component/error-component"
@@ -84,6 +84,7 @@ import { win32DisableProcessedInput, win32FlushInputBuffer } from "./terminal-wi
 import { destroyRenderer } from "./util/renderer"
 import { cliErrorMessage, errorFormat } from "./util/error"
 import { registerSpinner } from "opentui-spinner/solid"
+import { StartupProvider, useStartupProgress } from "./context/startup"
 
 // Register the <spinner> element with the OpenTUI reconciler explicitly. The bare
 // side-effect `import "opentui-spinner/solid"` gets tree-shaken out of the compiled
@@ -301,10 +302,14 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
                                           headers={input.headers}
                                           events={input.events}
                                         >
-                                          <ProjectProvider>
-                                            <SyncProvider>
-                                              <DataProvider>
-                                                <ThemeProvider mode={mode}>
+                                          <StartupProvider>
+                                            <ThemeProvider mode={mode}>
+                                              <Show when={!Boolean(process.env.OPENCODE_FAST_BOOT)}>
+                                                <StartupLoading />
+                                              </Show>
+                                              <ProjectProvider>
+                                                <SyncProvider>
+                                                  <DataProvider>
                                                   <LocalProvider>
                                                     <PromptStashProvider>
                                                       <DialogProvider>
@@ -325,10 +330,11 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
                                                       </DialogProvider>
                                                     </PromptStashProvider>
                                                   </LocalProvider>
-                                                </ThemeProvider>
-                                              </DataProvider>
-                                            </SyncProvider>
-                                          </ProjectProvider>
+                                                  </DataProvider>
+                                                </SyncProvider>
+                                              </ProjectProvider>
+                                            </ThemeProvider>
+                                          </StartupProvider>
                                         </SDKProvider>
                                       </PluginRuntimeProvider>
                                     </TuiConfigProvider>
@@ -360,7 +366,7 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
 })
 
 function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPluginHost }) {
-  const startup = useTuiStartup()
+  const startupProgress = useStartupProgress()
   const tuiConfig = useTuiConfig()
   const route = useRoute()
   const dimensions = useTerminalDimensions()
@@ -402,6 +408,7 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
     }),
   )
   const [ready, setReady] = createSignal(false)
+  startupProgress.start("plugins")
   props.pluginHost
     .start({
       api,
@@ -409,12 +416,22 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
       runtime: pluginRuntime,
       dispose: () => attention.dispose(),
     })
+    .then(() => startupProgress.complete("plugins"))
     .catch((error) => {
+      startupProgress.fail("plugins", error)
       console.error("Failed to load TUI plugins", error)
     })
     .finally(() => {
       setReady(true)
     })
+
+  let startupErrorShown = false
+  createEffect(() => {
+    const snapshot = startupProgress.snapshot()
+    if (!snapshot.done || !snapshot.error || startupErrorShown) return
+    startupErrorShown = true
+    toast.show({ variant: "error", message: snapshot.error })
+  })
 
   // Let selection copy/dismiss win ahead of normal bindings when explicit copy is required.
   const offSelectionKeys = keymap.intercept(
@@ -1103,9 +1120,6 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
           <pluginRuntime.Slot name="app_bottom" />
         </box>
         <pluginRuntime.Slot name="app" />
-      </Show>
-      <Show when={!startup.skipInitialLoading}>
-        <StartupLoading ready={ready} />
       </Show>
     </box>
   )

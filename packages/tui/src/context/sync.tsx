@@ -26,11 +26,12 @@ import { useEvent } from "./event"
 import { useSDK } from "./sdk"
 import { useTuiStartup } from "./runtime"
 import { createSimpleContext } from "./helper"
-import { useExit } from "./exit"
 import { useArgs } from "./args"
 import { batch, onMount } from "solid-js"
 import path from "path"
 import { useKV } from "./kv"
+import { useStartupProgress } from "./startup"
+import { startupPhaseOrder, type StartupPhase } from "../util/startup"
 
 const emptyConsoleState: ConsoleState = {
   consoleManagedProviders: [],
@@ -58,6 +59,7 @@ export const {
   name: "Sync",
   init: () => {
     const startup = useTuiStartup()
+    const startupProgress = useStartupProgress()
     const kv = useKV()
     const [store, setStore] = createStore<{
       status: "loading" | "partial" | "complete"
@@ -428,13 +430,25 @@ export const {
       }
     })
 
-    const exit = useExit()
     const args = useArgs()
 
     async function bootstrap(input: { fatal?: boolean } = {}) {
       const fatal = input.fatal ?? true
       const workspace = project.workspace.current()
-      const projectPromise = project.sync()
+      const tracked = <T,>(name: StartupPhase, promise: Promise<T>) => {
+        startupProgress.start(name)
+        return promise.then(
+          (value) => {
+            startupProgress.complete(name)
+            return value
+          },
+          (error) => {
+            startupProgress.fail(name, error)
+            throw error
+          },
+        )
+      }
+      const projectPromise = tracked("workspace", project.sync())
       const sessionListPromise = projectPromise.then(() => listSessions())
 
       // blocking - include session.list when continuing a session
@@ -448,15 +462,22 @@ export const {
         .get({ workspace }, { throwOnError: true })
         .then((x) => x.data)
         .catch(() => emptyConsoleState)
-      const agentsPromise = sdk.client.app.agents({ workspace }, { throwOnError: true })
-      const configPromise = sdk.client.config.get({ workspace }, { throwOnError: true })
+      const providersStartupPromise = tracked(
+        "providers",
+        Promise.all([providersPromise, providerListPromise, capabilitiesPromise]),
+      )
+      const agentsPromise = tracked("agents", sdk.client.app.agents({ workspace }, { throwOnError: true }))
+      const configPromise = tracked("configuration", sdk.client.config.get({ workspace }, { throwOnError: true }))
+      const mcpPromise = tracked(
+        "mcp",
+        sdk.client.mcp.status({ workspace }, { throwOnError: true }).then((x) => x.data ?? {}),
+      )
       await Promise.all([
-        providersPromise,
-        providerListPromise,
-        capabilitiesPromise,
+        providersStartupPromise,
         agentsPromise,
         configPromise,
         projectPromise,
+        mcpPromise,
         ...(args.continue ? [sessionListPromise] : []),
       ])
         .then(async () => {
@@ -505,7 +526,7 @@ export const {
             consoleStatePromise.then((consoleState) => setStore("console_state", reconcile(consoleState))),
             sdk.client.command.list({ workspace }).then((x) => setStore("command", reconcile(x.data ?? []))),
             sdk.client.lsp.status({ workspace }).then((x) => setStore("lsp", reconcile(x.data ?? []))),
-            sdk.client.mcp.status({ workspace }).then((x) => setStore("mcp", reconcile(x.data ?? {}))),
+            mcpPromise.then((mcp) => setStore("mcp", reconcile(mcp))),
             sdk.client.experimental.resource
               .list({ workspace })
               .then((x) => setStore("mcp_resource", reconcile(x.data ?? {}))),
@@ -527,10 +548,11 @@ export const {
             stack: e instanceof Error ? e.stack : undefined,
           })
           if (fatal) {
-            exit(e)
-          } else {
-            throw e
+            for (const phase of startupPhaseOrder) startupProgress.complete(phase)
+            setStore("status", "complete")
+            return
           }
+          throw e
         })
     }
 

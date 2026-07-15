@@ -125,3 +125,56 @@ test("app.exit prints the session epilogue after scoped cleanup", async () => {
     mock.restore()
   }
 })
+
+test("startup holds a recoverable failure before rendering the main UI and toast", async () => {
+  const setup = await createTestRenderer({ width: 120, height: 24, useThread: false })
+  setup.renderer.waitForThemeMode = async () => "dark"
+  const core = await import("@opentui/core")
+  mock.module("@opentui/core", () => ({ ...core, createCliRenderer: async () => setup.renderer }))
+  const events = createEventSource()
+  const calls = createFetch((url) => {
+    if (url.pathname === "/config/providers") throw new Error("Provider configuration unavailable")
+    return undefined
+  })
+  let markStarted!: () => void
+  const started = new Promise<void>((resolve) => (markStarted = resolve))
+
+  try {
+    const { run } = await import("../src/app")
+    const task = Effect.runPromise(
+      run({
+        url: "http://test",
+        directory,
+        config: createTuiResolvedConfig({ plugin_enabled: {} }),
+        fetch: calls.fetch,
+        events: events.source,
+        args: {},
+        pluginHost: {
+          async start() {
+            markStarted()
+          },
+          async dispose() {},
+        },
+      }).pipe(Effect.provide(Global.defaultLayer)),
+    )
+
+    await started
+    for (let index = 0; index < 8; index++) {
+      await Promise.resolve()
+      await setup.renderOnce()
+    }
+    expect(setup.captureCharFrame()).toContain("Developer Agent for the Terminal")
+
+    await Bun.sleep(850)
+    await setup.renderOnce()
+    const failureFrame = setup.captureCharFrame()
+    expect(setup.renderer.isDestroyed).toBe(false)
+    expect(failureFrame).toContain("Connect a provider")
+    expect(failureFrame).toContain("Provider configuration unavailable")
+    process.emit("SIGHUP")
+    await task
+  } finally {
+    if (!setup.renderer.isDestroyed) setup.renderer.destroy()
+    mock.restore()
+  }
+})
