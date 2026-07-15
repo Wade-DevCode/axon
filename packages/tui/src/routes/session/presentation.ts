@@ -204,7 +204,7 @@ function hunkCounts(lines: string[], start: number) {
       if (line.startsWith(" ")) {
         oldLines++
         newLines++
-        allowsNoNewlineMarker = false
+        allowsNoNewlineMarker = true
       } else if (line.startsWith("+")) {
         newLines++
         additions++

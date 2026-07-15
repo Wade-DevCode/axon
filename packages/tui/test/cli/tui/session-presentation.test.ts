@@ -180,6 +180,31 @@ describe("changeSummary", () => {
     ).toEqual([{ path: "src/a.ts", additions: 2, deletions: 1 }])
   })
 
+  test("accepts createTwoFilesPatch no-newline markers after context", () => {
+    expect(
+      changeSummary([
+        completed("edit", { filePath: "src/a.ts" }, {
+          diff:
+            "Index: src/a.ts\n===================================================================\n--- src/a.ts\n+++ src/a.ts\n@@ -1,2 +1,2 @@\n-old\n+new\n tail\n\\ No newline at end of file\n",
+        }),
+      ]),
+    ).toEqual([{ path: "src/a.ts", additions: 1, deletions: 1 }])
+  })
+
+  test("rejects misplaced and repeated no-newline markers", () => {
+    expect(
+      changeSummary([
+        completed("edit", { filePath: "before.ts" }, {
+          diff: "--- before.ts\n+++ before.ts\n@@ -1 +1 @@\n\\ No newline at end of file\n-old\n+new",
+        }),
+        completed("edit", { filePath: "repeat.ts" }, {
+          diff:
+            "--- repeat.ts\n+++ repeat.ts\n@@ -1 +1 @@\n-old\n\\ No newline at end of file\n\\ No newline at end of file\n+new",
+        }),
+      ]),
+    ).toEqual([{ path: "before.ts" }, { path: "repeat.ts" }])
+  })
+
   test("does not prove zero counts from an arbitrary string", () => {
     expect(
       changeSummary([completed("edit", { filePath: "src/a.ts" }, { diff: "not a unified diff" })]),
