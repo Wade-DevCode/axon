@@ -1,10 +1,18 @@
 import { expect, test } from "bun:test"
 import { mkdir, writeFile } from "node:fs/promises"
 import path from "node:path"
-import type { TerminalColors } from "@opentui/core"
+import { RGBA, type TerminalColors } from "@opentui/core"
 import { DEFAULT_THEMES, addTheme, allThemes, hasTheme, resolveTheme, terminalMode } from "../src/theme"
 import { discoverThemes } from "../src/context/theme"
 import { tmpdir } from "./fixture/fixture"
+
+test("Axon uses its own navy and orange palette", () => {
+  expect(DEFAULT_THEMES.Axon.defs?.darkStep1).toBe("#020f24")
+  expect(DEFAULT_THEMES.Axon.defs?.darkStep9).toBe("#ff6a00")
+  const theme = resolveTheme(DEFAULT_THEMES.Axon, "dark")
+  expect(theme.background).toEqual(RGBA.fromHex("#020f24"))
+  expect(theme.primary).toEqual(RGBA.fromHex("#ff6a00"))
+})
 
 test("addTheme writes into module theme store", () => {
   const name = `plugin-theme-${Date.now()}`
