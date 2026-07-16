@@ -35,11 +35,11 @@ export function AxonSessionHeader(props: {
           </text>
         </Show>
         <text fg={theme.info} wrapMode="none">
-          {props.branch ?? "no branch"}
+          {props.branch ?? "local"}
         </text>
       </box>
       <text fg={props.ready ? theme.success : theme.warning} wrapMode="none">
-        AX {props.density === "wide" ? (props.ready ? `Ready · ${props.agent}` : `Working · ${props.agent}`) : props.agent}
+        AX {props.density === "wide" ? `${props.ready ? "Ready" : "Working"} · ${props.agent}` : props.ready ? "Ready" : "Working"}
       </text>
     </box>
   )

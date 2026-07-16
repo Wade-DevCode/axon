@@ -24,10 +24,7 @@ export function StartupLoading() {
     if (brandDensity(dimensions().width, dimensions().height) === "normal") return 48
     return 64
   })
-  const track = createMemo(() => {
-    const filled = Math.floor((trackWidth() * snapshot().percent) / 100)
-    return `[${"=".repeat(filled)}${"-".repeat(trackWidth() - filled)}]`
-  })
+  const filled = createMemo(() => Math.floor((trackWidth() * snapshot().percent) / 100))
 
   return (
     <Show when={visible()}>
@@ -52,7 +49,11 @@ export function StartupLoading() {
           <AxonLogo size={showSplashArtwork(dimensions().width, dimensions().height) ? "full" : "compact"} />
           <box height={2} />
           <text fg={snapshot().error ? theme.error : theme.text}>{snapshot().label}</text>
-          <text fg={theme.primary}>{track()}</text>
+          <text>
+            <span style={{ fg: theme.borderSubtle }}>[</span>
+            <span style={{ fg: theme.primary }}>{"=".repeat(filled())}</span>
+            <span style={{ fg: theme.borderSubtle }}>{"-".repeat(trackWidth() - filled())}]</span>
+          </text>
           <text fg={theme.textMuted}>{snapshot().percent}%</text>
         </box>
         <box flexGrow={1} minHeight={0} />

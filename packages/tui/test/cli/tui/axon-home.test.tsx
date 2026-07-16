@@ -57,6 +57,7 @@ test("renders a stable full Axon wordmark without block escapes", async () => {
 
   expect(frame).toContain("A X O N")
   expect(frame).toContain("Developer Agent for the Terminal")
+  expect(frame).toContain("WANGHUI")
   expect(frame).not.toContain("u2588")
   expect(frame).not.toMatch(/[█▀▄]/)
 })
@@ -67,6 +68,7 @@ test("renders a compact Axon wordmark without large artwork", async () => {
   expect(frame).toContain("AXON")
   expect(frame).not.toContain("A X O N")
   expect(frame).not.toContain("Developer Agent for the Terminal")
+  expect(frame).not.toContain("WANGHUI")
   expect(frame).not.toContain("/\\")
 })
 

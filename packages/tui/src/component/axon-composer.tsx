@@ -16,7 +16,7 @@ export function AxonComposer(props: {
       flexDirection="column"
       border={["top", "right", "bottom", "left"]}
       borderColor={props.focused ? theme.borderActive : theme.border}
-      backgroundColor={theme.backgroundPanel}
+      backgroundColor={theme.background}
       paddingLeft={props.density === "compact" ? 1 : 2}
       paddingRight={props.density === "compact" ? 1 : 2}
       paddingTop={1}

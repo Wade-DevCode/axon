@@ -24,7 +24,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
     │ src/auth.ts                                                                          +1 -1
     │ src/session.ts                                                                       +1 -0
 
-     ▣  Build · Test Model · 29ms
+     >  Build · Test Model · 29ms
 
   ┌────────────────────────────────────────────────────────────────────────────────────────────┐
   │                                                                                            │
@@ -45,7 +45,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 `;
 
 exports[`renders the real session hierarchy responsively and preserves the Prompt plugin contract: normal session 1`] = `
-"   AXON feature/axon                                                                     AX build
+"   AXON feature/axon                                                                     AX Ready
   ────────────────────────────────────────────────────────────────────────────────────────────────
 
     │ Read src/auth.ts                                                               success 12 ms
@@ -58,7 +58,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
     │ src/auth.ts                                                                            +1 -1
     │ src/session.ts                                                                         +1 -0
 
-     ▣  Build · Test Model · 29ms
+     >  Build · Test Model · 29ms
 
   ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
   │                                                                                              │
@@ -79,7 +79,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 `;
 
 exports[`renders the real session hierarchy responsively and preserves the Prompt plugin contract: compact session 1`] = `
-"  feature/axon                                                AX build
+"  feature/axon                                                AX Ready
   ────────────────────────────────────────────────────────────────────
 
 
@@ -103,7 +103,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
   │ src/auth.ts                                                  +1 -1
   │ src/session.ts                                               +1 -0
 
-     ▣  Build · Test Model · 29ms
+     >  Build · Test Model · 29ms
 
   ┌──────────────────────────────────────────────────────────────────┐
   │                                                                  │

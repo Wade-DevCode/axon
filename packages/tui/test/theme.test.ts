@@ -6,11 +6,11 @@ import { DEFAULT_THEMES, addTheme, allThemes, hasTheme, resolveTheme, terminalMo
 import { discoverThemes } from "../src/context/theme"
 import { tmpdir } from "./fixture/fixture"
 
-test("Axon uses its own navy and orange palette", () => {
-  expect(DEFAULT_THEMES.Axon.defs?.darkStep1).toBe("#020f24")
+test("Axon uses its own charcoal and orange palette", () => {
+  expect(DEFAULT_THEMES.Axon.defs?.darkStep1).toBe("#0C0C0C")
   expect(DEFAULT_THEMES.Axon.defs?.darkStep9).toBe("#ff6a00")
   const theme = resolveTheme(DEFAULT_THEMES.Axon, "dark")
-  expect(theme.background).toEqual(RGBA.fromHex("#020f24"))
+  expect(theme.background).toEqual(RGBA.fromHex("#0C0C0C"))
   expect(theme.primary).toEqual(RGBA.fromHex("#ff6a00"))
 })
 

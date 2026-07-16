@@ -32,6 +32,9 @@ export function AxonLogo(props: { size: "full" | "compact" }) {
           <text fg={theme.textMuted} selectable={false}>
             Developer Agent for the Terminal
           </text>
+          <text fg={theme.borderActive} selectable={false}>
+            WANGHUI
+          </text>
         </box>
       </Show>
     </box>

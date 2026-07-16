@@ -1,8 +1,9 @@
 export const axonMark = String.raw`
-      /\
-  /\ /  \
- /  X    \
-/__/ \____\
+        /\
+       /  \
+   /\ /    \
+  /  X      \
+ /__/ \______\
 `
   .trimEnd()
   .split("\n")
