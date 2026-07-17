@@ -17,6 +17,8 @@ describe("startupSnapshot", () => {
     expect(startupSnapshot(phases)).toMatchObject({
       label: "Opening workspace",
       percent: 17,
+      completed: 1,
+      active: "workspace",
       done: false,
     })
   })
@@ -29,6 +31,8 @@ describe("startupSnapshot", () => {
     expect(startupSnapshot(phases)).toEqual({
       label: "MCP status unavailable",
       percent: 100,
+      completed: 6,
+      active: undefined,
       done: true,
       error: "MCP status unavailable",
     })

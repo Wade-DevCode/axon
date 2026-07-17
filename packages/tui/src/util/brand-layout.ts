@@ -7,5 +7,5 @@ export function brandDensity(width: number, _height: number): BrandDensity {
 }
 
 export function showSplashArtwork(width: number, height: number) {
-  return width >= 80 && height >= 18
+  return width >= 80 && height >= 22
 }

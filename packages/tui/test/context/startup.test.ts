@@ -22,6 +22,8 @@ test("startup progress transitions are idempotent and preserve the first error",
     expect(startup.snapshot()).toEqual({
       label: "workspace unavailable",
       percent: 100,
+      completed: 6,
+      active: undefined,
       done: true,
       error: "workspace unavailable",
     })

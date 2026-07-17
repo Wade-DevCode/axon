@@ -9,7 +9,7 @@ export type StartupPhaseState = {
 }
 export type StartupPhases = Record<StartupPhase, StartupPhaseState>
 
-const labels: Record<StartupPhase, string> = {
+export const startupPhaseLabels: Record<StartupPhase, string> = {
   configuration: "Loading configuration",
   workspace: "Opening workspace",
   providers: "Loading providers",
@@ -18,18 +18,31 @@ const labels: Record<StartupPhase, string> = {
   plugins: "Loading plugins",
 }
 
+export const startupPhaseShortLabels: Record<StartupPhase, string> = {
+  configuration: "CONFIG",
+  workspace: "WORKSPACE",
+  providers: "PROVIDERS",
+  agents: "AGENTS",
+  mcp: "MCP",
+  plugins: "PLUGINS",
+}
+
 export function initialStartupPhases(): StartupPhases {
   return Object.fromEntries(startupPhaseOrder.map((name) => [name, { state: "pending" }])) as StartupPhases
 }
 
 export function startupSnapshot(phases: StartupPhases) {
   const error = startupPhaseOrder.map((name) => phases[name].error).find(Boolean)
-  const settled = startupPhaseOrder.filter((name) => phases[name].state === "complete" || phases[name].state === "error")
+  const settled = startupPhaseOrder.filter(
+    (name) => phases[name].state === "complete" || phases[name].state === "error",
+  )
   const active = startupPhaseOrder.find((name) => phases[name].state === "running" || phases[name].state === "pending")
   const done = settled.length === startupPhaseOrder.length
   return {
-    label: error ?? (done ? "Ready" : labels[active ?? "plugins"]),
+    label: error ?? (done ? "Ready" : startupPhaseLabels[active ?? "plugins"]),
     percent: Math.round((settled.length / startupPhaseOrder.length) * 100),
+    completed: settled.length,
+    active,
     done,
     ...(error ? { error } : {}),
   }

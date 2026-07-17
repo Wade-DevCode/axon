@@ -33,7 +33,7 @@ export function AxonLogo(props: { size: "full" | "compact" }) {
             Developer Agent for the Terminal
           </text>
           <text fg={theme.borderActive} selectable={false}>
-            WANGHUI
+            BY WANGHUI
           </text>
         </box>
       </Show>

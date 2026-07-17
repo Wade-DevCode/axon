@@ -11,8 +11,10 @@ import { Effect } from "effect"
 import { AxonComposer } from "../../../src/component/axon-composer"
 import { AxonLogo } from "../../../src/component/axon-logo"
 import { Logo } from "../../../src/component/logo"
+import { StartupLoading } from "../../../src/component/startup-loading"
 import { TuiConfigProvider } from "../../../src/config"
 import { KVProvider } from "../../../src/context/kv"
+import { StartupProvider, useStartupProgress } from "../../../src/context/startup"
 import { ThemeProvider } from "../../../src/context/theme"
 import type { HostSlots } from "../../../src/plugin/slots"
 import { tmpdir } from "../../fixture/fixture"
@@ -57,7 +59,7 @@ test("renders a stable full Axon wordmark without block escapes", async () => {
 
   expect(frame).toContain("A X O N")
   expect(frame).toContain("Developer Agent for the Terminal")
-  expect(frame).toContain("WANGHUI")
+  expect(frame).toContain("BY WANGHUI")
   expect(frame).not.toContain("u2588")
   expect(frame).not.toMatch(/[█▀▄]/)
 })
@@ -78,6 +80,48 @@ test("keeps Logo as a full Axon compatibility wrapper", async () => {
   expect(frame).toContain("A X O N")
   expect(frame).toContain("Developer Agent for the Terminal")
   expect(frame).not.toMatch(/[█▀▄]/)
+})
+
+test("renders a structured wide startup sequence", async () => {
+  const frame = await renderFrame(
+    () => (
+      <StartupProvider>
+        <StartupPreview />
+      </StartupProvider>
+    ),
+    { width: 120, height: 24 },
+  )
+
+  expect(frame).toContain("AXON / STARTUP")
+  expect(frame).toContain("LOCAL RUNTIME")
+  expect(frame).toContain("BY WANGHUI")
+  expect(frame).toContain("LOADING AGENTS")
+  expect(frame).toContain("04 / 06")
+  expect(frame).toContain("◆ AGENTS")
+  expect(frame).toContain("✓ CONFIG")
+  expect(frame).toContain("67%")
+  expect(frame).toContain("INITIALIZING SYSTEM")
+  expect(frame).toMatchSnapshot("wide startup")
+})
+
+test("keeps startup chrome compact in a short narrow terminal", async () => {
+  const frame = await renderFrame(
+    () => (
+      <StartupProvider>
+        <StartupPreview />
+      </StartupProvider>
+    ),
+    { width: 76, height: 16 },
+  )
+
+  expect(frame).toContain("AXON / STARTUP")
+  expect(frame).toContain("AGENTS")
+  expect(frame).toContain("67%")
+  expect(frame).not.toContain("LOCAL RUNTIME")
+  expect(frame).not.toContain("Developer Agent for the Terminal")
+  expect(frame).not.toContain("INITIALIZING SYSTEM")
+  expect(frame).not.toContain("◆ AGENTS")
+  expect(frame).toMatchSnapshot("compact startup")
 })
 
 test("renders the real responsive Home route and preserves its plugin and Prompt paths", async () => {
@@ -234,6 +278,13 @@ test("renders the real responsive Home route and preserves its plugin and Prompt
     await task
   }
 })
+
+function StartupPreview() {
+  const startup = useStartupProgress()
+  ;(["configuration", "workspace", "providers", "mcp"] as const).forEach(startup.complete)
+  startup.start("agents")
+  return <StartupLoading />
+}
 
 async function captureHome(setup: Awaited<ReturnType<typeof createTestRenderer>>, content: string) {
   for (let attempt = 0; attempt < 50; attempt++) {
