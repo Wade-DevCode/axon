@@ -46,9 +46,6 @@ export function AxonSessionHeader(props: {
 }
 
 export function AxonStatusBar(props: {
-  mode: string
-  shell: string
-  version: string
   changedFiles: number
   density: BrandDensity
 }) {
@@ -63,18 +60,13 @@ export function AxonStatusBar(props: {
       paddingLeft={props.density === "compact" ? 0 : 1}
       paddingRight={props.density === "compact" ? 0 : 1}
     >
-      <box flexDirection="row" gap={props.density === "wide" ? 2 : 1}>
-        <text fg={theme.primary}>{props.mode.toUpperCase()}</text>
-        <Show when={props.density !== "compact"}>
-          <text fg={theme.info}>{props.shell}</text>
-        </Show>
+      <box flexDirection="row" gap={props.density === "wide" ? 2 : 1} minWidth={0}>
         <Show when={props.density !== "compact" && props.changedFiles > 0}>
           <text fg={theme.info}>
             {props.changedFiles} file{props.changedFiles === 1 ? "" : "s"} changed
           </text>
         </Show>
       </box>
-      <text fg={theme.textMuted}>v{props.version}</text>
     </box>
   )
 }

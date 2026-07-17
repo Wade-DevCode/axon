@@ -34,11 +34,12 @@ for (const filepath of new Bun.Glob("*/package.json").scanSync({ cwd: "./dist" }
 console.log("binaries", binaries)
 const version = Object.values(binaries)[0]
 
-await $`mkdir -p ./dist/${pkg.name}/bin`
-await $`cp ./script/postinstall.mjs ./dist/${pkg.name}/postinstall.mjs`
-await Bun.file(`./dist/${pkg.name}/LICENSE`).write(await Bun.file("../../LICENSE").text())
-await Bun.file(`./dist/${pkg.name}/README.md`).write(await Bun.file("./README.md").text())
-await Bun.file(`./dist/${pkg.name}/bin/${pkg.name}.exe`).write(
+const wrapperDir = `./dist/${PUBLISH_NAME}`
+await $`mkdir -p ${wrapperDir}/bin`
+await $`cp ./script/postinstall.mjs ${wrapperDir}/postinstall.mjs`
+await Bun.file(`${wrapperDir}/LICENSE`).write(await Bun.file("../../LICENSE").text())
+await Bun.file(`${wrapperDir}/README.md`).write(await Bun.file("./README.md").text())
+await Bun.file(`${wrapperDir}/bin/${pkg.name}.exe`).write(
   [
     `echo "Error: ${PUBLISH_NAME}'s postinstall script was not run." >&2`,
     'echo "" >&2',
@@ -54,7 +55,7 @@ await Bun.file(`./dist/${pkg.name}/bin/${pkg.name}.exe`).write(
   ].join("\n"),
 )
 
-await Bun.file(`./dist/${pkg.name}/package.json`).write(
+await Bun.file(`${wrapperDir}/package.json`).write(
   JSON.stringify(
     {
       name: PUBLISH_NAME,
@@ -80,4 +81,4 @@ const tasks = Object.entries(binaries).map(async ([name]) => {
   await publish(`./dist/${name}`, name, binaries[name])
 })
 await Promise.all(tasks)
-await publish(`./dist/${pkg.name}`, PUBLISH_NAME, version)
+await publish(wrapperDir, PUBLISH_NAME, version)

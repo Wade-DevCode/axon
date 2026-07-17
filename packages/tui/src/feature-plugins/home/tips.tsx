@@ -24,11 +24,11 @@ function View(props: { api: TuiPluginApi; hidden: boolean; show: boolean; connec
   }))
 
   return (
-    <box width="100%" maxWidth={75} alignItems="center" paddingTop={3} flexShrink={1}>
-      <Show when={props.show}>
+    <Show when={props.show}>
+      <box width="100%" maxWidth={75} alignSelf="flex-start" paddingTop={2} flexShrink={1}>
         <Tips api={props.api} connected={props.connected} />
-      </Show>
-    </box>
+      </box>
+    </Show>
   )
 }
 
@@ -44,7 +44,7 @@ const tui: TuiPlugin = async (api) => {
             (item) => item.id !== "opencode" || Object.values(item.models).some((model) => model.cost?.input !== 0),
           ),
         )
-        const show = createMemo(() => (!first() || !connected()) && !hidden())
+        const show = createMemo(() => !hidden())
         return <View api={api} hidden={hidden()} show={show()} connected={connected()} />
       },
     },

@@ -191,8 +191,8 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
     expect(wide).toContain("Edit")
     expect(wide).toContain("Test")
     expect(wide).toContain("Change Summary")
-    expect(wide).toContain("Ask Axon")
-    expect(wide).toContain("BUILD")
+    expect(wide).toContain("Test Model")
+    expect(wide).toContain(directory)
     expect(wide).toContain("2 files changed")
     expect(wide).toContain("12 ms")
 
@@ -204,8 +204,8 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
     await capture(setup, "Change Summary")
 
     api!.keymap.dispatchCommand("agent.cycle")
-    const selectedAgent = await capture(setup, "REVIEW  cmd.exe")
-    expect(selectedAgent).toContain("REVIEW  cmd.exe")
+    const selectedAgent = await capture(setup, "Test Model")
+    expect(selectedAgent).toContain("Test Model")
 
     events.emit({
       directory,
@@ -264,7 +264,7 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
         properties: { sessionID, requestID: "question_test" },
       },
     })
-    expect(await capture(setup, "Ask Axon")).toContain("Ask Axon")
+    expect(await capture(setup, "Test Model")).toContain("Test Model")
 
     setup.renderer.resize(100, 30)
     const normal = await capture(setup, "Change Summary")
@@ -287,7 +287,7 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
         },
       },
     })
-    expect(await capture(setup, "SESSION RIGHT SLOT")).toContain("Ask Axon")
+    expect(await capture(setup, "SESSION RIGHT SLOT")).toContain("Test Model")
     slots.register({
       id: "session-prompt-probe",
       slots: {
@@ -305,7 +305,7 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
       },
     })
     const pluginFrame = await capture(setup, "SESSION PROMPT SLOT")
-    expect(pluginFrame).toContain("Ask Axon")
+    expect(pluginFrame).toContain("Test Model")
     expect(pluginFrame).toContain("SESSION PROMPT SLOT")
     expect(promptRef).toBeDefined()
     expect(promptRef?.current.input).toBe("")

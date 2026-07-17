@@ -1,6 +1,5 @@
 import {
   BoxRenderable,
-  RGBA,
   TextareaRenderable,
   MouseEvent,
   PasteEvent,
@@ -15,8 +14,7 @@ import path from "path"
 import { fileURLToPath } from "url"
 import { useLocal } from "../../context/local"
 import { Flag } from "@opencode-ai/core/flag/flag"
-import { tint, useTheme } from "../../context/theme"
-import { EmptyBorder, SplitBorder } from "../../ui/border"
+import { useTheme } from "../../context/theme"
 import { useTuiPaths, useTuiTerminalEnvironment } from "../../context/runtime"
 import { useClipboard } from "../../context/clipboard"
 import { Spinner } from "../spinner"
@@ -36,7 +34,6 @@ import { expandPastedTextPlaceholders, expandTrackedPastedText } from "../../pro
 import { usePromptStash } from "../../prompt/stash"
 import { DialogStash } from "../dialog-stash"
 import { type AutocompleteRef, Autocomplete } from "./autocomplete"
-import { agentLabel } from "../../util/agent-label"
 import { useRenderer, useTerminalDimensions, type JSX } from "@opentui/solid"
 import type { AssistantMessage, FilePart, UserMessage } from "@opencode-ai/sdk/v2"
 import { Locale } from "../../util/locale"
@@ -48,7 +45,6 @@ import { DialogProvider as DialogProviderConnect } from "../dialog-provider"
 import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
-import { createFadeIn } from "../../util/signal"
 import { DialogSkill } from "../dialog-skill"
 import { DialogWorkspaceUnavailable } from "../dialog-workspace-unavailable"
 import { useArgs } from "../../context/args"
@@ -94,20 +90,11 @@ export type PromptRef = {
   submit(): void
 }
 
-const money = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-})
-
 const DRAFT_RETENTION_MIN_CHARS = 20
 
 function randomIndex(count: number) {
   if (count <= 0) return 0
   return Math.floor(Math.random() * count)
-}
-
-function fadeColor(color: RGBA, alpha: number) {
-  return RGBA.fromValues(color.r, color.g, color.b, color.a * alpha)
 }
 
 function hasEditorRangeSelection(selection: EditorSelection["ranges"][number]) {
@@ -168,7 +155,6 @@ export function Prompt(props: PromptProps) {
   const dimensions = useTerminalDimensions()
   const { theme, syntax } = useTheme()
   const kv = useKV()
-  const animationsEnabled = createMemo(() => kv.get("animations_enabled", true))
   const list = createMemo(() => props.placeholders?.normal ?? [])
   const shell = createMemo(() => props.placeholders?.shell ?? [])
   const fileContextEnabled = createMemo(() => kv.get("file_context_enabled", true))
@@ -207,7 +193,6 @@ export function Prompt(props: PromptProps) {
   const workspace = usePromptWorkspace(props.sessionID)
   const move = usePromptMove({ projectID: project.project, sessionID: () => props.sessionID })
   const [cursorVersion, setCursorVersion] = createSignal(0)
-  const currentProviderLabel = createMemo(() => local.model.parsed().provider)
   const hasRightContent = createMemo(() => Boolean(props.right))
 
   function promptModelWarning() {
@@ -257,23 +242,35 @@ export function Prompt(props: PromptProps) {
     return messages.findLast((m): m is UserMessage => m.role === "user")
   })
 
+  const promptDirectory = createMemo(
+    () =>
+      (props.sessionID ? sync.session.get(props.sessionID)?.directory : undefined) ??
+      sync.path.directory ??
+      project.instance.directory(),
+  )
+
   const usage = createMemo(() => {
-    if (!props.sessionID) return
-    const session = sync.session.get(props.sessionID)
+    const selected = local.model.parsed()
+    const fallbackModel = sync.data.provider.find((item) => item.id === selected.provider)?.models[selected.model]
+    if (!props.sessionID) {
+      return fallbackModel?.limit.context ? { contextLeft: "100% left" } : undefined
+    }
+
     const msg = sync.data.message[props.sessionID] ?? []
     const last = msg.findLast((item): item is AssistantMessage => item.role === "assistant" && item.tokens.output > 0)
-    if (!last) return
+    if (!last) return fallbackModel?.limit.context ? { contextLeft: "100% left" } : undefined
 
     const tokens =
       last.tokens.input + last.tokens.output + last.tokens.reasoning + last.tokens.cache.read + last.tokens.cache.write
-    if (tokens <= 0) return
+    if (tokens <= 0) return fallbackModel?.limit.context ? { contextLeft: "100% left" } : undefined
 
     const model = sync.data.provider.find((item) => item.id === last.providerID)?.models[last.modelID]
-    const pct = model?.limit.context ? `${Math.round((tokens / model.limit.context) * 100)}%` : undefined
-    const cost = session?.cost ?? 0
+    const contextLeft = model?.limit.context
+      ? `${Math.max(0, 100 - Math.round((tokens / model.limit.context) * 100))}% left`
+      : undefined
     return {
-      context: pct ? `${Locale.number(tokens)} (${pct})` : Locale.number(tokens),
-      cost: cost > 0 ? money.format(cost) : undefined,
+      contextLeft,
+      tokensUsed: `${Locale.number(tokens)} used`,
     }
   })
 
@@ -1280,29 +1277,6 @@ export function Prompt(props: PromptProps) {
     setStore("extmarkToPartIndex", new Map())
   }
 
-  const highlight = createMemo(() => {
-    if (leader()) return theme.border
-    if (store.mode === "shell") return theme.primary
-    const agent = local.agent.current()
-    if (!agent) return theme.border
-    return local.agent.color(agent.name)
-  })
-
-  const showVariant = createMemo(() => {
-    const variants = local.model.variant.list()
-    if (variants.length === 0) return false
-    const current = local.model.variant.current()
-    return !!current
-  })
-
-  const agentMetaAlpha = createFadeIn(() => !!local.agent.current(), animationsEnabled)
-  const modelMetaAlpha = createFadeIn(() => !!local.agent.current() && store.mode === "normal", animationsEnabled)
-  const variantMetaAlpha = createFadeIn(
-    () => !!local.agent.current() && store.mode === "normal" && showVariant(),
-    animationsEnabled,
-  )
-  const borderHighlight = createMemo(() => tint(theme.border, highlight(), agentMetaAlpha()))
-
   const placeholderText = createMemo(() => {
     if (props.showPlaceholder === false) return undefined
     if (store.mode === "shell") {
@@ -1345,20 +1319,14 @@ export function Prompt(props: PromptProps) {
       <box ref={(r: BoxRenderable) => (anchor = r)} visible={props.visible !== false} width="100%">
         <box
           width="100%"
-          border={["left"]}
-          borderColor={borderHighlight()}
-          customBorderChars={{
-            ...SplitBorder.customBorderChars,
-            bottomLeft: "╹",
-          }}
         >
           <box
             paddingLeft={2}
             paddingRight={2}
             paddingTop={1}
+            paddingBottom={1}
             flexShrink={0}
-            backgroundColor={theme.backgroundElement}
-            flexGrow={1}
+            backgroundColor={theme.backgroundPanel}
             width="100%"
           >
             <textarea
@@ -1430,77 +1398,13 @@ export function Prompt(props: PromptProps) {
                 }, 0)
               }}
               onMouseDown={(r: MouseEvent) => r.target?.focus()}
-              focusedBackgroundColor={theme.backgroundElement}
-              cursorColor={props.disabled ? theme.backgroundElement : theme.text}
+              focusedBackgroundColor={theme.backgroundPanel}
+              cursorColor={props.disabled ? theme.backgroundPanel : theme.text}
               syntaxStyle={syntax()}
             />
-            <box flexDirection="row" flexShrink={0} paddingTop={1} gap={1} justifyContent="space-between">
-              <box flexDirection="row" gap={1}>
-                <Show when={local.agent.current()} fallback={<box height={1} />}>
-                  {(agent) => (
-                    <>
-                      <text fg={fadeColor(highlight(), agentMetaAlpha())}>
-                        {store.mode === "shell" ? "Shell" : agentLabel(agent().name)}
-                      </text>
-                      <Show when={store.mode === "normal"}>
-                        <box flexDirection="row" gap={1}>
-                          <text fg={fadeColor(theme.textMuted, modelMetaAlpha())}>-</text>
-                          <text
-                            flexShrink={0}
-                            fg={fadeColor(leader() ? theme.textMuted : theme.text, modelMetaAlpha())}
-                          >
-                            {local.model.parsed().model}
-                          </text>
-                          <text fg={fadeColor(theme.textMuted, modelMetaAlpha())}>{currentProviderLabel()}</text>
-                          <Show when={showVariant()}>
-                            <text fg={fadeColor(theme.textMuted, variantMetaAlpha())}>-</text>
-                            <text>
-                              <span style={{ fg: fadeColor(theme.warning, variantMetaAlpha()), bold: true }}>
-                                {local.model.variant.current()}
-                              </span>
-                            </text>
-                          </Show>
-                        </box>
-                      </Show>
-                    </>
-                  )}
-                </Show>
-              </box>
-              <Show when={hasRightContent()}>
-                <box flexDirection="row" gap={1} alignItems="center">
-                  {props.right}
-                </box>
-              </Show>
-            </box>
           </box>
         </box>
-        <box
-          height={1}
-          border={["left"]}
-          borderColor={borderHighlight()}
-          customBorderChars={{
-            ...EmptyBorder,
-            vertical: theme.backgroundElement.a !== 0 ? "╹" : " ",
-          }}
-        >
-          <box
-            height={1}
-            border={["bottom"]}
-            borderColor={theme.backgroundElement}
-            customBorderChars={
-              theme.backgroundElement.a !== 0
-                ? {
-                    ...EmptyBorder,
-                    horizontal: "▀",
-                  }
-                : {
-                    ...EmptyBorder,
-                    horizontal: " ",
-                  }
-            }
-          />
-        </box>
-        <box width="100%" flexDirection="row" justifyContent="space-between">
+        <box width="100%" flexDirection="row" paddingLeft={2} paddingRight={2} paddingTop={1} justifyContent="space-between">
           <Switch>
             <Match when={status().type !== "idle"}>
               <box
@@ -1632,7 +1536,22 @@ export function Prompt(props: PromptProps) {
                 <text fg={theme.accent}>(new working copy)</text>
               </box>
             </Match>
-            <Match when={true}>{props.hint ?? <text />}</Match>
+            <Match when={true}>
+              <box flexDirection="row" gap={1} minWidth={0}>
+                <text fg={theme.text} wrapMode="none">{store.mode === "shell" ? "Shell" : local.model.parsed().model}</text>
+                <text fg={theme.textMuted}>·</text>
+                <text fg={theme.success} wrapMode="none">{promptDirectory()}</text>
+                <Show when={usage()?.contextLeft}>
+                  <text fg={theme.textMuted}>·</text>
+                  <text fg={theme.warning} wrapMode="none">Context {usage()!.contextLeft}</text>
+                </Show>
+                <Show when={usage()?.tokensUsed}>
+                  <text fg={theme.textMuted}>·</text>
+                  <text fg={theme.textMuted} wrapMode="none">{usage()!.tokensUsed}</text>
+                </Show>
+                {props.hint}
+              </box>
+            </Match>
           </Switch>
           <Show when={status().type !== "retry"}>
             <box gap={2} flexDirection="row">
@@ -1643,20 +1562,9 @@ export function Prompt(props: PromptProps) {
               </Show>
               <Switch>
                 <Match when={store.mode === "normal"}>
-                  <Switch>
-                    <Match when={usage()}>
-                      {(item) => (
-                        <text fg={theme.textMuted} wrapMode="none">
-                          {[item().context, item().cost].filter(Boolean).join(" · ")}
-                        </text>
-                      )}
-                    </Match>
-                    <Match when={true}>
-                      <text fg={theme.text}>
-                        {agentShortcut()} <span style={{ fg: theme.textMuted }}>agents</span>
-                      </text>
-                    </Match>
-                  </Switch>
+                  <text fg={theme.text}>
+                    {agentShortcut()} <span style={{ fg: theme.textMuted }}>agents</span>
+                  </text>
                   <text fg={theme.text}>
                     {paletteShortcut()} <span style={{ fg: theme.textMuted }}>commands</span>
                   </text>
@@ -1667,6 +1575,11 @@ export function Prompt(props: PromptProps) {
                   </text>
                 </Match>
               </Switch>
+              <Show when={hasRightContent()}>
+                <box flexDirection="row" gap={1} alignItems="center">
+                  {props.right}
+                </box>
+              </Show>
             </box>
           </Show>
         </box>

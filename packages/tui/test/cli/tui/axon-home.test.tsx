@@ -147,21 +147,21 @@ test("renders the real responsive Home route and preserves its plugin and Prompt
     )
 
     await started
-    const narrow = await captureHome(setup, "Ask Axon")
+    const narrow = await captureHome(setup, "AXON")
     expect(narrow).toContain("AXON")
-    expect(narrow).toContain("Ask Axon")
+    expect(narrow).toContain("WANGHUI")
+    expect(narrow).toContain("Ask anything")
     expect(narrow).not.toContain("A X O N")
     expect(narrow).not.toContain("Developer Agent for the Terminal")
     expect(narrow).not.toContain("@agent /command #file")
     expect(setup.renderer.currentFocusedEditor).toBeInstanceOf(TextareaRenderable)
 
     setup.renderer.resize(100, 24)
-    const normal = await captureHome(setup, "Developer Agent for the Terminal")
-    expect(normal).toContain("A X O N")
-    expect(normal).toContain("Developer Agent for the Terminal")
-    expect(normal).toContain("Ask Axon")
-    expect(normal).toContain("@agent /command #file")
-    expect(normal.indexOf("A X O N")).toBeLessThan(normal.indexOf("Ask Axon"))
+    const normal = await captureHome(setup, "WANGHUI")
+    expect(normal).toContain("AXON")
+    expect(normal).toContain("WANGHUI")
+    expect(normal).toContain("Ask anything")
+    expect(normal).not.toContain("Developer Agent for the Terminal")
 
     if (!api || !slots) throw new Error("plugin host did not expose the Home slot fixture")
     const pluginApi = api
@@ -190,12 +190,12 @@ test("renders the real responsive Home route and preserves its plugin and Prompt
     })
 
     const decoratedFrame = await captureHome(setup, "HOME FOOTER SLOT")
-    expect(decoratedFrame).toContain("A X O N")
+    expect(decoratedFrame).toContain("AXON")
     expect(decoratedFrame).toContain("HOME RIGHT SLOT")
     expect(decoratedFrame).toContain("HOME BOTTOM SLOT")
     expect(decoratedFrame).toContain("HOME FOOTER SLOT")
-    expect(decoratedFrame.indexOf("HOME RIGHT SLOT")).toBeLessThan(decoratedFrame.indexOf("HOME BOTTOM SLOT"))
-    expect(decoratedFrame.indexOf("HOME BOTTOM SLOT")).toBeLessThan(decoratedFrame.indexOf("HOME FOOTER SLOT"))
+    expect(decoratedFrame.indexOf("HOME BOTTOM SLOT")).toBeLessThan(decoratedFrame.indexOf("HOME RIGHT SLOT"))
+    expect(decoratedFrame.indexOf("HOME RIGHT SLOT")).toBeLessThan(decoratedFrame.indexOf("HOME FOOTER SLOT"))
     homeSlots.register({
       id: "home-replacement-probe",
       slots: {
@@ -222,9 +222,8 @@ test("renders the real responsive Home route and preserves its plugin and Prompt
 
     const replacementFrame = await captureHome(setup, "HOME PROMPT SLOT")
     expect(replacementFrame).toContain("HOME LOGO SLOT")
-    expect(replacementFrame).toContain("Ask Axon")
     expect(replacementFrame).toContain("HOME PROMPT SLOT")
-    expect(replacementFrame.indexOf("HOME LOGO SLOT")).toBeLessThan(replacementFrame.indexOf("Ask Axon"))
+    expect(replacementFrame.indexOf("HOME LOGO SLOT")).toBeLessThan(replacementFrame.indexOf("HOME PROMPT SLOT"))
     expect(promptRef).toBeDefined()
     expect(promptRef?.current.input).toBe("")
 

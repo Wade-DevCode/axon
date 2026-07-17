@@ -84,7 +84,6 @@ import { usePathFormatter } from "../../context/path-format"
 import { LocationProvider } from "../../context/location"
 import { AxonComposer } from "../../component/axon-composer"
 import { brandDensity, type BrandDensity } from "../../util/brand-layout"
-import { Product } from "../../util/product"
 import { AxonChangeSummary } from "./change-summary"
 import { AxonSessionHeader, AxonStatusBar } from "./chrome"
 import { changeSummary } from "./presentation"
@@ -281,16 +280,9 @@ export function Session() {
   const showTimestamps = createMemo(() => timestamps() === "show")
   const contentWidth = createMemo(() => dimensions().width - (sidebarVisible() ? 42 : 0) - 4)
   const providers = createMemo(() => Model.index(sync.data.provider))
-  const terminalEnvironment = useTuiTerminalEnvironment()
-  const shell = createMemo(() => {
-    if (terminalEnvironment.platform === "win32") return path.win32.basename(process.env.ComSpec ?? "cmd.exe")
-    return path.basename(process.env.SHELL ?? "shell")
-  })
   const projectName = createMemo(() =>
     path.basename(project.data.project.worktree ?? session()?.directory ?? project.instance.directory()),
   )
-  const mode = createMemo(() => local.agent.current()?.name ?? lastAssistant()?.mode ?? OPENCODE_BASE_MODE)
-
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
   const toast = useToast()
   const sdk = useSDK()
@@ -1348,9 +1340,6 @@ export function Session() {
                 </Show>
               </box>
               <AxonStatusBar
-                mode={mode()}
-                shell={shell()}
-                version={Product.info.version}
                 changedFiles={(sync.data.session_diff[route.sessionID] ?? []).length}
                 density={density()}
               />

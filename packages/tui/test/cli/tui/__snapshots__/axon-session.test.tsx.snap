@@ -4,6 +4,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 "   AXON  opencode  feature/axon                                                AX Ready · build
   ──────────────────────────────────────────────────────────────────────────────────────────────    Axon session layout
                                                                                                     ses_axon_session
+
   ┃
   ┃  You
   ┃  Please inspect auth
@@ -26,20 +27,19 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 
      >  Build · Test Model · 29ms
 
-  ┌────────────────────────────────────────────────────────────────────────────────────────────┐
-  │                                                                                            │
-  │  Ask Axon                                                           @agent /command #file  │
-  │                                                                                            │
-  │  ┃                                                                                         │
-  │  ┃                                                                                         │
-  │  ┃                                                                                         │
-  │  ┃  Code - Test Model Test                                                                 │
-  │  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  │
-  │                                                               tab agents  ctrl+p commands  │
-  │                                                                                            │
-  └────────────────────────────────────────────────────────────────────────────────────────────┘
 
-   BUILD  cmd.exe  2 files changed                                                         vdev     • Axon local
+
+
+
+
+
+
+
+
+
+    Test Model · /tmp/opencode/packages/tui                      tab agents  ctrl+p commands
+
+   2 files changed                                                                                  • Axon local
 
 "
 `;
@@ -48,6 +48,9 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 "   AXON feature/axon                                                                     AX Ready
   ────────────────────────────────────────────────────────────────────────────────────────────────
 
+     I found the issue.
+
+    │ Activity
     │ Read src/auth.ts                                                               success 12 ms
     │ Search refreshToken                                                            success 12 ms
     │ Edit src/auth.ts                                                         success +1 -1 12 ms
@@ -60,20 +63,17 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 
      >  Build · Test Model · 29ms
 
-  ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-  │                                                                                              │
-  │  Ask Axon                                                             @agent /command #file  │
-  │                                                                                              │
-  │  ┃                                                                                           │
-  │  ┃                                                                                           │
-  │  ┃                                                                                           │
-  │  ┃  Code - Test Model Test                                                                   │
-  │  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  │
-  │                                                                 tab agents  ctrl+p commands  │
-  │                                                                                              │
-  └──────────────────────────────────────────────────────────────────────────────────────────────┘
+  ┃
+  ┃  Choose a path
+  ┃
+  ┃  1. Continue
+  ┃     Keep going
+  ┃  2. Type your own answer
+  ┃
+  ┃  ↑↓ select  enter submit  esc dismiss
+  ┃
 
-   BUILD cmd.exe 2 files changed                                                             vdev
+   2 files changed
 
 "
 `;
@@ -82,6 +82,9 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 "  feature/axon                                                AX Ready
   ────────────────────────────────────────────────────────────────────
 
+  ┃  You
+  ┃  Please inspect auth
+  ┃
 
      Axon
 
@@ -105,19 +108,16 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 
      >  Build · Test Model · 29ms
 
-  ┌──────────────────────────────────────────────────────────────────┐
-  │                                                                  │
-  │ Ask Axon                                                         │
-  │ ┃                                                                │
-  │ ┃                                                                │
-  │ ┃                                                                │
-  │ ┃  Code - Test Model Test                                        │
-  │ ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ │
-  │                                      tab agents  ctrl+p commands │
-  │                                                                  │
-  └──────────────────────────────────────────────────────────────────┘
+  ┃
+  ┃  Choose a path
+  ┃
+  ┃  1. Continue
+  ┃     Keep going
+  ┃  2. Type your own answer
+  ┃
+  ┃  ↑↓ select  enter submit  esc dismiss
+  ┃
 
-  BUILD                                                           vdev
 
 "
 `;
