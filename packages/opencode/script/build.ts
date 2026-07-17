@@ -139,9 +139,18 @@ await $`rm -rf dist`
 
 const binaries: Record<string, string> = {}
 if (!skipInstall) {
-  await $`bun install --os="*" --cpu="*" @opentui/core@${pkg.dependencies["@opentui/core"]}`
-  await $`bun install --os="*" --cpu="*" @parcel/watcher@${pkg.dependencies["@parcel/watcher"]}`
-  await $`bun install --os="*" --cpu="*" @ff-labs/fff-bun@${pkg.dependencies["@ff-labs/fff-bun"]}`
+  // Install one target at a time. Bun's wildcard install can stall on WSL and
+  // leave cross-compiled builds without their target-native dependencies.
+  for (const item of [
+    { os: "linux", arch: "arm64" },
+    { os: "linux", arch: "x64" },
+    { os: "darwin", arch: "arm64" },
+    { os: "darwin", arch: "x64" },
+    { os: "win32", arch: "arm64" },
+    { os: "win32", arch: "x64" },
+  ] as const) {
+    await $`bun install --os=${item.os} --cpu=${item.arch} @opentui/core@${pkg.dependencies["@opentui/core"]} @parcel/watcher@${pkg.dependencies["@parcel/watcher"]} @ff-labs/fff-bun@${pkg.dependencies["@ff-labs/fff-bun"]}`
+  }
 }
 for (const item of targets) {
   const name = [
