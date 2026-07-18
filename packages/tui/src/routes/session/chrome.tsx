@@ -29,26 +29,33 @@ export function AxonSessionHeader(props: {
             AXON
           </text>
         </Show>
-        <Show when={props.density === "wide" && props.project}>
-          <text fg={theme.text} wrapMode="none">
-            {props.project}
+        <box flexDirection="row" gap={1} minWidth={0}>
+          <Show when={props.density === "wide" && props.project}>
+            <text fg={theme.text} wrapMode="none">
+              {props.project}
+            </text>
+            <text fg={theme.textMuted} wrapMode="none">
+              ·
+            </text>
+          </Show>
+          <text fg={theme.info} wrapMode="none">
+            {props.branch ?? "local"}
           </text>
-        </Show>
-        <text fg={theme.info} wrapMode="none">
-          {props.branch ?? "local"}
-        </text>
+        </box>
       </box>
       <text fg={props.ready ? theme.success : theme.warning} wrapMode="none">
-        AX {props.density === "wide" ? `${props.ready ? "Ready" : "Working"} · ${props.agent}` : props.ready ? "Ready" : "Working"}
+        AX{" "}
+        {props.density === "wide"
+          ? `${props.ready ? "Ready" : "Working"} · ${props.agent}`
+          : props.ready
+            ? "Ready"
+            : "Working"}
       </text>
     </box>
   )
 }
 
-export function AxonStatusBar(props: {
-  changedFiles: number
-  density: BrandDensity
-}) {
+export function AxonStatusBar(props: { changedFiles: number; density: BrandDensity }) {
   const theme = useTheme().theme
 
   return (
