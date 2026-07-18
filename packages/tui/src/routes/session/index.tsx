@@ -88,6 +88,7 @@ import { AxonChangeSummary } from "./change-summary"
 import { AxonSessionHeader, AxonStatusBar } from "./chrome"
 import { changeSummary } from "./presentation"
 import { AxonToolPanel } from "./tool-panel"
+import { HomeWelcome } from "../home/welcome"
 
 addDefaultParsers(parsers.parsers)
 
@@ -1203,6 +1204,9 @@ export function Session() {
                 scrollAcceleration={scrollAcceleration()}
               >
                 <box height={1} />
+                <Show when={route.origin === "home"}>
+                  <HomeWelcome />
+                </Show>
                 <For each={messages()}>
                   {(message, index) => (
                     <Switch>

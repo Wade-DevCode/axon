@@ -9,12 +9,10 @@ import { usePromptRef } from "../context/prompt"
 import { useLocal } from "../context/local"
 import { usePluginRuntime } from "../plugin/runtime"
 import { useEditorContext } from "../context/editor"
-import { useProject } from "../context/project"
-import { useTheme } from "../context/theme"
 import { useTerminalDimensions } from "@opentui/solid"
 import { HomeSessionDestinationProvider } from "./home/session-destination"
 import { brandDensity } from "../util/brand-layout"
-import { Product } from "../util/product"
+import { HomeWelcome } from "./home/welcome"
 
 let once = false
 const placeholder = {
@@ -31,11 +29,8 @@ export function Home() {
   const args = useArgs()
   const local = useLocal()
   const editor = useEditorContext()
-  const project = useProject()
-  const theme = useTheme().theme
   const dimensions = useTerminalDimensions()
   const density = createMemo(() => brandDensity(dimensions().width, dimensions().height))
-  const directory = createMemo(() => sync.path.directory ?? project.instance.directory())
   let sent = false
 
   onMount(() => {
@@ -71,54 +66,7 @@ export function Home() {
   return (
     <HomeSessionDestinationProvider>
       <box flexGrow={1} flexDirection="column" alignItems="center">
-        <box width="100%" maxWidth={62} alignSelf="flex-start" flexDirection="column" marginLeft={2} paddingTop={1} flexShrink={0}>
-          <box
-            width="100%"
-            flexDirection="column"
-            border={["top", "right", "bottom", "left"]}
-            borderColor={theme.border}
-            customBorderChars={{
-              topLeft: "╭",
-              topRight: "╮",
-              bottomLeft: "╰",
-              bottomRight: "╯",
-              horizontal: "─",
-              vertical: "│",
-              topT: "┬",
-              bottomT: "┴",
-              leftT: "├",
-              rightT: "┤",
-              cross: "┼",
-            }}
-            paddingLeft={1}
-            paddingRight={1}
-            paddingTop={1}
-            paddingBottom={1}
-            gap={1}
-          >
-            <box width="100%" flexDirection="row" justifyContent="space-between">
-              <pluginRuntime.Slot name="home_logo" mode="replace">
-                <text fg={theme.text} selectable={false}>
-                  <span style={{ fg: theme.primary, bold: true }}>{">_ AXON"}</span>
-                  <span style={{ fg: theme.textMuted }}> {`(v${Product.info.version})`}</span>
-                </text>
-              </pluginRuntime.Slot>
-              <text fg={theme.textMuted} selectable={false}>WANGHUI</text>
-            </box>
-            <box flexDirection="row" gap={1}>
-              <text fg={theme.textMuted} selectable={false}>model:</text>
-              <text fg={theme.text} selectable={false}>{local.model.parsed().model}</text>
-              <text fg={theme.info} selectable={false}>/models to change</text>
-            </box>
-            <box flexDirection="row" gap={1}>
-              <text fg={theme.textMuted} selectable={false}>directory:</text>
-              <text fg={theme.text} selectable={false}>{directory()}</text>
-            </box>
-          </box>
-        </box>
-        <box width="100%" paddingLeft={2} paddingRight={2}>
-          <pluginRuntime.Slot name="home_bottom" />
-        </box>
+        <HomeWelcome />
         <box flexGrow={1} minHeight={0} />
         <box
           width="100%"

@@ -1130,6 +1130,7 @@ export function Prompt(props: PromptProps) {
         route.navigate({
           type: "session",
           sessionID,
+          origin: "home",
         })
       }, 50)
     }
