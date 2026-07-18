@@ -75,7 +75,7 @@ export function StartupLoading() {
           <AxonLogo
             size={
               density() === "wide"
-                ? "lockup"
+                ? "display"
                 : showSplashArtwork(dimensions().width, dimensions().height)
                   ? "full"
                   : "compact"

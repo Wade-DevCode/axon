@@ -81,13 +81,13 @@ test("renders a compact Axon wordmark without large artwork", async () => {
   expect(frame).not.toContain("/\\")
 })
 
-test("renders a horizontal Axon lockup for wide startup screens", async () => {
-  const frame = await renderFrame(() => <AxonLogo size="lockup" />, { width: 100, height: 8 })
+test("renders a large Axon display for wide startup screens", async () => {
+  const frame = await renderFrame(() => <AxonLogo size="display" />, { width: 100, height: 9 })
 
-  expect(frame).toContain("A X O N")
+  expect(frame).toContain("__  __   ___   _   _")
+  expect(frame).toContain("/ ___ \\")
   expect(frame).toContain("Developer Agent for the Terminal")
   expect(frame).toContain("BY WANGHUI")
-  expect(frame).toContain("/\\")
 })
 
 test("keeps Logo as a full Axon compatibility wrapper", async () => {

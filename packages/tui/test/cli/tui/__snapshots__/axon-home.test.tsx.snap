@@ -6,17 +6,17 @@ exports[`renders a structured wide startup sequence: wide startup 1`] = `
 
 
 
-
-                                            /\\
-                                           /  \\      A X O N
-                                       /\\ /    \\     Developer Agent for the Terminal
-                                      /  X      \\    BY WANGHUI
-                                     /__/ \\______\\
+                                                 _    __  __   ___   _   _
+                                                / \\   \\ \\/ /  / _ \\ | \\ | |
+                                               / _ \\   \\  /  | | | ||  \\| |
+                                              / ___ \\  /  \\  | |_| || |\\  |
+                                             /_/   \\_\\/_/\\_\\  \\___/ |_| \\_|
+                                            Developer Agent for the Terminal
+                                                       BY WANGHUI
 
                        LOADING AGENTS                                                     04 / 06
                         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━──────────────────────  67%
                        ✓ CONFIG    ✓ WORKSPACE    ✓ PROVIDERS     ◆ AGENTS    ✓ MCP     · PLUGINS
-
 
 
 
