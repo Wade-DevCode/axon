@@ -222,6 +222,8 @@ test("renders the real responsive Home route and preserves its plugin and Prompt
     expect(normal).toContain("WANGHUI")
     expect(normal).toContain("Ask anything")
     expect(normal).not.toContain("Developer Agent for the Terminal")
+    expect(normal.indexOf("WANGHUI")).toBeLessThan(normal.indexOf("Ask anything"))
+    expect(normal.split("\n").findIndex((line) => line.includes("Ask anything"))).toBeGreaterThan(15)
 
     if (!api || !slots) throw new Error("plugin host did not expose the Home slot fixture")
     const pluginApi = api

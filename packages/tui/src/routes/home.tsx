@@ -119,14 +119,22 @@ export function Home() {
         <box width="100%" paddingLeft={2} paddingRight={2}>
           <pluginRuntime.Slot name="home_bottom" />
         </box>
-        <box width="100%" zIndex={1000} paddingTop={1} paddingBottom={1} flexShrink={0}>
+        <box flexGrow={1} minHeight={0} />
+        <box
+          width="100%"
+          zIndex={1000}
+          paddingLeft={2}
+          paddingRight={2}
+          paddingTop={1}
+          paddingBottom={1}
+          flexShrink={0}
+        >
           <AxonComposer density={density()} focused>
             <pluginRuntime.Slot name="home_prompt" mode="replace" ref={bind}>
               <Prompt ref={bind} right={<pluginRuntime.Slot name="home_prompt_right" />} placeholders={placeholder} />
             </pluginRuntime.Slot>
           </AxonComposer>
         </box>
-        <box flexGrow={1} minHeight={0} />
         <Toast />
       </box>
       <box width="100%" flexShrink={0}>
