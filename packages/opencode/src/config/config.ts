@@ -427,7 +427,10 @@ export const layer = Layer.effect(
         const deps: Fiber.Fiber<void>[] = []
 
         for (const dir of directories) {
-          if (dir.endsWith(".opencode") || dir.endsWith(".axon") || dir === Flag.OPENCODE_CONFIG_DIR) {
+          if (
+            (dir !== Global.Path.config && (dir.endsWith(".opencode") || dir.endsWith(".axon"))) ||
+            dir === Flag.OPENCODE_CONFIG_DIR
+          ) {
             const base = dir.endsWith(".axon") ? "axon" : "opencode"
             for (const file of [`${base}.json`, `${base}.jsonc`]) {
               const source = path.join(dir, file)

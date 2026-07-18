@@ -94,7 +94,10 @@ Use Axon-native names for new projects:
 
 - `axon.json` or `axon.jsonc` for project configuration
 - `.axon/` for project-scoped agents, commands, plugins, skills, and tools
-- the platform-specific Axon config directory for global configuration
+- `~/.axon/axon.jsonc` for global server configuration
+- `~/.axon/tui.json` for global terminal interface configuration
+
+On first launch after upgrading, Axon copies missing files from the legacy `~/.config/axon/` directory into `~/.axon/`. Existing files in `~/.axon/` are never overwritten.
 
 Run the following command to see the exact config, data, cache, state, and log paths on the current machine:
 

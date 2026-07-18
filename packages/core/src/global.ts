@@ -10,7 +10,8 @@ import { LayerNode } from "./effect/layer-node"
 const app = "axon"
 const data = path.join(xdgData!, app)
 const cache = path.join(xdgCache!, app)
-const config = path.join(xdgConfig!, app)
+const config = path.join(os.homedir(), `.${app}`)
+const legacyConfig = path.join(xdgConfig!, app)
 const state = path.join(xdgState!, app)
 const tmp = path.join(os.tmpdir(), app)
 
@@ -31,6 +32,10 @@ const paths = {
 export const Path = paths
 
 Flock.setGlobal({ state })
+
+if (legacyConfig !== config) {
+  await fs.cp(legacyConfig, config, { recursive: true, force: false, errorOnExist: false }).catch(() => {})
+}
 
 await Promise.all([
   fs.mkdir(Path.data, { recursive: true }),
