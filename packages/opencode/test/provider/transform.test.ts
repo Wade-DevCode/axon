@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { Effect } from "effect"
 import { ProviderTransform } from "@/provider/transform"
 import { LLMRequestPrep } from "@/session/llm/request"
+import { SystemPrompt } from "@/session/system"
 import { ProviderV2 } from "@opencode-ai/core/provider"
 import { ModelV2 } from "@opencode-ai/core/model"
 
@@ -382,7 +383,7 @@ describe("ProviderTransform.options - gpt-5 textVerbosity", () => {
           options: {},
           permission: [],
         } as any,
-        system: [],
+        system: ["workspace system instructions"],
         messages: [{ role: "user", content: "Hello" }],
         tools: {},
         provider: { id: "azure", options: { useCompletionUrls: true } } as any,
@@ -399,6 +400,8 @@ describe("ProviderTransform.options - gpt-5 textVerbosity", () => {
     expect(result.params.options.reasoningEffort).toBe("high")
     expect(result.params.options.reasoningSummary).toBeUndefined()
     expect(result.params.options.include).toBeUndefined()
+    expect(result.system[0].endsWith(SystemPrompt.PRODUCT_IDENTITY)).toBe(true)
+    expect(result.system[0]).toContain("Never claim that Axon was developed by opencode")
   })
 
   test("gpt-5.1 should have textVerbosity set to low", () => {
