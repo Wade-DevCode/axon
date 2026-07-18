@@ -1,49 +1,49 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`renders a structured wide startup sequence: wide startup 1`] = `
-"                                                                                                                        
-  AXON / STARTUP                                                                                         LOCAL RUNTIME  
-                                                                                                                        
-                                                                                                                        
-                                                             /\\                                                         
-                                                            /  \\                                                        
-                                                        /\\ /    \\                                                       
-                                                       /  X      \\                                                      
-                                                      /__/ \\______\\                                                     
-                                                        A X O N                                                         
-                                            Developer Agent for the Terminal                                            
-                                                       BY WANGHUI                                                       
-                                                                                                                        
-                                                                                                                        
-                                                                                                                        
-                       LOADING AGENTS                                                     04 / 06                       
-                                                                                                                        
-                        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━──────────────────────  67%                         
-                                                                                                                        
-                       ✓ CONFIG    ✓ WORKSPACE    ✓ PROVIDERS     ◆ AGENTS    ✓ MCP     · PLUGINS                       
-                                                                                                                        
-                                                                                                                        
-  vlocal                                                                                           INITIALIZING SYSTEM  
-                                                                                                                        
+"
+  AXON / STARTUP                                                                                         LOCAL RUNTIME
+
+
+
+
+                                            /\\
+                                           /  \\      A X O N
+                                       /\\ /    \\     Developer Agent for the Terminal
+                                      /  X      \\    BY WANGHUI
+                                     /__/ \\______\\
+
+                       LOADING AGENTS                                                     04 / 06
+                        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━──────────────────────  67%
+                       ✓ CONFIG    ✓ WORKSPACE    ✓ PROVIDERS     ◆ AGENTS    ✓ MCP     · PLUGINS
+
+
+
+
+
+
+
+  vlocal                                                                                           INITIALIZING SYSTEM
+
 "
 `;
 
 exports[`keeps startup chrome compact in a short narrow terminal: compact startup 1`] = `
-"                                                                            
-  AXON / STARTUP                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                    AXON                                    
-                                                                            
-   AGENTS                                                         04 / 06   
-                                                                            
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━─────────────────────  67%     
-                                                                            
-                                                                            
-                                                                            
-  vlocal                                                                    
-                                                                            
+"
+  AXON / STARTUP
+
+
+
+                                    AXON
+
+   AGENTS                                                         04 / 06
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━─────────────────────  67%
+
+
+
+
+
+  vlocal
+
 "
 `;

@@ -54,6 +54,13 @@ async function renderFrame(component: () => JSX.Element, options: { width: numbe
   }
 }
 
+function snapshotFrame(frame: string) {
+  return frame
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .join("\n")
+}
+
 test("renders a stable full Axon wordmark without block escapes", async () => {
   const frame = await renderFrame(() => <AxonLogo size="full" />, { width: 100, height: 12 })
 
@@ -72,6 +79,15 @@ test("renders a compact Axon wordmark without large artwork", async () => {
   expect(frame).not.toContain("Developer Agent for the Terminal")
   expect(frame).not.toContain("WANGHUI")
   expect(frame).not.toContain("/\\")
+})
+
+test("renders a horizontal Axon lockup for wide startup screens", async () => {
+  const frame = await renderFrame(() => <AxonLogo size="lockup" />, { width: 100, height: 8 })
+
+  expect(frame).toContain("A X O N")
+  expect(frame).toContain("Developer Agent for the Terminal")
+  expect(frame).toContain("BY WANGHUI")
+  expect(frame).toContain("/\\")
 })
 
 test("keeps Logo as a full Axon compatibility wrapper", async () => {
@@ -101,7 +117,7 @@ test("renders a structured wide startup sequence", async () => {
   expect(frame).toContain("✓ CONFIG")
   expect(frame).toContain("67%")
   expect(frame).toContain("INITIALIZING SYSTEM")
-  expect(frame).toMatchSnapshot("wide startup")
+  expect(snapshotFrame(frame)).toMatchSnapshot("wide startup")
 })
 
 test("keeps startup chrome compact in a short narrow terminal", async () => {
@@ -121,7 +137,7 @@ test("keeps startup chrome compact in a short narrow terminal", async () => {
   expect(frame).not.toContain("Developer Agent for the Terminal")
   expect(frame).not.toContain("INITIALIZING SYSTEM")
   expect(frame).not.toContain("◆ AGENTS")
-  expect(frame).toMatchSnapshot("compact startup")
+  expect(snapshotFrame(frame)).toMatchSnapshot("compact startup")
 })
 
 test("renders the real responsive Home route and preserves its plugin and Prompt paths", async () => {

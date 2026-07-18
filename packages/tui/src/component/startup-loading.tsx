@@ -71,11 +71,17 @@ export function StartupLoading() {
           </Show>
         </box>
         <box flexGrow={1} minHeight={0} />
-        <box alignItems="center" flexDirection="column" flexShrink={0} gap={1}>
-          <AxonLogo size={showSplashArtwork(dimensions().width, dimensions().height) ? "full" : "compact"} />
-          <Show when={density() !== "compact"}>
-            <box height={1} />
-          </Show>
+        <box alignItems="center" flexDirection="column" flexShrink={0}>
+          <AxonLogo
+            size={
+              density() === "wide"
+                ? "lockup"
+                : showSplashArtwork(dimensions().width, dimensions().height)
+                  ? "full"
+                  : "compact"
+            }
+          />
+          <box height={1} />
           <box width={trackWidth() + 8} flexDirection="row" justifyContent="space-between">
             <text fg={snapshot().error ? theme.error : theme.text} attributes={TextAttributes.BOLD}>
               {snapshot().error
@@ -112,7 +118,7 @@ export function StartupLoading() {
             </text>
           </Show>
         </box>
-        <box flexGrow={1} minHeight={0} />
+        <box flexGrow={2} minHeight={0} />
         <box width="100%" flexDirection="row" justifyContent="space-between" flexShrink={0}>
           <text fg={theme.borderActive}>v{InstallationVersion}</text>
           <Show when={density() !== "compact"}>
