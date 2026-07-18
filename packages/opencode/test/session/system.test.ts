@@ -83,8 +83,9 @@ const it = testEffect(
 
 describe("session.system", () => {
   test("product identity names the developer and official repository", () => {
-    expect(SystemPrompt.PRODUCT_IDENTITY).toContain("Wang Hui (王辉)")
+    expect(SystemPrompt.PRODUCT_IDENTITY).toContain("Axon 由王辉开发。")
     expect(SystemPrompt.PRODUCT_IDENTITY).toContain("https://github.com/Wade-DevCode/axon")
+    expect(SystemPrompt.PRODUCT_IDENTITY).toContain('Never use "Wade" as the developer name')
   })
 
   it.effect("skills output is sorted by name and stable across calls", () =>

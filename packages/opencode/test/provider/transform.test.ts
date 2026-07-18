@@ -402,6 +402,7 @@ describe("ProviderTransform.options - gpt-5 textVerbosity", () => {
     expect(result.params.options.include).toBeUndefined()
     expect(result.system[0].endsWith(SystemPrompt.PRODUCT_IDENTITY)).toBe(true)
     expect(result.system[0]).toContain("Never claim that Axon was developed by opencode")
+    expect(result.system[0]).toContain('Never use "Wade" as the developer name')
   })
 
   test("gpt-5.1 should have textVerbosity set to low", () => {
