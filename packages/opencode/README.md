@@ -1,20 +1,36 @@
 # Axon
 
-A fast, open-source AI coding agent for your terminal — a fork of [opencode](https://github.com/anomalyco/opencode) (MIT).
+**Developer Agent for the Terminal**
+
+Axon is a terminal-native coding agent for exploring repositories, planning changes, editing code, running tools, reviewing diffs, debugging failures, and coordinating larger tasks.
+
+## Install
 
 ```bash
-npm i -g @wanghuimvp/axon
+npm install -g @wanghuimvp/axon
+cd your-project
+axon providers login
 axon
 ```
 
-Rich TUI, multi-provider models, plugins, MCP, and LSP. Press `Tab` to switch modes: **build · plan · ask · debug · orchestrator**.
+The npm installer selects the native binary for Windows, macOS, or Linux on x64 and ARM64 systems.
+
+## Core workflows
 
 ```bash
-axon                 # start the TUI
-axon run "<message>" # non-interactive run
-axon --help          # all commands
+axon                              # open the TUI
+axon run "fix the failing tests"  # run a non-interactive task
+axon --continue                   # continue the latest session
+axon models                       # list available models
+axon providers login              # connect a model provider
+axon serve                        # start the headless server
+axon --help                       # show all commands
 ```
 
-See the [project README](https://github.com/Wade-DevCode/axon) for full install, usage, and configuration.
+Axon includes agents for building, planning, coding, Q&A, debugging, review, and orchestration. It also supports MCP servers, plugins, custom agents, skills, LSP integration, a web interface, and ACP.
 
-> Windows (x64) is published today; macOS and Linux builds are on the way.
+- [Documentation and source](https://github.com/Wade-DevCode/axon)
+- [GitHub Releases](https://github.com/Wade-DevCode/axon/releases/latest)
+- [License](https://github.com/Wade-DevCode/axon/blob/main/LICENSE)
+
+Axon is built from [OpenCode](https://github.com/anomalyco/opencode) and distributed under the MIT License.
