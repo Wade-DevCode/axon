@@ -6,7 +6,7 @@ import { useSync } from "../../context/sync"
 import { useTheme } from "../../context/theme"
 import { Product } from "../../util/product"
 
-export function HomeWelcome() {
+export function HomeWelcome(props: { embedded?: boolean }) {
   const pluginRuntime = usePluginRuntime()
   const sync = useSync()
   const local = useLocal()
@@ -21,8 +21,8 @@ export function HomeWelcome() {
         maxWidth={62}
         alignSelf="flex-start"
         flexDirection="column"
-        marginLeft={2}
-        paddingTop={1}
+        marginLeft={props.embedded ? 0 : 2}
+        paddingTop={props.embedded ? 0 : 1}
         flexShrink={0}
       >
         <box
@@ -81,7 +81,7 @@ export function HomeWelcome() {
           </box>
         </box>
       </box>
-      <box width="100%" paddingLeft={2} paddingRight={2}>
+      <box width="100%" paddingLeft={props.embedded ? 0 : 2} paddingRight={2}>
         <pluginRuntime.Slot name="home_bottom" />
       </box>
     </>

@@ -1203,9 +1203,11 @@ export function Session() {
                 flexGrow={1}
                 scrollAcceleration={scrollAcceleration()}
               >
-                <box height={1} />
+                <Show when={route.origin !== "home"}>
+                  <box height={1} />
+                </Show>
                 <Show when={route.origin === "home"}>
-                  <HomeWelcome />
+                  <HomeWelcome embedded />
                 </Show>
                 <For each={messages()}>
                   {(message, index) => (
