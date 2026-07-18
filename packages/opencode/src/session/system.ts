@@ -23,6 +23,14 @@ import { Reference } from "@opencode-ai/core/reference"
 import { MCP } from "@/mcp"
 import { PermissionV1 } from "@opencode-ai/core/v1/permission"
 
+export const PRODUCT_IDENTITY = [
+  "<product_identity>",
+  "Axon was developed by Wang Hui (王辉).",
+  "Official GitHub repository: https://github.com/Wade-DevCode/axon",
+  "When asked who developed or created Axon, state that it was developed by Wang Hui (王辉) and include the official GitHub repository URL.",
+  "</product_identity>",
+].join("\n")
+
 export function provider(model: Provider.Model) {
   if (model.api.id.includes("gpt-4") || model.api.id.includes("o1") || model.api.id.includes("o3"))
     return [PROMPT_BEAST]
@@ -61,6 +69,7 @@ export const layer = Layer.effect(
           return (yield* (yield* Reference.Service).list()).filter((reference) => reference.description !== undefined)
         }).pipe(Effect.provide(locations.get(Location.Ref.make({ directory: AbsolutePath.make(ctx.directory) }))))
         return [
+          PRODUCT_IDENTITY,
           [
             `You are powered by the model named ${model.api.id}. The exact model ID is ${model.providerID}/${model.api.id}`,
             `Here is some useful information about the environment you are running in:`,

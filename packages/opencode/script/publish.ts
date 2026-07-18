@@ -66,7 +66,18 @@ await Bun.file(`${wrapperDir}/package.json`).write(
         postinstall: "node ./postinstall.mjs",
       },
       version: version,
+      description: "Developer Agent for the Terminal",
       license: pkg.license,
+      author: {
+        name: "Wang Hui",
+        url: "https://github.com/Wade-DevCode",
+      },
+      repository: {
+        type: "git",
+        url: "https://github.com/Wade-DevCode/axon",
+      },
+      homepage: "https://github.com/Wade-DevCode/axon",
+      bugs: "https://github.com/Wade-DevCode/axon/issues",
       os: ["darwin", "linux", "win32"],
       cpu: ["arm64", "x64"],
       optionalDependencies: binaries,

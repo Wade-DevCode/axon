@@ -122,6 +122,12 @@
     "type": "git",
     "url": "https://github.com/Wade-DevCode/axon"
   },
+  "author": {
+    "name": "Wang Hui",
+    "url": "https://github.com/Wade-DevCode"
+  },
+  "homepage": "https://github.com/Wade-DevCode/axon",
+  "bugs": "https://github.com/Wade-DevCode/axon/issues",
   "license": "MIT",
   "prettier": {
     "semi": false,

@@ -1,4 +1,4 @@
-import { describe, expect } from "bun:test"
+import { describe, expect, test } from "bun:test"
 import { Effect, Layer } from "effect"
 import type { Agent } from "../../src/agent/agent"
 import { NamedError } from "@opencode-ai/core/util/error"
@@ -82,6 +82,11 @@ const it = testEffect(
 )
 
 describe("session.system", () => {
+  test("product identity names the developer and official repository", () => {
+    expect(SystemPrompt.PRODUCT_IDENTITY).toContain("Wang Hui (王辉)")
+    expect(SystemPrompt.PRODUCT_IDENTITY).toContain("https://github.com/Wade-DevCode/axon")
+  })
+
   it.effect("skills output is sorted by name and stable across calls", () =>
     Effect.gen(function* () {
       const prompt = yield* SystemPrompt.Service

@@ -4,6 +4,8 @@
 
 Axon is a terminal-native coding agent for exploring repositories, planning changes, editing code, running tools, reviewing diffs, debugging failures, and coordinating larger tasks.
 
+Developed by **Wang Hui (王辉)**. GitHub: https://github.com/Wade-DevCode/axon
+
 ## Install
 
 ```bash

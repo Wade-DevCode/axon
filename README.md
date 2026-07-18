@@ -6,6 +6,8 @@
 
 Turn repository-scale work into reviewed code, directly from your shell.
 
+Developed by **Wang Hui (王辉)**
+
 [![npm version](https://img.shields.io/npm/v/@wanghuimvp/axon?style=flat&logo=npm&label=npm)](https://www.npmjs.com/package/@wanghuimvp/axon)
 [![GitHub release](https://img.shields.io/github/v/release/Wade-DevCode/axon?style=flat&logo=github&label=release)](https://github.com/Wade-DevCode/axon/releases/latest)
 [![platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-3b82f6)](#platforms)
@@ -140,3 +142,9 @@ See [SECURITY.md](./SECURITY.md) for the threat model and reporting process.
 Axon is built from [OpenCode](https://github.com/anomalyco/opencode) and remains close to its configuration and extension ecosystem. General engine improvements should be contributed upstream when possible; Axon-specific branding and integration work belongs in this repository.
 
 OpenCode and Axon are distributed under the [MIT License](./LICENSE). Credit and thanks go to the OpenCode maintainers and contributors whose work forms the foundation of this project.
+
+## Author
+
+Axon is developed and maintained by **Wang Hui (王辉)**.
+
+- GitHub: https://github.com/Wade-DevCode/axon
