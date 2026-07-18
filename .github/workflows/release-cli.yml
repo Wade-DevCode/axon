@@ -40,7 +40,7 @@ jobs:
         env:
           OPENCODE_VERSION: ${{ steps.version.outputs.version }}
           OPENCODE_CHANNEL: latest
-        run: bun ./packages/opencode/script/build.ts --skip-install
+        run: bun ./packages/opencode/script/build.ts
 
       - name: Package release assets
         shell: bash
