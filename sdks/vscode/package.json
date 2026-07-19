@@ -1,14 +1,19 @@
 {
-  "name": "axon",
-  "displayName": "Axon",
-  "description": "Axon for VS Code",
-  "version": "1.17.10",
-  "publisher": "sst-dev",
+  "name": "axon-developer-agent",
+  "displayName": "Axon Developer Agent",
+  "description": "Run Axon as an AI coding agent in the VS Code sidebar.",
+  "version": "0.1.5",
+  "preview": true,
+  "publisher": "wanghuimvp",
   "repository": {
     "type": "git",
     "url": "https://github.com/Wade-DevCode/axon"
   },
   "license": "MIT",
+  "homepage": "https://github.com/Wade-DevCode/axon",
+  "bugs": {
+    "url": "https://github.com/Wade-DevCode/axon/issues"
+  },
   "icon": "images/icon.png",
   "galleryBanner": {
     "color": "#000000",
@@ -18,78 +23,91 @@
     "vscode": "^1.94.0"
   },
   "categories": [
+    "Machine Learning",
     "Other"
   ],
-  "activationEvents": [],
+  "keywords": [
+    "ai",
+    "agent",
+    "axon",
+    "vscode",
+    "terminal",
+    "coding",
+    "developer tools"
+  ],
+  "activationEvents": [
+    "onView:axon.sidebar"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "axon.openTerminal",
-        "title": "Open Axon",
-        "icon": {
-          "light": "images/button-dark.svg",
-          "dark": "images/button-light.svg"
-        }
+        "command": "axon.openSidebar",
+        "title": "Axon: Open Sidebar",
+        "icon": "$(sparkle)"
       },
       {
-        "command": "axon.openNewTerminal",
-        "title": "Open Axon in new tab",
-        "icon": {
-          "light": "images/button-dark.svg",
-          "dark": "images/button-light.svg"
-        }
-      },
-      {
-        "command": "axon.addFilepathToTerminal",
-        "title": "Add Filepath to Terminal"
+        "command": "axon.restartServer",
+        "title": "Axon: Restart Local Server",
+        "icon": "$(refresh)"
       }
     ],
-    "menus": {
-      "editor/title": [
+    "viewsContainers": {
+      "secondarySidebar": [
         {
-          "command": "axon.openNewTerminal",
-          "group": "navigation"
+          "id": "axonViewContainer",
+          "title": "Axon",
+          "icon": "images/sidebar.svg"
         }
       ]
     },
-    "keybindings": [
-      {
-        "command": "axon.openTerminal",
-        "title": "Run Axon",
-        "key": "cmd+escape",
-        "mac": "cmd+escape",
-        "win": "ctrl+escape",
-        "linux": "ctrl+escape"
-      },
-      {
-        "command": "axon.openNewTerminal",
-        "title": "Run Axon",
-        "key": "cmd+shift+escape",
-        "mac": "cmd+shift+escape",
-        "win": "ctrl+shift+escape",
-        "linux": "ctrl+shift+escape"
-      },
-      {
-        "command": "axon.addFilepathToTerminal",
-        "title": "Axon: Insert At-Mentioned",
-        "key": "cmd+alt+k",
-        "mac": "cmd+alt+k",
-        "win": "ctrl+alt+K",
-        "linux": "ctrl+alt+K"
+    "views": {
+      "axonViewContainer": [
+        {
+          "id": "axon.sidebar",
+          "type": "webview",
+          "name": "Axon"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "axon.restartServer",
+          "when": "view == axon.sidebar",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Axon",
+      "properties": {
+        "axon.server.command": {
+          "type": "string",
+          "default": "axon",
+          "description": "Axon CLI command or executable path used by the sidebar."
+        },
+        "axon.server.startupTimeout": {
+          "type": "number",
+          "default": 30000,
+          "minimum": 5000,
+          "maximum": 120000,
+          "description": "Time in milliseconds to wait for the local Axon server."
+        }
       }
-    ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "bun run package",
-    "compile": "bun run check-types && bun run lint && node esbuild.js",
+    "build:webview": "bun run ./script/build-webview.ts",
+    "compile": "bun run build:webview && bun typecheck && bun run lint && node esbuild.js",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "bun run check-types && bun run lint && node esbuild.js --production",
+    "package": "bun run build:webview && bun typecheck && bun run lint && node esbuild.js --production",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "bun run compile-tests && bun run compile && bun run lint",
-    "check-types": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test"
   },

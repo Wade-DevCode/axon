@@ -200,7 +200,7 @@ export const DESKTOP_MENU: DesktopMenu[] = [
     id: "help",
     label: "Help",
     items: [
-      { type: "item", label: "Axon Documentation", href: "https://opencode.ai/docs" },
+      { type: "item", label: "Axon Documentation", href: "https://github.com/Wade-DevCode/axon#readme" },
       { type: "item", label: "Support", href: "https://github.com/Wade-DevCode/axon/issues" },
       { type: "item", label: "Export Logs...", command: "logs.export" },
       { type: "separator" },

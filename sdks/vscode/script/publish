@@ -12,10 +12,15 @@ version=$(echo "$latest_tag" | sed 's/^vscode-v//')
 echo "Latest version: $version"
 
 # package-marketplace
-vsce package --no-git-tag-version --no-update-package-json --no-dependencies --skip-license -o dist/axon.vsix "$version"
+package_path="dist/axon-${version}.vsix"
+vsce package --no-git-tag-version --no-update-package-json --no-dependencies --skip-license -o "$package_path" "$version"
 
 # publish-marketplace
-vsce publish --packagePath dist/axon.vsix
+vsce publish --packagePath "$package_path"
 
 # publish-openvsx
-npx ovsx publish dist/axon.vsix -p "$OPENVSX_TOKEN"
+if [ -n "${OPENVSX_TOKEN:-}" ]; then
+    npx ovsx publish "$package_path" -p "$OPENVSX_TOKEN"
+else
+    echo "OPENVSX_TOKEN is not configured; skipping Open VSX"
+fi

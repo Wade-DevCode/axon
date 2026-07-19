@@ -428,7 +428,7 @@ export function DialogConnectProvider(props: { provider: string; directory?: Acc
               <div class="text-14-regular text-text-base">{language.t("provider.connect.axonZen.line2")}</div>
               <div class="text-14-regular text-text-base">
                 {language.t("provider.connect.axonZen.visit.prefix")}
-                <Link href="https://opencode.ai/zen" tabIndex={-1}>
+                <Link href="https://github.com/Wade-DevCode/axon#configuration" tabIndex={-1}>
                   {language.t("provider.connect.axonZen.visit.link")}
                 </Link>
                 {language.t("provider.connect.axonZen.visit.suffix")}

@@ -1,34 +1,58 @@
-# Axon VS Code Extension
+# Axon Developer Agent
 
-A Visual Studio Code extension that integrates Axon directly into your development workflow.
+Use Axon as an AI coding agent in the VS Code sidebar. Work with the current folder, review changes, switch models, and continue existing Axon sessions without leaving the editor.
 
-## Prerequisites
-
-This extension requires the Axon CLI to be installed on your system.
+![Axon running in the VS Code sidebar](images/marketplace.png)
 
 ## Features
 
-- **Quick Launch**: Use `Cmd+Esc` (Mac) or `Ctrl+Esc` (Windows/Linux) to open Axon in a split terminal view, or focus an existing terminal session if one is already running.
-- **New Session**: Use `Cmd+Shift+Esc` (Mac) or `Ctrl+Shift+Esc` (Windows/Linux) to start a new Axon terminal session, even if one is already open. You can also click the Axon button in the UI.
-- **Context Awareness**: Automatically share your current selection or tab with Axon.
-- **File Reference Shortcuts**: Use `Cmd+Option+K` (Mac) or `Alt+Ctrl+K` (Linux/Windows) to insert file references. For example, `@File#L37-42`.
+- Run the full Axon conversation experience in VS Code's secondary sidebar.
+- Use the open workspace as project context without creating a visible terminal.
+- Review files and diffs, approve tools and permissions, and manage sessions from the editor.
+- Use the same providers, models, credentials, and preferences as the Axon CLI.
+- Keep the local runtime private: the extension starts `axon serve` on a loopback address with a random per-process password.
 
-## Support
+## Install
 
-This is an early release. If you encounter issues or have feedback, please create an issue at https://github.com/Wade-DevCode/axon/issues.
+Install the Axon CLI first:
 
-## Development
+```sh
+npm install -g @wanghuimvp/axon@latest
+```
 
-1. `code sdks/vscode` - Open the `sdks/vscode` directory in VS Code. **Do not open from repo root.**
-2. `bun install` - Run inside the `sdks/vscode` directory.
-3. Press `F5` to start debugging - This launches a new VS Code window with the extension loaded.
+Configure at least one provider through the CLI, then install this extension from the Visual Studio Marketplace.
 
-#### Making Changes
+Open a folder in VS Code and run **Axon: Open Sidebar** from the Command Palette. Axon also appears in the secondary sidebar.
 
-`tsc` and `esbuild` watchers run automatically during debugging (visible in the Terminal tab). Changes to the extension are automatically rebuilt in the background.
+## Shared CLI Configuration
 
-To test your changes:
+The extension starts the installed Axon CLI, so it automatically uses the same configuration as the terminal application:
 
-1. In the debug VS Code window, press `Cmd+Shift+P`
-2. Search for `Developer: Reload Window`
-3. Reload to see your changes without restarting the debug session
+- `~/.axon/axon.jsonc` for providers and server settings
+- `~/.axon/tui.json` for interface preferences
+- the same Axon state directory for recent models and sessions
+
+There is no separate VS Code provider login. Changes made by either interface are available to the other.
+
+## Requirements
+
+- VS Code 1.94 or later
+- Axon CLI available on `PATH`
+- Windows, macOS, or Linux on a platform supported by the Axon npm package
+
+If the extension cannot locate the CLI, verify it from a terminal with `axon --version`. A custom executable path can be set with `axon.server.command` in VS Code settings.
+
+## Troubleshooting
+
+- Run **Axon: Restart Local Server** after changing CLI configuration or upgrading Axon.
+- Open a folder before starting the sidebar; Axon uses that folder as its workspace.
+- If a model works in the CLI but not in VS Code, restart the sidebar so it reloads the current CLI model state.
+- Report reproducible problems in the [Axon issue tracker](https://github.com/Wade-DevCode/axon/issues).
+
+## Project
+
+Axon is developed by Wang Hui and released under the MIT License. Source code, releases, and documentation are available in the [Axon GitHub repository](https://github.com/Wade-DevCode/axon).
+
+## Extension Development
+
+Open `sdks/vscode` as the VS Code workspace, run `bun install`, and press `F5`. Use **Developer: Reload Window** in the Extension Development Host after rebuilding.

@@ -1,6 +1,7 @@
 // @refresh reload
 
 import * as Sentry from "@sentry/solid"
+import { HashRouter } from "@solidjs/router"
 import { render } from "solid-js/web"
 import { AppBaseProviders, AppInterface } from "@/app"
 import { type Platform, PlatformProvider } from "@/context/platform"
@@ -12,6 +13,16 @@ import pkg from "../package.json"
 import { ServerConnection } from "./context/server"
 
 const DEFAULT_SERVER_URL_KEY = "axon.settings.dat:defaultServerUrl"
+const VSCODE_MODEL_MIGRATION_KEY = "axon.vscode.model-state.v1"
+const GLOBAL_MODEL_KEY = "axon.global.dat:model"
+type ModelKey = { providerID: string; modelID: string }
+type VsCodeBootstrap = {
+  serverUrl: string
+  authToken: string
+  route: string
+  modelState?: { recent: ModelKey[]; variant: Record<string, string> }
+}
+const vscode = (window as typeof window & { __AXON_VSCODE__?: VsCodeBootstrap }).__AXON_VSCODE__
 
 const getLocale = () => {
   if (typeof navigator !== "object") return "en" as const
@@ -51,6 +62,55 @@ const setStorage = (key: string, value: string | null) => {
   }
 }
 
+const seedVsCodeModels = () => {
+  if (!vscode?.modelState?.recent.length) return
+  if (getStorage(VSCODE_MODEL_MIGRATION_KEY)) return
+
+  const stored = getStorage(GLOBAL_MODEL_KEY)
+  const parsed = (() => {
+    if (!stored) return {}
+    try {
+      const value: unknown = JSON.parse(stored)
+      if (typeof value === "object" && value !== null && !Array.isArray(value)) return value
+      return {}
+    } catch {
+      return {}
+    }
+  })()
+  const current = parsed as Record<string, unknown>
+  const recent = Array.isArray(current.recent)
+    ? current.recent.filter(
+        (item): item is ModelKey =>
+          typeof item === "object" &&
+          item !== null &&
+          !Array.isArray(item) &&
+          typeof (item as Record<string, unknown>).providerID === "string" &&
+          typeof (item as Record<string, unknown>).modelID === "string",
+      )
+    : []
+  const models = [...vscode.modelState.recent, ...recent]
+    .filter(
+      (item, index, items) =>
+        items.findIndex(
+          (candidate) => candidate.providerID === item.providerID && candidate.modelID === item.modelID,
+        ) === index,
+    )
+    .slice(0, 5)
+  const variant =
+    typeof current.variant === "object" && current.variant !== null && !Array.isArray(current.variant)
+      ? { ...(current.variant as Record<string, unknown>), ...vscode.modelState.variant }
+      : vscode.modelState.variant
+
+  const workspaceModels = Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index)).filter(
+    (key): key is string => !!key?.startsWith("axon.workspace.") && key.endsWith(":model-selection"),
+  )
+  for (const key of workspaceModels) {
+    localStorage.removeItem(key)
+  }
+  setStorage(GLOBAL_MODEL_KEY, JSON.stringify({ ...current, recent: models, variant }))
+  setStorage(VSCODE_MODEL_MIGRATION_KEY, "1")
+}
+
 const readDefaultServerUrl = () => getStorage(DEFAULT_SERVER_URL_KEY)
 const writeDefaultServerUrl = (url: string | null) => setStorage(DEFAULT_SERVER_URL_KEY, url)
 
@@ -69,7 +129,7 @@ const notify: Platform["notify"] = async (title, description, href) => {
 
   const notification = new Notification(title, {
     body: description ?? "",
-    icon: "https://opencode.ai/favicon-96x96-v3.png",
+    icon: "/favicon-96x96-v3.png",
   })
 
   notification.onclick = () => {
@@ -100,6 +160,7 @@ if (!(root instanceof HTMLElement) && import.meta.env.DEV) {
 }
 
 const getCurrentUrl = () => {
+  if (vscode) return vscode.serverUrl
   if (location.hostname.includes("opencode.ai")) return "http://localhost:4096"
   if (import.meta.env.DEV)
     return `http://${import.meta.env.VITE_AXON_SERVER_HOST ?? "localhost"}:${import.meta.env.VITE_AXON_SERVER_PORT ?? "4096"}`
@@ -107,6 +168,7 @@ const getCurrentUrl = () => {
 }
 
 const getDefaultUrl = () => {
+  if (vscode) return vscode.serverUrl
   const lsDefault = readDefaultServerUrl()
   if (lsDefault) return lsDefault
   return getCurrentUrl()
@@ -128,6 +190,7 @@ const platform: Platform = {
   restart,
   notify,
   getDefaultServer: async () => {
+    if (vscode) return ServerConnection.Key.make(vscode.serverUrl)
     const stored = readDefaultServerUrl()
     return stored ? ServerConnection.Key.make(stored) : null
   },
@@ -154,7 +217,11 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 }
 
 if (root instanceof HTMLElement) {
-  const auth = authFromToken(new URLSearchParams(location.search).get("auth_token"))
+  seedVsCodeModels()
+  if (vscode && !location.hash) {
+    location.hash = vscode.route
+  }
+  const auth = authFromToken(vscode?.authToken ?? new URLSearchParams(location.search).get("auth_token"))
   clearAuthToken()
   const server: ServerConnection.Http = {
     type: "http",
@@ -169,6 +236,7 @@ if (root instanceof HTMLElement) {
       <PlatformProvider value={platform}>
         <AppBaseProviders>
           <AppInterface
+            router={vscode ? HashRouter : undefined}
             defaultServer={ServerConnection.Key.make(getDefaultUrl())}
             canonicalLocalServer={ServerConnection.key(server)}
             servers={[server]}

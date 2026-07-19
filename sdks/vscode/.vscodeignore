@@ -2,8 +2,13 @@
 .vscode-test/**
 out/**
 node_modules/**
+dist/unpacked-*/**
+dist/*-profile*/**
+dist/wordmark-preview.*
+dist/*.vsix
 src/**
 script/**
+images/icon-source.svg
 .gitignore
 .yarnrc
 bun.lock
