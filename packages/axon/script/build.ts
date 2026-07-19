@@ -17,6 +17,7 @@ const generated = await import("./generate.ts")
 import { Script } from "@axon-ai/script"
 import pkg from "../package.json"
 import pluginPkg from "../../plugin/package.json"
+import { releaseTargetName, releaseTargets } from "./targets"
 
 const singleFlag = process.argv.includes("--single")
 const baselineFlag = process.argv.includes("--baseline")
@@ -24,6 +25,15 @@ const skipInstall = process.argv.includes("--skip-install")
 const sourcemapsFlag = process.argv.includes("--sourcemaps")
 const plugin = createSolidTransformPlugin()
 const skipEmbedWebUi = process.argv.includes("--skip-embed-web-ui")
+const platform = process.argv.find((arg) => arg.startsWith("--platform="))?.slice("--platform=".length)
+
+if (platform && !["windows", "linux", "darwin"].includes(platform)) {
+  throw new Error(`Unsupported platform: ${platform}`)
+}
+
+if (singleFlag && platform) {
+  throw new Error("--single and --platform cannot be used together")
+}
 
 const createEmbeddedWebUIBundle = async () => {
   console.log(`Building Web UI to embed in the binary`)
@@ -51,71 +61,8 @@ const createEmbeddedWebUIBundle = async () => {
 
 const embeddedFileMap = skipEmbedWebUi ? null : await createEmbeddedWebUIBundle()
 
-const allTargets: {
-  os: string
-  arch: "arm64" | "x64"
-  abi?: "musl"
-  avx2?: false
-}[] = [
-  {
-    os: "linux",
-    arch: "arm64",
-  },
-  {
-    os: "linux",
-    arch: "x64",
-  },
-  {
-    os: "linux",
-    arch: "x64",
-    avx2: false,
-  },
-  {
-    os: "linux",
-    arch: "arm64",
-    abi: "musl",
-  },
-  {
-    os: "linux",
-    arch: "x64",
-    abi: "musl",
-  },
-  {
-    os: "linux",
-    arch: "x64",
-    abi: "musl",
-    avx2: false,
-  },
-  {
-    os: "darwin",
-    arch: "arm64",
-  },
-  {
-    os: "darwin",
-    arch: "x64",
-  },
-  {
-    os: "darwin",
-    arch: "x64",
-    avx2: false,
-  },
-  {
-    os: "win32",
-    arch: "arm64",
-  },
-  {
-    os: "win32",
-    arch: "x64",
-  },
-  {
-    os: "win32",
-    arch: "x64",
-    avx2: false,
-  },
-]
-
 const targets = singleFlag
-  ? allTargets.filter((item) => {
+  ? releaseTargets.filter((item) => {
       if (item.os !== process.platform || item.arch !== process.arch) {
         return false
       }
@@ -133,7 +80,11 @@ const targets = singleFlag
 
       return true
     })
-  : allTargets
+  : releaseTargets.filter((item) => {
+      if (!platform) return true
+      if (platform === "windows") return item.os === "win32"
+      return item.os === platform
+    })
 
 await $`rm -rf dist`
 
@@ -153,16 +104,7 @@ if (!skipInstall) {
   }
 }
 for (const item of targets) {
-  const name = [
-    pkg.name,
-    // changing to win32 flags npm for some reason
-    item.os === "win32" ? "windows" : item.os,
-    item.arch,
-    item.avx2 === false ? "baseline" : undefined,
-    item.abi === undefined ? undefined : item.abi,
-  ]
-    .filter(Boolean)
-    .join("-")
+  const name = releaseTargetName(pkg.name, item)
   console.log(`building ${name}`)
   await $`mkdir -p dist/${name}/bin`
 

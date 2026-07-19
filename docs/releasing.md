@@ -1,47 +1,75 @@
-# Axon release
+# Axon CLI releases
 
-Axon publishes its CLI through npm. The npm package is a small wrapper that selects one of the Windows, Linux, or macOS binary packages for the current machine.
+GitHub Actions is the only supported environment for official CLI releases. The workflow provides credentials and a clean Linux runner; `packages/axon/script/release.ts` owns version validation, target selection, builds, npm publication, verification, and GitHub Release assets.
 
-## Windows development machines
+PowerShell and Shell scripts only dispatch the workflow. They do not build binaries, invoke WSL, copy `dist`, or run `npm publish` locally.
 
-Install and sign in once:
+## Repository setup
+
+Configure the following GitHub Actions secret:
+
+- `NPM_TOKEN`: npm token with write access to `@wanghuimvp/axon` and the unscoped `axon-*` platform packages. Token-based publishing must be allowed to bypass 2FA.
+
+The workflow uses the repository `GITHUB_TOKEN` to create an all-platform GitHub Release.
+
+## Windows-only npm release
+
+Use this scope for a Windows test release. It publishes the three Windows platform packages and `@wanghuimvp/axon`, but does not create a Git tag or GitHub Release.
+
+npm versions are immutable. After a Windows-only release, use a new version for the later all-platform release so the wrapper can declare all 12 platform packages.
+
+From PowerShell:
 
 ```powershell
-wsl --install -d Ubuntu
-npm login
+.\script\release.ps1 -Version 0.5.47 -Scope windows
 ```
 
-Then, from a clean Axon checkout on `dev`, publish every platform with:
-
-```powershell
-bun run release:all:patch
-```
-
-Use `release:all:minor` for a minor release. To check the local prerequisites without building or publishing:
-
-```powershell
-bun run release:all:dry-run
-```
-
-The command creates a temporary Linux build checkout in WSL, builds all CLI targets there, copies only `packages/axon/dist` back to the Windows checkout, and publishes all platform packages plus `@wanghuimvp/axon`.
-
-## Linux and macOS development machines
-
-Install Bun, run `npm login`, then execute:
+From Bash:
 
 ```bash
-bash script/release-all.sh --bump patch
+bash script/release.sh --version 0.5.47 --scope windows
 ```
 
-## Verification
+## All-platform release
 
-After publishing, verify the wrapper and a package from each operating system:
+The all-platform scope publishes all 12 platform packages and the wrapper, verifies a clean installation, then creates a GitHub Release with 12 archives and `checksums.txt`.
+
+From PowerShell:
 
 ```powershell
-npm view @wanghuimvp/axon version dist-tags --json
-npm view axon-windows-x64 version
-npm view axon-linux-x64 version
-npm view axon-darwin-arm64 version
+.\script\release.ps1 -Version 0.5.47 -Scope all
 ```
 
-Do not use `.github/workflows/publish.yml` for Axon npm releases. It is an upstream desktop-release workflow that requires Blacksmith, Azure signing, and Apple signing credentials.
+From Bash:
+
+```bash
+bash script/release.sh --version 0.5.47 --scope all
+```
+
+Pushing a `v*` tag also runs an all-platform release. Do not push a release tag for a Windows-only test release.
+
+## Direct workflow dispatch
+
+The local scripts are optional. The equivalent GitHub CLI command is:
+
+```bash
+gh workflow run release-cli.yml --repo Wade-DevCode/axon --ref main -f version=0.5.47 -f scope=windows
+```
+
+Monitor the run with:
+
+```bash
+gh run watch --repo Wade-DevCode/axon
+```
+
+## Local verification
+
+Local builds are never releases and do not require npm credentials:
+
+```powershell
+$env:AXON_VERSION = "0.5.47-local"
+$env:AXON_CHANNEL = "local"
+bun run --cwd packages/axon script/build.ts --single --skip-install
+```
+
+The legacy `.github/workflows/publish.yml` is for the broader upstream desktop and service release process. Do not use it for Axon CLI npm releases.
