@@ -88,8 +88,7 @@ await Bun.file(`${wrapperDir}/package.json`).write(
 )
 
 // Publish all platform binary packages, then the wrapper. npm-only (no docker/AUR/homebrew).
-const tasks = Object.entries(binaries).map(async ([name]) => {
+for (const [name] of Object.entries(binaries)) {
   await publish(`./dist/${name}`, name, binaries[name])
-})
-await Promise.all(tasks)
+}
 await publish(wrapperDir, PUBLISH_NAME, version)

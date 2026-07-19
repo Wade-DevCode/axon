@@ -10,6 +10,7 @@ import { releaseTargetName, releaseTargets } from "./targets"
 const dir = path.resolve(import.meta.dir, "..")
 const releaseDir = path.join(dir, "release")
 const wrapperName = "@wanghuimvp/axon"
+const npm = process.platform === "win32" ? "npm.cmd" : "npm"
 const scope =
   process.argv.find((arg) => arg.startsWith("--scope="))?.slice("--scope=".length) ??
   process.env.AXON_RELEASE_SCOPE ??
@@ -30,6 +31,7 @@ delete releaseEnv.AXON_RELEASE
 
 process.chdir(dir)
 
+await run([npm, "whoami"])
 await validateExistingWrapper()
 await run(["bun", "./script/build.ts", ...(scope === "windows" ? ["--platform=windows"] : [])])
 await validateBuild()
@@ -105,7 +107,7 @@ async function verifyRegistry() {
 
 async function verifyCleanInstall() {
   const prefix = path.join(os.tmpdir(), `axon-install-${crypto.randomUUID()}`)
-  await run(["npm", "install", "--prefix", prefix, `${wrapperName}@${version}`])
+  await run([npm, "install", "--prefix", prefix, `${wrapperName}@${version}`])
   const process = Bun.spawn([path.join(prefix, "node_modules", ".bin", "axon"), "--version"], {
     cwd: dir,
     env: releaseEnv,
