@@ -23,6 +23,7 @@ on:
 concurrency: release-cli-${{ inputs.version || github.ref_name }}
 
 permissions:
+  id-token: write
   contents: write
 
 jobs:
@@ -50,3 +51,10 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: false
         run: bun ./packages/axon/script/release.ts
+
+  release-desktop-windows:
+    needs: release
+    uses: ./.github/workflows/release-desktop.yml
+    with:
+      version: ${{ inputs.version || github.ref_name }}
+    secrets: inherit
