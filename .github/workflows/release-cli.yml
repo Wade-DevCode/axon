@@ -38,15 +38,15 @@ jobs:
 
       - name: Build CLI binaries
         env:
-          OPENCODE_VERSION: ${{ steps.version.outputs.version }}
-          OPENCODE_CHANNEL: latest
-        run: bun ./packages/opencode/script/build.ts
+          AXON_VERSION: ${{ steps.version.outputs.version }}
+          AXON_CHANNEL: latest
+        run: bun ./packages/axon/script/build.ts
 
       - name: Package release assets
         shell: bash
         run: |
           mkdir -p release
-          for directory in packages/opencode/dist/axon-*; do
+          for directory in packages/axon/dist/axon-*; do
             name="$(basename "$directory")"
             if [[ "$name" == axon-windows-* ]]; then
               (cd "$directory" && zip -qr "$GITHUB_WORKSPACE/release/$name.zip" .)

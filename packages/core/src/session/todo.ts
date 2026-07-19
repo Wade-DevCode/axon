@@ -2,7 +2,7 @@ export * as SessionTodo from "./todo"
 
 import { asc, eq } from "drizzle-orm"
 import { Context, Effect, Layer } from "effect"
-import { SessionTodo, SessionTodoInfo } from "@opencode-ai/schema/session-todo"
+import { SessionTodo, SessionTodoInfo } from "@axon-ai/schema/session-todo"
 import { Database } from "../database/database"
 import { EventV2 } from "../event"
 import { SessionSchema } from "./schema"
@@ -21,7 +21,7 @@ export interface Interface {
   readonly get: (sessionID: SessionSchema.ID) => Effect.Effect<ReadonlyArray<Info>>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/v2/SessionTodo") {}
+export class Service extends Context.Service<Service, Interface>()("@axon/v2/SessionTodo") {}
 
 export const layer = Layer.effect(
   Service,

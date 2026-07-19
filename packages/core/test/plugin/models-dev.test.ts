@@ -1,16 +1,16 @@
 import path from "path"
 import { describe, expect } from "bun:test"
 import { Effect, Layer } from "effect"
-import { Catalog } from "@opencode-ai/core/catalog"
-import { Integration } from "@opencode-ai/core/integration"
-import { Credential } from "@opencode-ai/core/credential"
-import { EventV2 } from "@opencode-ai/core/event"
-import { Flag } from "@opencode-ai/core/flag/flag"
-import { Location } from "@opencode-ai/core/location"
-import { ModelsDev } from "@opencode-ai/core/models-dev"
-import { ModelsDevPlugin } from "@opencode-ai/core/plugin/models-dev"
-import { Policy } from "@opencode-ai/core/policy"
-import { AbsolutePath } from "@opencode-ai/core/schema"
+import { Catalog } from "@axon-ai/core/catalog"
+import { Integration } from "@axon-ai/core/integration"
+import { Credential } from "@axon-ai/core/credential"
+import { EventV2 } from "@axon-ai/core/event"
+import { Flag } from "@axon-ai/core/flag/flag"
+import { Location } from "@axon-ai/core/location"
+import { ModelsDev } from "@axon-ai/core/models-dev"
+import { ModelsDevPlugin } from "@axon-ai/core/plugin/models-dev"
+import { Policy } from "@axon-ai/core/policy"
+import { AbsolutePath } from "@axon-ai/core/schema"
 import { location } from "../fixture/location"
 import { testEffect } from "../lib/effect"
 import { catalogHost, host, integrationHost } from "./host"
@@ -34,11 +34,11 @@ describe("ModelsDevPlugin", () => {
     Effect.acquireUseRelease(
       Effect.sync(() => {
         const previous = {
-          path: Flag.OPENCODE_MODELS_PATH,
-          disabled: Flag.OPENCODE_DISABLE_MODELS_FETCH,
+          path: Flag.AXON_MODELS_PATH,
+          disabled: Flag.AXON_DISABLE_MODELS_FETCH,
         }
-        Flag.OPENCODE_MODELS_PATH = path.join(import.meta.dir, "fixtures", "models-dev.json")
-        Flag.OPENCODE_DISABLE_MODELS_FETCH = true
+        Flag.AXON_MODELS_PATH = path.join(import.meta.dir, "fixtures", "models-dev.json")
+        Flag.AXON_DISABLE_MODELS_FETCH = true
         return previous
       }),
       () =>
@@ -68,8 +68,8 @@ describe("ModelsDevPlugin", () => {
         }).pipe(Effect.provide(ModelsDev.defaultLayer)),
       (previous) =>
         Effect.sync(() => {
-          Flag.OPENCODE_MODELS_PATH = previous.path
-          Flag.OPENCODE_DISABLE_MODELS_FETCH = previous.disabled
+          Flag.AXON_MODELS_PATH = previous.path
+          Flag.AXON_DISABLE_MODELS_FETCH = previous.disabled
         }),
     ),
   )

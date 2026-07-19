@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import type { ToolPart, ToolState } from "@opencode-ai/sdk/v2"
+import type { ToolPart, ToolState } from "@axon-ai/sdk/v2"
 import { changeSummary, toolRow } from "../../../src/routes/session/presentation"
 
 function tool(name: string, state: ToolState, id = `${name}-part`): ToolPart {

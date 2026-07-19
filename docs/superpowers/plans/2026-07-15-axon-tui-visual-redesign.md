@@ -24,7 +24,7 @@
 ## File Structure
 
 - `packages/tui/src/theme/assets/axon.json`: Axon's dark and light semantic palette.
-- `packages/tui/src/theme/index.ts`: registers the real Axon palette instead of aliasing the opencode palette.
+- `packages/tui/src/theme/index.ts`: registers the real Axon palette instead of aliasing the axon palette.
 - `packages/tui/src/util/brand-layout.ts`: pure width and height breakpoints shared by home, splash, and session chrome.
 - `packages/tui/src/util/startup.ts`: pure startup phase ordering, progress, failure, and visibility calculations.
 - `packages/tui/src/context/startup.tsx`: reactive startup progress shared by SyncProvider, App, and splash.
@@ -93,7 +93,7 @@ Run from `packages/tui`:
 bun test test/util/brand-layout.test.ts test/theme.test.ts
 ```
 
-Expected: FAIL because `util/brand-layout` does not exist and `DEFAULT_THEMES.Axon` still points to `opencode.json`.
+Expected: FAIL because `util/brand-layout` does not exist and `DEFAULT_THEMES.Axon` still points to `axon.json`.
 
 - [ ] **Step 3: Add the pure breakpoints**
 
@@ -113,7 +113,7 @@ export function showSplashArtwork(width: number, height: number) {
 
 - [ ] **Step 4: Add and register the real Axon theme**
 
-Create `theme/assets/axon.json` by copying `theme/assets/opencode.json` byte-for-byte, then replace only its `defs` object with this complete palette. Keeping the copied `theme` object unchanged preserves every required semantic key while redirecting all of them to Axon colors:
+Create `theme/assets/axon.json` from the existing theme structure, then replace only its `defs` object with this complete palette. Keeping the `theme` object unchanged preserves every required semantic key while redirecting all of them to Axon colors:
 
 ```json
 {
@@ -161,7 +161,7 @@ Create `theme/assets/axon.json` by copying `theme/assets/opencode.json` byte-for
 }
 ```
 
-Import the copied asset as `axon` and register `Axon: axon`. Leave the existing `opencode` import available under its own name only if another registry entry already exposes it; do not silently remove a public theme.
+Import the copied asset as `axon` and register `Axon: axon`. Leave the existing `axon` import available under its own name only if another registry entry already exposes it; do not silently remove a public theme.
 
 - [ ] **Step 5: Run palette and layout tests**
 
@@ -681,17 +681,17 @@ Expected: no output and exit 0.
 Run from the repository root after confirming no local `axon.exe` process holds the previous binary:
 
 ```bash
-bun ./packages/opencode/script/build.ts
+bun ./packages/axon/script/build.ts
 ```
 
-Expected: `packages/opencode/dist/axon-windows-x64/bin/axon.exe` plus the configured Linux and macOS Axon artifacts are produced without build errors.
+Expected: `packages/axon/dist/axon-windows-x64/bin/axon.exe` plus the configured Linux and macOS Axon artifacts are produced without build errors.
 
 - [ ] **Step 5: Perform Windows Terminal visual QA**
 
 Run the built Windows binary at these terminal sizes:
 
 ```powershell
-packages\opencode\dist\axon-windows-x64\bin\axon.exe
+packages\axon\dist\axon-windows-x64\bin\axon.exe
 ```
 
 Verify 72x20, 100x30, and 140x40 layouts against the approved references. Confirm the splash uses real progress, the compact mode does not wrap important labels, the composer accepts input, autocomplete opens, image paste still works, a live tool moves through running to success/failure, and theme switching recolors every new component.
@@ -701,7 +701,7 @@ Verify 72x20, 100x30, and 140x40 layouts against the approved references. Confir
 Use the same publish script's staged package directory and pack it without publishing:
 
 ```bash
-cd packages/opencode/dist/axon
+cd packages/axon/dist/axon
 bun pm pack
 npm install -g ./wanghuimvp-axon-*.tgz
 axon --version

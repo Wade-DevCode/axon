@@ -1,7 +1,7 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`renders the real session hierarchy responsively and preserves the Prompt plugin contract: wide session 1`] = `
-"   AXON  opencode · feature/axon                                               AX Ready · build
+"   AXON  axon · feature/axon                                               AX Ready · build
   ──────────────────────────────────────────────────────────────────────────────────────────────    Axon session layout
                                                                                                     ses_axon_session
 
@@ -37,7 +37,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 
 
 
-    Test Model · /tmp/opencode/packages/tui                      tab agents  ctrl+p commands
+    Test Model · /tmp/axon/packages/tui                      tab agents  ctrl+p commands
 
    2 files changed                                                                                  • Axon local
 

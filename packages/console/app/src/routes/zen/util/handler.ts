@@ -1,19 +1,19 @@
 import type { APIEvent } from "@solidjs/start/server"
-import { and, Database, eq, isNull, lt, or, sql } from "@opencode-ai/console-core/drizzle/index.js"
-import { KeyTable } from "@opencode-ai/console-core/schema/key.sql.js"
-import { BillingTable, LiteTable, SubscriptionTable, UsageTable } from "@opencode-ai/console-core/schema/billing.sql.js"
-import { centsToMicroCents } from "@opencode-ai/console-core/util/price.js"
-import { getMonthlyBounds, getWeekBounds } from "@opencode-ai/console-core/util/date.js"
-import { Identifier } from "@opencode-ai/console-core/identifier.js"
-import { Billing } from "@opencode-ai/console-core/billing.js"
-import { Actor } from "@opencode-ai/console-core/actor.js"
-import { WorkspaceTable } from "@opencode-ai/console-core/schema/workspace.sql.js"
-import { ZenData } from "@opencode-ai/console-core/model.js"
-import { Subscription } from "@opencode-ai/console-core/subscription.js"
-import { BlackData } from "@opencode-ai/console-core/black.js"
-import { UserTable } from "@opencode-ai/console-core/schema/user.sql.js"
-import { ModelTable } from "@opencode-ai/console-core/schema/model.sql.js"
-import { ProviderTable } from "@opencode-ai/console-core/schema/provider.sql.js"
+import { and, Database, eq, isNull, lt, or, sql } from "@axon-ai/console-core/drizzle/index.js"
+import { KeyTable } from "@axon-ai/console-core/schema/key.sql.js"
+import { BillingTable, LiteTable, SubscriptionTable, UsageTable } from "@axon-ai/console-core/schema/billing.sql.js"
+import { centsToMicroCents } from "@axon-ai/console-core/util/price.js"
+import { getMonthlyBounds, getWeekBounds } from "@axon-ai/console-core/util/date.js"
+import { Identifier } from "@axon-ai/console-core/identifier.js"
+import { Billing } from "@axon-ai/console-core/billing.js"
+import { Actor } from "@axon-ai/console-core/actor.js"
+import { WorkspaceTable } from "@axon-ai/console-core/schema/workspace.sql.js"
+import { ZenData } from "@axon-ai/console-core/model.js"
+import { Subscription } from "@axon-ai/console-core/subscription.js"
+import { BlackData } from "@axon-ai/console-core/black.js"
+import { UserTable } from "@axon-ai/console-core/schema/user.sql.js"
+import { ModelTable } from "@axon-ai/console-core/schema/model.sql.js"
+import { ProviderTable } from "@axon-ai/console-core/schema/provider.sql.js"
 import { logger } from "./logger"
 import {
   AuthError,
@@ -41,8 +41,8 @@ import { createRateLimiter as createIpRateLimiter } from "./ipRateLimiter"
 import { createRateLimiter as createKeyRateLimiter } from "./keyRateLimiter"
 import { createTrialLimiter } from "./trialLimiter"
 import { createStickyTracker } from "./stickyProviderTracker"
-import { LiteData } from "@opencode-ai/console-core/lite.js"
-import { Resource } from "@opencode-ai/console-resource"
+import { LiteData } from "@axon-ai/console-core/lite.js"
+import { Resource } from "@axon-ai/console-resource"
 import { i18n, type Key } from "~/i18n"
 import { localeFromRequest } from "~/lib/language"
 import { createModelTpmLimiter } from "./modelTpmLimiter"
@@ -102,10 +102,10 @@ export async function handler(
     const ip = rawIp.includes(":") ? rawIp.split(":").slice(0, 4).join(":") : rawIp
     const rawZenApiKey = opts.parseApiKey(input.request.headers)
     const zenApiKey = rawZenApiKey === "public" ? undefined : rawZenApiKey
-    const sessionId = input.request.headers.get("x-opencode-session") ?? ""
-    const requestId = input.request.headers.get("x-opencode-request") ?? ""
-    const ocClient = input.request.headers.get("x-opencode-client") ?? ""
-    const projectId = input.request.headers.get("x-opencode-project") ?? ""
+    const sessionId = input.request.headers.get("x-axon-session") ?? ""
+    const requestId = input.request.headers.get("x-axon-request") ?? ""
+    const ocClient = input.request.headers.get("x-axon-client") ?? ""
+    const projectId = input.request.headers.get("x-axon-project") ?? ""
     const userAgent = input.request.headers.get("user-agent") ?? ""
     logger.metric({
       is_stream: isStream,
@@ -205,10 +205,10 @@ export async function handler(
           })
           headers.delete("host")
           headers.delete("content-length")
-          headers.delete("x-opencode-request")
-          headers.delete("x-opencode-session")
-          headers.delete("x-opencode-project")
-          headers.delete("x-opencode-client")
+          headers.delete("x-axon-request")
+          headers.delete("x-axon-session")
+          headers.delete("x-axon-project")
+          headers.delete("x-axon-client")
           return headers
         })(),
         body: reqBody,

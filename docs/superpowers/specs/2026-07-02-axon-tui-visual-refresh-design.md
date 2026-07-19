@@ -82,7 +82,7 @@ Only make low-risk style adjustments in phase one:
 
 Prefer changes in shared visual primitives:
 
-- `packages/tui/src/theme/assets/opencode.json` or equivalent default Axon theme asset
+- `packages/tui/src/theme/assets/axon.json` or equivalent default Axon theme asset
 - `packages/tui/src/routes/home.tsx`
 - `packages/tui/src/component/logo.tsx` or logo-adjacent home rendering
 - `packages/tui/src/component/dialog-status.tsx`
@@ -98,7 +98,7 @@ Run focused tests after implementation:
 
 - TUI unit tests affected by labels or visual helpers
 - `bun typecheck` from `packages/tui`
-- build smoke from `packages/opencode` if the TUI changes affect packaged output
+- build smoke from `packages/axon` if the TUI changes affect packaged output
 
 Manual verification should include:
 
@@ -106,4 +106,4 @@ Manual verification should include:
 - status/about surface shows author and package metadata
 - dialog selector remains usable at common terminal widths
 - session footer remains readable
-- no new OpenCode-branded public text appears in changed surfaces
+- no new Axon-branded public text appears in changed surfaces

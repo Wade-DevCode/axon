@@ -23,7 +23,7 @@ Use `release:all:minor` for a minor release. To check the local prerequisites wi
 bun run release:all:dry-run
 ```
 
-The command creates a temporary Linux build checkout in WSL, builds all CLI targets there, copies only `packages/opencode/dist` back to the Windows checkout, and publishes all platform packages plus `@wanghuimvp/axon`.
+The command creates a temporary Linux build checkout in WSL, builds all CLI targets there, copies only `packages/axon/dist` back to the Windows checkout, and publishes all platform packages plus `@wanghuimvp/axon`.
 
 ## Linux and macOS development machines
 

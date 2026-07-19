@@ -2,7 +2,7 @@
 
 ## Goal
 
-Move Axon from a rebranded opencode-style agent selector toward a Codex-like coding agent product by making modes, agents, review, and permissions understandable as first-class product concepts.
+Move Axon from a rebranded axon-style agent selector toward a Codex-like coding agent product by making modes, agents, review, and permissions understandable as first-class product concepts.
 
 Phase 1 must improve user-facing structure without destabilizing the runtime. It should reuse the existing agent and permission system, preserve existing `build` compatibility, and avoid changing execution semantics beyond explicitly scoped defaults.
 
@@ -152,7 +152,7 @@ Tests should cover behavior rather than labels only:
 - `build` remains accepted through CLI/config/session paths.
 - Agent selector displays `Code` for the code-capable default.
 - `/review` uses or selects the review agent where the command path supports agent selection.
-- Existing typecheck passes from `packages/opencode`.
+- Existing typecheck passes from `packages/axon`.
 
 Manual verification:
 

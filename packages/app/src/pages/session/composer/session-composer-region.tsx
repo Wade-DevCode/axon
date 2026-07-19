@@ -1,6 +1,6 @@
 import { Show, createEffect, createMemo, createResource, onCleanup } from "solid-js"
 import { createStore } from "solid-js/store"
-import { useSpring } from "@opencode-ai/ui/motion-spring"
+import { useSpring } from "@axon-ai/ui/motion-spring"
 import { PromptInput, type PromptInputControls, type PromptInputProps } from "@/components/prompt-input"
 import { useLanguage } from "@/context/language"
 import { usePrompt } from "@/context/prompt"

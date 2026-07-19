@@ -1,4 +1,4 @@
-import { InstallationVersion } from "@opencode-ai/core/installation/version"
+import { InstallationVersion } from "@axon-ai/core/installation/version"
 import { TextAttributes } from "@opentui/core"
 import { useTerminalDimensions } from "@opentui/solid"
 import { createMemo, For, Show } from "solid-js"

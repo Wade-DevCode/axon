@@ -11,8 +11,8 @@
 ## Global Constraints
 
 - Work from `E:\CLIProjects`.
-- Follow `AGENTS.md`: run package commands from package directories, especially `packages/opencode`.
-- Do not use `tsc` directly; use `bun typecheck` from `packages/opencode`.
+- Follow `AGENTS.md`: run package commands from package directories, especially `packages/axon`.
+- Do not use `tsc` directly; use `bun typecheck` from `packages/axon`.
 - Keep runtime compatibility for `build` in configs, sessions, CLI flags, and older transcripts.
 - Do not implement cloud execution, worktree orchestration changes, automatic security classifier, a new permission engine, or broad UI redesign in this phase.
 - Preserve `.mimocode/` as an unrelated untracked directory.
@@ -21,26 +21,26 @@
 
 ## File Structure
 
-- Modify `packages/opencode/src/agent/agent.ts`: add built-in `code` and `review` primary agents, keeping `build` behavior unchanged.
-- Create `packages/opencode/src/agent/prompt/review.txt`: review-specific system prompt used by the `review` agent.
-- Modify `packages/opencode/src/command/index.ts`: assign the built-in `/review` command to the `review` agent.
-- Modify `packages/opencode/test/agent/agent.test.ts`: add tests for `code`, `build`, `review`, and default compatibility.
-- Add or modify `packages/opencode/test/command/command.test.ts`: verify the built-in review command declares `agent: "review"`.
+- Modify `packages/axon/src/agent/agent.ts`: add built-in `code` and `review` primary agents, keeping `build` behavior unchanged.
+- Create `packages/axon/src/agent/prompt/review.txt`: review-specific system prompt used by the `review` agent.
+- Modify `packages/axon/src/command/index.ts`: assign the built-in `/review` command to the `review` agent.
+- Modify `packages/axon/test/agent/agent.test.ts`: add tests for `code`, `build`, `review`, and default compatibility.
+- Add or modify `packages/axon/test/command/command.test.ts`: verify the built-in review command declares `agent: "review"`.
 - Create `packages/tui/src/util/agent-label.ts`: map runtime agent ids to product labels and concise descriptions.
 - Add `packages/tui/test/util/agent-label.test.ts`: verify display labels for built-ins and pass-through behavior for custom agents.
 - Modify `packages/tui/src/component/dialog-agent.tsx`: use product labels/descriptions while returning runtime ids.
 - Modify `packages/tui/src/component/prompt/index.tsx`: render product mode labels and ASCII separators in prompt metadata.
 - Modify `packages/tui/src/routes/session/index.tsx`: when `plan_exit` returns from plan mode, set the code-capable runtime id consistently.
-- Run `bun test` targets from `packages/opencode` and `packages/tui` as specified below.
+- Run `bun test` targets from `packages/axon` and `packages/tui` as specified below.
 
 ---
 
 ### Task 1: Agent Runtime Adds Code And Review
 
 **Files:**
-- Modify: `packages/opencode/src/agent/agent.ts`
-- Create: `packages/opencode/src/agent/prompt/review.txt`
-- Modify: `packages/opencode/test/agent/agent.test.ts`
+- Modify: `packages/axon/src/agent/agent.ts`
+- Create: `packages/axon/src/agent/prompt/review.txt`
+- Modify: `packages/axon/test/agent/agent.test.ts`
 
 **Interfaces:**
 - Produces: built-in primary agents `code` and `review` through `Agent.Service.list()` and `Agent.Service.get(name)`.
@@ -50,7 +50,7 @@
 
 - [ ] **Step 1: Write failing tests for built-in code and review agents**
 
-Add these tests near the existing default-agent tests in `packages/opencode/test/agent/agent.test.ts`:
+Add these tests near the existing default-agent tests in `packages/axon/test/agent/agent.test.ts`:
 
 ```ts
 it.instance("returns code and review native primary agents", () =>
@@ -100,7 +100,7 @@ it.instance("review agent has a review prompt and asks before generic edits", ()
 
 - [ ] **Step 2: Run tests and verify they fail**
 
-Run from `packages/opencode`:
+Run from `packages/axon`:
 
 ```bash
 bun test test/agent/agent.test.ts --timeout 30000
@@ -110,7 +110,7 @@ Expected: FAIL because `code` and `review` are not in the built-in agent list.
 
 - [ ] **Step 3: Add review prompt file**
 
-Create `packages/opencode/src/agent/prompt/review.txt`:
+Create `packages/axon/src/agent/prompt/review.txt`:
 
 ```text
 You are Axon's code review agent.
@@ -124,7 +124,7 @@ Do not edit files during a pure review. If the user explicitly asks you to fix r
 
 - [ ] **Step 4: Add code and review agents**
 
-Modify `packages/opencode/src/agent/agent.ts`:
+Modify `packages/axon/src/agent/agent.ts`:
 
 1. Import the review prompt:
 
@@ -178,7 +178,7 @@ import PROMPT_REVIEW from "./prompt/review.txt"
 
 - [ ] **Step 5: Run tests and verify they pass**
 
-Run from `packages/opencode`:
+Run from `packages/axon`:
 
 ```bash
 bun test test/agent/agent.test.ts --timeout 30000
@@ -189,8 +189,8 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/opencode/src/agent/agent.ts packages/opencode/src/agent/prompt/review.txt packages/opencode/test/agent/agent.test.ts
-git commit -m "feat(opencode): add code and review agents"
+git add packages/axon/src/agent/agent.ts packages/axon/src/agent/prompt/review.txt packages/axon/test/agent/agent.test.ts
+git commit -m "feat(axon): add code and review agents"
 ```
 
 ---
@@ -198,8 +198,8 @@ git commit -m "feat(opencode): add code and review agents"
 ### Task 2: Built-In Review Command Uses Review Agent
 
 **Files:**
-- Modify: `packages/opencode/src/command/index.ts`
-- Add or modify: `packages/opencode/test/command/command.test.ts`
+- Modify: `packages/axon/src/command/index.ts`
+- Add or modify: `packages/axon/test/command/command.test.ts`
 
 **Interfaces:**
 - Produces: `Command.Service.get("review")` returns an `Info` object with `agent: "review"`.
@@ -207,7 +207,7 @@ git commit -m "feat(opencode): add code and review agents"
 
 - [ ] **Step 1: Write failing command test**
 
-If `packages/opencode/test/command/command.test.ts` does not exist, create it with the same fixture style used by nearby service tests. Add:
+If `packages/axon/test/command/command.test.ts` does not exist, create it with the same fixture style used by nearby service tests. Add:
 
 ```ts
 import { expect } from "bun:test"
@@ -231,7 +231,7 @@ If the required layer composition differs, adapt only enough to match existing c
 
 - [ ] **Step 2: Run test and verify it fails**
 
-Run from `packages/opencode`:
+Run from `packages/axon`:
 
 ```bash
 bun test test/command/command.test.ts --timeout 30000
@@ -241,7 +241,7 @@ Expected: FAIL because the built-in review command currently has no `agent`.
 
 - [ ] **Step 3: Set the built-in review command agent**
 
-Modify `packages/opencode/src/command/index.ts`:
+Modify `packages/axon/src/command/index.ts`:
 
 ```ts
       commands[Default.REVIEW] = {
@@ -259,7 +259,7 @@ Modify `packages/opencode/src/command/index.ts`:
 
 - [ ] **Step 4: Run command test and agent test**
 
-Run from `packages/opencode`:
+Run from `packages/axon`:
 
 ```bash
 bun test test/command/command.test.ts test/agent/agent.test.ts --timeout 30000
@@ -270,8 +270,8 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/opencode/src/command/index.ts packages/opencode/test/command/command.test.ts
-git commit -m "feat(opencode): route review command to review agent"
+git add packages/axon/src/command/index.ts packages/axon/test/command/command.test.ts
+git commit -m "feat(axon): route review command to review agent"
 ```
 
 ---
@@ -464,7 +464,7 @@ git commit -m "feat(tui): show codex-like mode labels"
 
 - [ ] **Step 1: Run targeted tests**
 
-Run from `packages/opencode`:
+Run from `packages/axon`:
 
 ```bash
 bun test test/agent/agent.test.ts test/command/command.test.ts --timeout 30000
@@ -482,7 +482,7 @@ Expected: PASS.
 
 - [ ] **Step 2: Run typecheck**
 
-Run from `packages/opencode`:
+Run from `packages/axon`:
 
 ```bash
 bun typecheck
@@ -492,7 +492,7 @@ Expected: PASS.
 
 - [ ] **Step 3: Build a local binary smoke test if typecheck passes**
 
-Run from `packages/opencode`:
+Run from `packages/axon`:
 
 ```bash
 bun run script/build.ts --single --skip-embed-web-ui
@@ -502,13 +502,13 @@ Expected: build succeeds and smoke test prints a version.
 
 - [ ] **Step 4: Smoke-check CLI help**
 
-Run from `packages/opencode`:
+Run from `packages/axon`:
 
 ```bash
 dist/axon-windows-x64/bin/axon.exe --help
 ```
 
-Expected: help output still uses `axon` and does not mention `OpenCode` in visible command headings.
+Expected: help output still uses `axon` and does not mention `Axon` in visible command headings.
 
 - [ ] **Step 5: Review diff**
 

@@ -1,8 +1,8 @@
 export * as PluginV2 from "./plugin"
 
 import { Context, Deferred, Effect, Exit, Layer, Scope } from "effect"
-import type { Plugin } from "@opencode-ai/plugin/v2/effect"
-import { PluginEvent, PluginID } from "@opencode-ai/schema/plugin"
+import type { Plugin } from "@axon-ai/plugin/v2/effect"
+import { PluginEvent, PluginID } from "@axon-ai/schema/plugin"
 import { AgentV2 } from "./agent"
 import { AISDK } from "./aisdk"
 import { Catalog } from "./catalog"
@@ -26,7 +26,7 @@ export interface Interface {
   readonly wait: (id: ID) => Effect.Effect<void>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/v2/Plugin") {}
+export class Service extends Context.Service<Service, Interface>()("@axon/v2/Plugin") {}
 
 export const layer = Layer.effect(
   Service,

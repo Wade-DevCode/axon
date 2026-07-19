@@ -13,7 +13,7 @@
 - Logo text must be plain ASCII `AXON`.
 - Keep `author: WANGHUI` unchanged in `packages/tui/src/routes/home.tsx`.
 - Do not change home prompt slots or session/footer branding.
-- Do not add OpenCode-branded public text.
+- Do not add Axon-branded public text.
 
 ---
 
@@ -58,7 +58,7 @@ Run from `packages/tui`:
 bun typecheck
 ```
 
-Run from `packages/opencode` if typecheck passes:
+Run from `packages/axon` if typecheck passes:
 
 ```powershell
 bun run script/build.ts --single --skip-embed-web-ui

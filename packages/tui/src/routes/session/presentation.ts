@@ -1,4 +1,4 @@
-import type { ToolPart } from "@opencode-ai/sdk/v2"
+import type { ToolPart } from "@axon-ai/sdk/v2"
 
 export type ToolRowStatus = "pending" | "running" | "success" | "failed" | "cancelled"
 

@@ -45,9 +45,9 @@ jobs:
         if: steps.commits.outputs.has_commits == 'true'
         uses: Wade-DevCode/axon/github@2c14fc5586fe0b88e5c04732d2e846769cc35671 # latest
         env:
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          AXON_API_KEY: ${{ secrets.AXON_API_KEY }}
         with:
-          model: opencode/gpt-5.2
+          model: axon/gpt-5.2
           agent: docs
           prompt: |
             Review the following commits from the last ${{ env.LOOKBACK_HOURS }} hours and identify any new features that may need documentation.

@@ -1,6 +1,6 @@
 /** @jsxImportSource @opentui/solid */
 import { expect, jest, test } from "bun:test"
-import type { ToolPart } from "@opencode-ai/sdk/v2"
+import type { ToolPart } from "@axon-ai/sdk/v2"
 import { testRender } from "@opentui/solid"
 import { mkdir } from "node:fs/promises"
 import path from "node:path"

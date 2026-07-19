@@ -4,21 +4,21 @@ import fs from "fs/promises"
 import path from "path"
 import { eq } from "drizzle-orm"
 import { Effect, Layer } from "effect"
-import { MoveSession } from "@opencode-ai/core/control-plane/move-session"
-import { Database } from "@opencode-ai/core/database/database"
-import { FSUtil } from "@opencode-ai/core/fs-util"
-import { Git } from "@opencode-ai/core/git"
-import { EventV2 } from "@opencode-ai/core/event"
-import { Project } from "@opencode-ai/core/project"
-import { ProjectTable } from "@opencode-ai/core/project/sql"
-import { ProjectDirectories } from "@opencode-ai/core/project/directories"
-import { AbsolutePath } from "@opencode-ai/core/schema"
-import { SessionV2 } from "@opencode-ai/core/session"
-import { LocationServiceMap } from "@opencode-ai/core/location-layer"
-import { SessionExecution } from "@opencode-ai/core/session/execution"
-import { SessionProjector } from "@opencode-ai/core/session/projector"
-import { SessionTable } from "@opencode-ai/core/session/sql"
-import { SessionStore } from "@opencode-ai/core/session/store"
+import { MoveSession } from "@axon-ai/core/control-plane/move-session"
+import { Database } from "@axon-ai/core/database/database"
+import { FSUtil } from "@axon-ai/core/fs-util"
+import { Git } from "@axon-ai/core/git"
+import { EventV2 } from "@axon-ai/core/event"
+import { Project } from "@axon-ai/core/project"
+import { ProjectTable } from "@axon-ai/core/project/sql"
+import { ProjectDirectories } from "@axon-ai/core/project/directories"
+import { AbsolutePath } from "@axon-ai/core/schema"
+import { SessionV2 } from "@axon-ai/core/session"
+import { LocationServiceMap } from "@axon-ai/core/location-layer"
+import { SessionExecution } from "@axon-ai/core/session/execution"
+import { SessionProjector } from "@axon-ai/core/session/projector"
+import { SessionTable } from "@axon-ai/core/session/sql"
+import { SessionStore } from "@axon-ai/core/session/store"
 import { tmpdir } from "./fixture/tmpdir"
 import { testEffect } from "./lib/effect"
 
@@ -67,7 +67,7 @@ async function initRepo(directory: string) {
   await $`git config core.autocrlf false`.cwd(directory).quiet()
   await $`git config core.fsmonitor false`.cwd(directory).quiet()
   await $`git config commit.gpgsign false`.cwd(directory).quiet()
-  await $`git config user.email test@opencode.test`.cwd(directory).quiet()
+  await $`git config user.email test@axon.test`.cwd(directory).quiet()
   await $`git config user.name Test`.cwd(directory).quiet()
   await fs.writeFile(path.join(directory, "tracked.txt"), "initial\n")
   await $`git add tracked.txt`.cwd(directory).quiet()

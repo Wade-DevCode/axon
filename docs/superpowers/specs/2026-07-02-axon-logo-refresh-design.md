@@ -26,4 +26,4 @@ Use a simple `AXON` wordmark instead of large block art. The logo should feel st
 
 - TUI typecheck passes.
 - Home still renders the logo via the existing `Logo` component.
-- No new OpenCode-branded public text is introduced.
+- No new Axon-branded public text is introduced.

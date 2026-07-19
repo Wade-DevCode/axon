@@ -1,29 +1,29 @@
 import { expect, test } from "bun:test"
 import { Schema } from "effect"
-import { AgentV2 } from "@opencode-ai/core/agent"
-import { ModelV2 } from "@opencode-ai/core/model"
-import { SessionV2 } from "@opencode-ai/core/session"
-import { Agent } from "@opencode-ai/schema/agent"
-import { Location } from "@opencode-ai/schema/location"
-import { Model } from "@opencode-ai/schema/model"
-import { AgentAttachment, FileAttachment, Prompt, Source } from "@opencode-ai/schema/prompt"
-import { Provider } from "@opencode-ai/schema/provider"
-import { Project } from "@opencode-ai/schema/project"
-import { Session } from "@opencode-ai/schema/session"
-import { SessionInput } from "@opencode-ai/schema/session-input"
-import { SessionMessage } from "@opencode-ai/schema/session-message"
-import { Workspace } from "@opencode-ai/schema/workspace"
-import { Command } from "@opencode-ai/schema/command"
-import { Connection } from "@opencode-ai/schema/connection"
-import { Credential } from "@opencode-ai/schema/credential"
-import { FileSystem } from "@opencode-ai/schema/filesystem"
-import { Integration } from "@opencode-ai/schema/integration"
-import { LLM } from "@opencode-ai/schema/llm"
-import { Permission } from "@opencode-ai/schema/permission"
-import { Reference } from "@opencode-ai/schema/reference"
-import { Skill } from "@opencode-ai/schema/skill"
-import { AbsolutePath, DateTimeUtcFromMillis } from "@opencode-ai/schema/schema"
-import { ProviderV2 } from "@opencode-ai/core/provider"
+import { AgentV2 } from "@axon-ai/core/agent"
+import { ModelV2 } from "@axon-ai/core/model"
+import { SessionV2 } from "@axon-ai/core/session"
+import { Agent } from "@axon-ai/schema/agent"
+import { Location } from "@axon-ai/schema/location"
+import { Model } from "@axon-ai/schema/model"
+import { AgentAttachment, FileAttachment, Prompt, Source } from "@axon-ai/schema/prompt"
+import { Provider } from "@axon-ai/schema/provider"
+import { Project } from "@axon-ai/schema/project"
+import { Session } from "@axon-ai/schema/session"
+import { SessionInput } from "@axon-ai/schema/session-input"
+import { SessionMessage } from "@axon-ai/schema/session-message"
+import { Workspace } from "@axon-ai/schema/workspace"
+import { Command } from "@axon-ai/schema/command"
+import { Connection } from "@axon-ai/schema/connection"
+import { Credential } from "@axon-ai/schema/credential"
+import { FileSystem } from "@axon-ai/schema/filesystem"
+import { Integration } from "@axon-ai/schema/integration"
+import { LLM } from "@axon-ai/schema/llm"
+import { Permission } from "@axon-ai/schema/permission"
+import { Reference } from "@axon-ai/schema/reference"
+import { Skill } from "@axon-ai/schema/skill"
+import { AbsolutePath, DateTimeUtcFromMillis } from "@axon-ai/schema/schema"
+import { ProviderV2 } from "@axon-ai/core/provider"
 
 test("Core reuses the canonical shared schemas", async () => {
   const [
@@ -44,22 +44,22 @@ test("Core reuses the canonical shared schemas", async () => {
     coreV2Schema,
     coreWorkspace,
   ] = await Promise.all([
-    import("@opencode-ai/core/command"),
-    import("@opencode-ai/core/integration/connection"),
-    import("@opencode-ai/core/credential"),
-    import("@opencode-ai/core/filesystem"),
-    import("@opencode-ai/core/integration"),
-    import("@opencode-ai/core/location"),
-    import("@opencode-ai/llm"),
-    import("@opencode-ai/core/permission"),
-    import("@opencode-ai/core/project/schema"),
-    import("@opencode-ai/core/reference"),
-    import("@opencode-ai/core/session/input"),
-    import("@opencode-ai/core/session/message"),
-    import("@opencode-ai/core/session/prompt"),
-    import("@opencode-ai/core/skill"),
-    import("@opencode-ai/core/v2-schema"),
-    import("@opencode-ai/core/workspace"),
+    import("@axon-ai/core/command"),
+    import("@axon-ai/core/integration/connection"),
+    import("@axon-ai/core/credential"),
+    import("@axon-ai/core/filesystem"),
+    import("@axon-ai/core/integration"),
+    import("@axon-ai/core/location"),
+    import("@axon-ai/llm"),
+    import("@axon-ai/core/permission"),
+    import("@axon-ai/core/project/schema"),
+    import("@axon-ai/core/reference"),
+    import("@axon-ai/core/session/input"),
+    import("@axon-ai/core/session/message"),
+    import("@axon-ai/core/session/prompt"),
+    import("@axon-ai/core/skill"),
+    import("@axon-ai/core/v2-schema"),
+    import("@axon-ai/core/workspace"),
   ])
 
   const schemas = [

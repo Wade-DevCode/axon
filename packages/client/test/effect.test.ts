@@ -1,14 +1,14 @@
 import { expect, test } from "bun:test"
 import { DateTime, Effect } from "effect"
 import { HttpClient, HttpClientResponse } from "effect/unstable/http"
-import { AbsolutePath, Agent, Location, Model, OpenCode, Prompt, Session } from "../src/effect"
+import { AbsolutePath, Agent, Location, Model, Axon, Prompt, Session } from "../src/effect"
 
 test("sessions.get returns the decoded Effect projection", async () => {
   const httpClient = HttpClient.make((request) =>
     Effect.succeed(HttpClientResponse.fromWeb(request, Response.json(session))),
   )
   const result = await Effect.gen(function* () {
-    const client = yield* OpenCode.make({ baseUrl: "http://localhost:3000" })
+    const client = yield* Axon.make({ baseUrl: "http://localhost:3000" })
     return yield* client.sessions.get({ sessionID: Session.ID.make("ses_test") })
   }).pipe(Effect.provideService(HttpClient.HttpClient, httpClient), Effect.runPromise)
 
@@ -35,7 +35,7 @@ test("session methods retain decoded Effect inputs and outputs", async () => {
     )
   })
   const result = await Effect.gen(function* () {
-    const client = yield* OpenCode.make({ baseUrl: "http://localhost:3000" })
+    const client = yield* Axon.make({ baseUrl: "http://localhost:3000" })
     const page = yield* client.sessions.list({ limit: 10 })
     const created = yield* client.sessions.create({
       location: Location.Ref.make({ directory: AbsolutePath.make("/tmp/project") }),

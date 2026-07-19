@@ -30,7 +30,7 @@ if ((git -C $repo status --porcelain).Length -ne 0) {
 }
 
 $source = (& $wsl.Source -d $Distro -- wslpath -a $repo).Trim()
-$dist = "$source/packages/opencode/dist"
+$dist = "$source/packages/axon/dist"
 $build = "/tmp/axon-release-$([guid]::NewGuid().ToString('N'))"
 $script = "$source/script/release-all.sh"
 
@@ -39,9 +39,9 @@ if ($LASTEXITCODE -ne 0) {
   throw "WSL build failed. No npm package was published."
 }
 
-$env:OPENCODE_CHANNEL = "latest"
-$env:OPENCODE_BUMP = $Bump
-Push-Location (Join-Path $repo "packages/opencode")
+$env:AXON_CHANNEL = "latest"
+$env:AXON_BUMP = $Bump
+Push-Location (Join-Path $repo "packages/axon")
 try {
   bun run script/publish.ts
 } finally {

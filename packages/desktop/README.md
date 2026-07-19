@@ -1,6 +1,6 @@
-# OpenCode Desktop
+# Axon Desktop
 
-The OpenCode Desktop app, built with Electron.
+The Axon Desktop app, built with Electron.
 
 ## Development
 

@@ -1,10 +1,10 @@
-import { SessionMessage } from "@opencode-ai/schema/session-message"
-import { SessionInput } from "@opencode-ai/schema/session-input"
-import { Prompt } from "@opencode-ai/schema/prompt"
-import { Session } from "@opencode-ai/schema/session"
-import { Project } from "@opencode-ai/schema/project"
-import { AbsolutePath, PositiveInt, RelativePath, withStatics } from "@opencode-ai/schema/schema"
-import { Workspace } from "@opencode-ai/schema/workspace"
+import { SessionMessage } from "@axon-ai/schema/session-message"
+import { SessionInput } from "@axon-ai/schema/session-input"
+import { Prompt } from "@axon-ai/schema/prompt"
+import { Session } from "@axon-ai/schema/session"
+import { Project } from "@axon-ai/schema/project"
+import { AbsolutePath, PositiveInt, RelativePath, withStatics } from "@axon-ai/schema/schema"
+import { Workspace } from "@axon-ai/schema/workspace"
 import { Context, Encoding, Result, Schema, Struct } from "effect"
 import { HttpApiEndpoint, HttpApiGroup, HttpApiMiddleware, HttpApiSchema, OpenApi } from "effect/unstable/httpapi"
 import {
@@ -16,10 +16,10 @@ import {
   SessionNotFoundError,
   UnknownError,
 } from "../errors"
-import { Agent } from "@opencode-ai/schema/agent"
-import { Model } from "@opencode-ai/schema/model"
-import { Location } from "@opencode-ai/schema/location"
-import { Revert } from "@opencode-ai/schema/revert"
+import { Agent } from "@axon-ai/schema/agent"
+import { Model } from "@axon-ai/schema/model"
+import { Location } from "@axon-ai/schema/location"
+import { Revert } from "@axon-ai/schema/revert"
 
 const SessionsQueryFields = {
   workspace: Workspace.ID.pipe(Schema.optional),

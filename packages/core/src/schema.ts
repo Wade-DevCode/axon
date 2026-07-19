@@ -7,7 +7,7 @@ import {
   PositiveInt,
   RelativePath,
   withStatics,
-} from "@opencode-ai/schema/schema"
+} from "@axon-ai/schema/schema"
 
 export {
   AbsolutePath,

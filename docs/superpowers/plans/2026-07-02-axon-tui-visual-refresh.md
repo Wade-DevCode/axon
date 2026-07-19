@@ -15,7 +15,7 @@
 - Do not change provider, model, auth, permission, session data, or keybinding behavior.
 - Do not add author text to the always-visible session footer.
 - Avoid broad edits to `packages/tui/src/routes/session/index.tsx`; prefer shared visual primitives.
-- No new OpenCode-branded public text may appear in changed surfaces.
+- No new Axon-branded public text may appear in changed surfaces.
 
 ---
 
@@ -24,7 +24,7 @@
 - `packages/tui/src/util/product.ts`: new small metadata module for product name, author label, package name, and version.
 - `packages/tui/src/routes/home.tsx`: home surface uses product metadata for the author signature under the logo.
 - `packages/tui/src/component/dialog-status.tsx`: status dialog renders product metadata before operational sections.
-- `packages/tui/src/theme/assets/opencode.json`: refresh default Axon theme colors.
+- `packages/tui/src/theme/assets/axon.json`: refresh default Axon theme colors.
 - `packages/tui/src/ui/dialog.tsx`: shared dialog panel adds border and slightly improved spacing.
 - `packages/tui/src/ui/dialog-select.tsx`: shared selector improves title, filter, selected row, footer action treatment.
 - `packages/tui/src/routes/session/footer.tsx`: session footer gets cleaner grouped status presentation.
@@ -42,7 +42,7 @@
 
 **Interfaces:**
 - Produces: `Product.info` object with `name`, `author`, `authorSignature`, `packageName`, `version`.
-- Consumes: `OPENCODE_VERSION` global constant already injected into packaged builds.
+- Consumes: `AXON_VERSION` global constant already injected into packaged builds.
 
 - [ ] **Step 1: Add failing metadata test**
 
@@ -71,7 +71,7 @@ Expected: FAIL because `../../src/util/product` does not exist.
 Create `packages/tui/src/util/product.ts`:
 
 ```ts
-declare const OPENCODE_VERSION: string
+declare const AXON_VERSION: string
 
 export namespace Product {
   export const info = {
@@ -79,7 +79,7 @@ export namespace Product {
     author: "WANGHUI",
     authorSignature: "author: WANGHUI",
     packageName: "@wanghuimvp/axon",
-    version: typeof OPENCODE_VERSION === "string" ? OPENCODE_VERSION : "dev",
+    version: typeof AXON_VERSION === "string" ? AXON_VERSION : "dev",
   } as const
 }
 ```
@@ -142,7 +142,7 @@ git commit -m "feat(tui): add axon product metadata"
 ### Task 2: Default Axon Theme Refresh
 
 **Files:**
-- Modify: `packages/tui/src/theme/assets/opencode.json`
+- Modify: `packages/tui/src/theme/assets/axon.json`
 - Test: `packages/tui/test/theme.test.ts`
 
 **Interfaces:**
@@ -151,7 +151,7 @@ git commit -m "feat(tui): add axon product metadata"
 
 - [ ] **Step 1: Update theme asset**
 
-Edit `packages/tui/src/theme/assets/opencode.json` with a more polished neutral dark/light palette. Keep every existing key present. Use cyan/blue primary accents and amber secondary accent without making the UI one hue.
+Edit `packages/tui/src/theme/assets/axon.json` with a more polished neutral dark/light palette. Keep every existing key present. Use cyan/blue primary accents and amber secondary accent without making the UI one hue.
 
 - [ ] **Step 2: Verify theme schema resolution**
 
@@ -166,7 +166,7 @@ Expected: PASS, proving the default theme still resolves.
 - [ ] **Step 3: Commit**
 
 ```powershell
-git add packages/tui/src/theme/assets/opencode.json
+git add packages/tui/src/theme/assets/axon.json
 git commit -m "feat(tui): refresh default axon theme"
 ```
 
@@ -256,7 +256,7 @@ Expected: PASS.
 
 - [ ] **Step 3: Build packaged binary smoke**
 
-Run from `packages/opencode`:
+Run from `packages/axon`:
 
 ```powershell
 bun run script/build.ts --single --skip-embed-web-ui

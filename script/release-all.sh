@@ -52,14 +52,14 @@ fi
 
 bun install --frozen-lockfile
 (cd packages/app && bun install)
-OPENCODE_CHANNEL=latest OPENCODE_BUMP="$bump" bun run --cwd packages/opencode script/build.ts
+AXON_CHANNEL=latest AXON_BUMP="$bump" bun run --cwd packages/axon script/build.ts
 
 if [[ "$mode" == "publish" ]]; then
   npm whoami >/dev/null
-  OPENCODE_CHANNEL=latest OPENCODE_BUMP="$bump" bun run --cwd packages/opencode script/publish.ts
+  AXON_CHANNEL=latest AXON_BUMP="$bump" bun run --cwd packages/axon script/publish.ts
   exit 0
 fi
 
 rm -rf "$output_dir"
 mkdir -p "$(dirname "$output_dir")"
-cp -a packages/opencode/dist "$output_dir"
+cp -a packages/axon/dist "$output_dir"

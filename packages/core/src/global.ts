@@ -12,12 +12,13 @@ const data = path.join(xdgData!, app)
 const cache = path.join(xdgCache!, app)
 const config = path.join(os.homedir(), `.${app}`)
 const legacyConfig = path.join(xdgConfig!, app)
+const configMigration = path.join(config, ".migrated-from-xdg")
 const state = path.join(xdgState!, app)
 const tmp = path.join(os.tmpdir(), app)
 
 const paths = {
   get home() {
-    return process.env.OPENCODE_TEST_HOME ?? os.homedir()
+    return process.env.AXON_TEST_HOME ?? os.homedir()
   },
   data,
   bin: path.join(cache, "bin"),
@@ -33,8 +34,10 @@ export const Path = paths
 
 Flock.setGlobal({ state })
 
-if (legacyConfig !== config) {
+if (legacyConfig !== config && !(await fs.stat(configMigration).then(() => true).catch(() => false))) {
   await fs.cp(legacyConfig, config, { recursive: true, force: false, errorOnExist: false }).catch(() => {})
+  await fs.mkdir(config, { recursive: true })
+  await fs.writeFile(configMigration, "")
 }
 
 await Promise.all([
@@ -47,7 +50,7 @@ await Promise.all([
   fs.mkdir(Path.repos, { recursive: true }),
 ])
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/Global") {}
+export class Service extends Context.Service<Service, Interface>()("@axon/Global") {}
 
 export interface Interface {
   readonly home: string
@@ -66,7 +69,7 @@ export function make(input: Partial<Interface> = {}): Interface {
     home: Path.home,
     data: Path.data,
     cache: Path.cache,
-    config: Flag.OPENCODE_CONFIG_DIR ?? Path.config,
+    config: Flag.AXON_CONFIG_DIR ?? Path.config,
     state: Path.state,
     tmp: Path.tmp,
     bin: Path.bin,

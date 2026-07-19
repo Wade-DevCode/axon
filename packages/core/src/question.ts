@@ -1,7 +1,7 @@
 export * as QuestionV2 from "./question"
 
 import { Context, Deferred, Effect, Layer, Schema } from "effect"
-import { Question } from "@opencode-ai/schema/question"
+import { Question } from "@axon-ai/schema/question"
 import { EventV2 } from "./event"
 import { SessionSchema } from "./session/schema"
 
@@ -59,7 +59,7 @@ export interface Interface {
   readonly list: () => Effect.Effect<ReadonlyArray<Request>>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/v2/Question") {}
+export class Service extends Context.Service<Service, Interface>()("@axon/v2/Question") {}
 
 interface Pending {
   readonly request: Request

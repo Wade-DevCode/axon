@@ -1,4 +1,4 @@
-declare const OPENCODE_VERSION: string
+declare const AXON_VERSION: string
 
 export namespace Product {
   export const info = {
@@ -6,6 +6,6 @@ export namespace Product {
     author: "WANGHUI",
     authorSignature: "author: WANGHUI",
     packageName: "@wanghuimvp/axon",
-    version: typeof OPENCODE_VERSION === "string" ? OPENCODE_VERSION : "dev",
+    version: typeof AXON_VERSION === "string" ? AXON_VERSION : "dev",
   } as const
 }

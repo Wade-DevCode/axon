@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test"
 import fs from "fs/promises"
 import os from "os"
 import path from "path"
-import { Global } from "@opencode-ai/core/global"
+import { Global } from "@axon-ai/core/global"
 
 describe("global paths", () => {
   test("config path uses the Axon home directory", () => {

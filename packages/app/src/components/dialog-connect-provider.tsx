@@ -1,13 +1,13 @@
-import type { ProviderAuthAuthorization, ProviderAuthMethod } from "@opencode-ai/sdk/v2/client"
-import { Button } from "@opencode-ai/ui/button"
-import { useDialog } from "@opencode-ai/ui/context/dialog"
-import { Dialog } from "@opencode-ai/ui/dialog"
-import { Icon } from "@opencode-ai/ui/icon"
-import { IconButton } from "@opencode-ai/ui/icon-button"
-import { List, type ListRef } from "@opencode-ai/ui/list"
-import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
-import { Spinner } from "@opencode-ai/ui/spinner"
-import { TextField } from "@opencode-ai/ui/text-field"
+import type { ProviderAuthAuthorization, ProviderAuthMethod } from "@axon-ai/sdk/v2/client"
+import { Button } from "@axon-ai/ui/button"
+import { useDialog } from "@axon-ai/ui/context/dialog"
+import { Dialog } from "@axon-ai/ui/dialog"
+import { Icon } from "@axon-ai/ui/icon"
+import { IconButton } from "@axon-ai/ui/icon-button"
+import { List, type ListRef } from "@axon-ai/ui/list"
+import { ProviderIcon } from "@axon-ai/ui/provider-icon"
+import { Spinner } from "@axon-ai/ui/spinner"
+import { TextField } from "@axon-ai/ui/text-field"
 import { showToast } from "@/utils/toast"
 import { type Accessor, createEffect, createMemo, createResource, Match, onCleanup, onMount, Switch } from "solid-js"
 import { createStore, produce } from "solid-js/store"
@@ -422,16 +422,16 @@ export function DialogConnectProvider(props: { provider: string; directory?: Acc
     return (
       <div class="flex flex-col gap-6">
         <Switch>
-          <Match when={provider().id === "opencode"}>
+          <Match when={provider().id === "axon"}>
             <div class="flex flex-col gap-4">
-              <div class="text-14-regular text-text-base">{language.t("provider.connect.opencodeZen.line1")}</div>
-              <div class="text-14-regular text-text-base">{language.t("provider.connect.opencodeZen.line2")}</div>
+              <div class="text-14-regular text-text-base">{language.t("provider.connect.axonZen.line1")}</div>
+              <div class="text-14-regular text-text-base">{language.t("provider.connect.axonZen.line2")}</div>
               <div class="text-14-regular text-text-base">
-                {language.t("provider.connect.opencodeZen.visit.prefix")}
+                {language.t("provider.connect.axonZen.visit.prefix")}
                 <Link href="https://opencode.ai/zen" tabIndex={-1}>
-                  {language.t("provider.connect.opencodeZen.visit.link")}
+                  {language.t("provider.connect.axonZen.visit.link")}
                 </Link>
-                {language.t("provider.connect.opencodeZen.visit.suffix")}
+                {language.t("provider.connect.axonZen.visit.suffix")}
               </div>
             </div>
           </Match>

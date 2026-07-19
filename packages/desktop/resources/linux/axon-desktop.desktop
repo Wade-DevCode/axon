@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Axon
+Exec=/opt/Axon/ai.axon.desktop %U
+Terminal=false
+Type=Application
+Icon=ai.axon.desktop
+StartupWMClass=ai.axon.desktop
+NoDisplay=true
+Comment=Open source AI coding agent
+Categories=Development;

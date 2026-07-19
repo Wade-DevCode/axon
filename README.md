@@ -97,7 +97,7 @@ Use Axon-native names for new projects:
 - `~/.axon/axon.jsonc` for global server configuration
 - `~/.axon/tui.json` for global terminal interface configuration
 
-On first launch after upgrading, Axon copies missing files from the legacy `~/.config/axon/` directory into `~/.axon/`. Existing files in `~/.axon/` are never overwritten.
+On first launch after upgrading, Axon copies missing files from the legacy `~/.config/axon/` directory into `~/.axon/`. Existing files in `~/.axon/` are never overwritten, and later launches use only the new directory.
 
 Run the following command to see the exact config, data, cache, state, and log paths on the current machine:
 
@@ -105,7 +105,7 @@ Run the following command to see the exact config, data, cache, state, and log p
 axon debug paths
 ```
 
-Axon remains compatible with `opencode.json`, `opencode.jsonc`, and `.opencode/`. When both forms exist, Axon-named configuration takes precedence.
+Axon remains compatible with legacy `opencode.json`, `opencode.jsonc`, and `.opencode/` configuration. When both forms exist, Axon-named configuration takes precedence.
 
 ## Platforms
 
@@ -144,7 +144,7 @@ See [SECURITY.md](./SECURITY.md) for the threat model and reporting process.
 
 Axon is built from [OpenCode](https://github.com/anomalyco/opencode) and remains close to its configuration and extension ecosystem. General engine improvements should be contributed upstream when possible; Axon-specific branding and integration work belongs in this repository.
 
-OpenCode and Axon are distributed under the [MIT License](./LICENSE). Credit and thanks go to the OpenCode maintainers and contributors whose work forms the foundation of this project.
+Axon and Axon are distributed under the [MIT License](./LICENSE). Credit and thanks go to the Axon maintainers and contributors whose work forms the foundation of this project.
 
 ## Author
 

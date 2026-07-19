@@ -1,9 +1,9 @@
 import fs from "fs/promises"
 import os from "os"
 import { Effect, Layer } from "effect"
-import { FSUtil } from "@opencode-ai/core/fs-util"
-import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
-import { Global } from "@opencode-ai/core/global"
+import { FSUtil } from "@axon-ai/core/fs-util"
+import { EffectFlock } from "@axon-ai/core/util/effect-flock"
+import { Global } from "@axon-ai/core/global"
 
 type Msg = {
   key: string

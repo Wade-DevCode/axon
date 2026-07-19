@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test"
-import { isUnauthorizedError, OpenCode } from "../src"
+import { isUnauthorizedError, Axon } from "../src"
 
 test("sessions.get returns the wire projection", async () => {
-  const client = OpenCode.make({
+  const client = Axon.make({
     baseUrl: "http://localhost:3000",
     fetch: async (input) => {
       expect(typeof input === "string" ? input : input instanceof URL ? input.href : input.url).toBe(
@@ -19,7 +19,7 @@ test("sessions.get returns the wire projection", async () => {
 
 test("session methods use the public HTTP contract", async () => {
   const requests: Array<{ url: string; init?: RequestInit }> = []
-  const client = OpenCode.make({
+  const client = Axon.make({
     baseUrl: "http://localhost:3000",
     fetch: async (input, init) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
@@ -71,7 +71,7 @@ test("session methods use the public HTTP contract", async () => {
 })
 
 test("middleware errors remain declared client errors", async () => {
-  const client = OpenCode.make({
+  const client = Axon.make({
     baseUrl: "http://localhost:3000",
     fetch: async () =>
       Response.json({ _tag: "UnauthorizedError", message: "Authentication required" }, { status: 401 }),

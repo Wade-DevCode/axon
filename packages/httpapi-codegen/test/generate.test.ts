@@ -271,13 +271,13 @@ describe("HttpApiCodegen.generate", () => {
         ),
       ),
     )
-    const directory = await mkdtemp(join(tmpdir(), "opencode-httpapi-codegen-"))
+    const directory = await mkdtemp(join(tmpdir(), "axon-httpapi-codegen-"))
 
     try {
       await Promise.all(output.files.map((file) => Bun.write(join(directory, file.path), file.content)))
       const generated = await import(`${join(directory, "index.ts")}?t=${crypto.randomUUID()}`)
       let request: Request | undefined
-      const client = generated.OpenCode.make({
+      const client = generated.Axon.make({
         baseUrl: "https://example.com",
         fetch: async (input: RequestInfo | URL) => {
           request = input instanceof Request ? input : new Request(input)
@@ -304,12 +304,12 @@ describe("HttpApiCodegen.generate", () => {
         ),
       ),
     )
-    const directory = await mkdtemp(join(tmpdir(), "opencode-httpapi-codegen-"))
+    const directory = await mkdtemp(join(tmpdir(), "axon-httpapi-codegen-"))
 
     try {
       await Promise.all(output.files.map((file) => Bun.write(join(directory, file.path), file.content)))
       const generated = await import(`${join(directory, "index.ts")}?t=${crypto.randomUUID()}`)
-      const client = generated.OpenCode.make({
+      const client = generated.Axon.make({
         baseUrl: "https://example.com",
         fetch: async () => new Response(null, { status: 204 }),
       })
@@ -334,13 +334,13 @@ describe("HttpApiCodegen.generate", () => {
         ),
       ),
     )
-    const directory = await mkdtemp(join(tmpdir(), "opencode-httpapi-codegen-"))
+    const directory = await mkdtemp(join(tmpdir(), "axon-httpapi-codegen-"))
 
     try {
       await Promise.all(output.files.map((file) => Bun.write(join(directory, file.path), file.content)))
       const generated = await import(`${join(directory, "index.ts")}?t=${crypto.randomUUID()}`)
       let request: Request | undefined
-      const client = generated.OpenCode.make({
+      const client = generated.Axon.make({
         baseUrl: "https://example.com",
         fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
           request = input instanceof Request ? input : new Request(input, init)
@@ -371,12 +371,12 @@ describe("HttpApiCodegen.generate", () => {
         ),
       ),
     )
-    const directory = await mkdtemp(join(tmpdir(), "opencode-httpapi-codegen-"))
+    const directory = await mkdtemp(join(tmpdir(), "axon-httpapi-codegen-"))
 
     try {
       await Promise.all(output.files.map((file) => Bun.write(join(directory, file.path), file.content)))
       const generated = await import(`${join(directory, "index.ts")}?t=${crypto.randomUUID()}`)
-      const client = generated.OpenCode.make({
+      const client = generated.Axon.make({
         baseUrl: "https://example.com",
         fetch: async () => Response.json({ _tag: "Missing", message: "gone" }, { status: 404 }),
       })
@@ -400,14 +400,14 @@ describe("HttpApiCodegen.generate", () => {
         ),
       ),
     )
-    const directory = await mkdtemp(join(tmpdir(), "opencode-httpapi-codegen-"))
+    const directory = await mkdtemp(join(tmpdir(), "axon-httpapi-codegen-"))
 
     try {
       await Promise.all(output.files.map((file) => Bun.write(join(directory, file.path), file.content)))
       const generated = await import(`${join(directory, "index.ts")}?t=${crypto.randomUUID()}`)
       let requests = 0
       let url: string | undefined
-      const client = generated.OpenCode.make({
+      const client = generated.Axon.make({
         baseUrl: "https://example.com",
         fetch: async (input: RequestInfo | URL) => {
           requests++

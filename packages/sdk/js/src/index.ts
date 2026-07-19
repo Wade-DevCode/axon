@@ -1,16 +1,16 @@
 export * from "./client.js"
 export * from "./server.js"
 
-import { createOpencodeClient } from "./client.js"
-import { createOpencodeServer } from "./server.js"
+import { createAxonClient } from "./client.js"
+import { createAxonServer } from "./server.js"
 import type { ServerOptions } from "./server.js"
 
-export async function createOpencode(options?: ServerOptions) {
-  const server = await createOpencodeServer({
+export async function createAxon(options?: ServerOptions) {
+  const server = await createAxonServer({
     ...options,
   })
 
-  const client = createOpencodeClient({
+  const client = createAxonClient({
     baseUrl: server.url,
   })
 
