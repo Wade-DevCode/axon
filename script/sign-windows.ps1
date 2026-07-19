@@ -15,9 +15,12 @@ if ($env:GITHUB_ACTIONS -ne "true") {
 }
 
 $vars = @{
-  endpoint = $env:AZURE_TRUSTED_SIGNING_ENDPOINT
-  account = $env:AZURE_TRUSTED_SIGNING_ACCOUNT_NAME
-  profile = $env:AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE
+  client       = $env:AZURE_CLIENT_ID
+  tenant       = $env:AZURE_TENANT_ID
+  subscription = $env:AZURE_SUBSCRIPTION_ID
+  endpoint     = $env:AZURE_TRUSTED_SIGNING_ENDPOINT
+  account      = $env:AZURE_TRUSTED_SIGNING_ACCOUNT_NAME
+  profile      = $env:AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE
 }
 
 if ($vars.Values | Where-Object { -not $_ }) {
