@@ -106,18 +106,51 @@ async function verifyRegistry() {
 }
 
 async function verifyCleanInstall() {
-  const prefix = path.join(os.tmpdir(), `axon-install-${crypto.randomUUID()}`)
-  await run([npm, "install", "--prefix", prefix, `${wrapperName}@${version}`])
-  const process = Bun.spawn([path.join(prefix, "node_modules", ".bin", "axon"), "--version"], {
-    cwd: dir,
-    env: releaseEnv,
-    stdout: "pipe",
-    stderr: "inherit",
-  })
-  const output = await new Response(process.stdout).text()
-  const code = await process.exited
-  if (code === 0 && output.trim() === version) return
-  throw new Error(`Clean install returned ${JSON.stringify(output.trim())} with exit code ${code}`)
+  for (const attempt of Array.from({ length: 12 }, (_, index) => index + 1)) {
+    const root = path.join(os.tmpdir(), `axon-install-${crypto.randomUUID()}`)
+    const prefix = path.join(root, "prefix")
+    console.log(`$ ${npm} install --prefix ${prefix} ${wrapperName}@${version}`)
+    const install = Bun.spawn(
+      [
+        npm,
+        "install",
+        "--prefix",
+        prefix,
+        "--cache",
+        path.join(root, "cache"),
+        "--prefer-online",
+        "--no-audit",
+        "--no-fund",
+        `${wrapperName}@${version}`,
+      ],
+      {
+        cwd: dir,
+        env: releaseEnv,
+        stdin: "inherit",
+        stdout: "inherit",
+        stderr: "inherit",
+      },
+    )
+    const installed = await install.exited
+    if (installed === 0) {
+      const process = Bun.spawn([path.join(prefix, "node_modules", ".bin", "axon"), "--version"], {
+        cwd: dir,
+        env: releaseEnv,
+        stdout: "pipe",
+        stderr: "inherit",
+      })
+      const output = await new Response(process.stdout).text()
+      const code = await process.exited
+      fs.rmSync(root, { recursive: true, force: true })
+      if (code === 0 && output.trim() === version) return
+      throw new Error(`Clean install returned ${JSON.stringify(output.trim())} with exit code ${code}`)
+    }
+
+    fs.rmSync(root, { recursive: true, force: true })
+    if (attempt < 12) await Bun.sleep(5_000)
+  }
+
+  throw new Error(`npm could not install ${wrapperName}@${version} after 60 seconds`)
 }
 
 async function publishGitHubRelease() {
