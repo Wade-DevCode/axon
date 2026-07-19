@@ -429,7 +429,7 @@ export function RunFooterView(props: RunFooterViewProps) {
 
     return {
       model: model().model,
-      variant: props.currentVariant(),
+      variant: props.currentVariant() ?? (props.variants().length > 0 ? "default" : undefined),
       provider: undefined,
       // Prefer without provider, but keep it on the shared width policy if we add it back.
     }
@@ -872,7 +872,8 @@ export function RunFooterView(props: RunFooterViewProps) {
                         <Show when={info().variant}>
                           {(variant) => (
                             <>
-                              <span style={{ fg: theme().warning, bold: true }}> {variant()}</span>
+                              <span style={{ fg: theme().muted }}> · </span>
+                              <span style={{ fg: theme().warning, bold: true }}>{variant()}</span>
                             </>
                           )}
                         </Show>

@@ -158,6 +158,7 @@ async function renderFooter(
     theme?: () => RunTheme
     providers?: RunProvider[]
     currentModel?: RunInput["model"]
+    variants?: string[]
     currentVariant?: string
     subagents?: FooterSubagentState
     backgroundSubagents?: boolean
@@ -191,7 +192,7 @@ async function renderFooter(
           commands={() => input.commands ?? []}
           providers={() => input.providers}
           currentModel={() => input.currentModel}
-          variants={() => []}
+          variants={() => input.variants ?? []}
           currentVariant={() => input.currentVariant}
           state={state}
           view={view}
@@ -1043,10 +1044,25 @@ test("direct footer separates a lone context hint from model and command hint", 
     await app.renderOnce()
     const frame = app.captureCharFrame()
 
-    expect(frame).toContain("GPT-5")
-    expect(frame).toContain("xhigh · ctrl+x down subagents · ctrl+p cmd")
+    expect(frame).toContain("GPT-5 · xhigh · ctrl+x down subagents · ctrl+p cmd")
     expect(frame).not.toContain("ctrl+b background")
     expect(frame).not.toContain("queued")
+  } finally {
+    app.cleanup()
+  }
+})
+
+test("direct footer shows the default thinking level for a model with variants", async () => {
+  const app = await renderFooter({
+    providers: [provider()],
+    currentModel: { providerID: "axon", modelID: "gpt-5" },
+    variants: ["high", "minimal"],
+    width: 160,
+  })
+
+  try {
+    await app.renderOnce()
+    expect(app.captureCharFrame()).toContain("GPT-5 · default")
   } finally {
     app.cleanup()
   }
