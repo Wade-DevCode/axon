@@ -122,6 +122,7 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
       options: {},
       headers: {},
       release_date: "2025-01-01",
+      variants: { medium: { reasoningEffort: "medium" } },
     }
     const provider = { id: "test", name: "Test", source: "config", env: [], options: {}, models: { [model.id]: model } }
     if (url.pathname === "/provider") return json({ all: [provider], default: {}, connected: [provider.id] })
@@ -192,6 +193,7 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
     expect(wide).toContain("Test")
     expect(wide).toContain("Change Summary")
     expect(wide).toContain("Test Model")
+    expect(wide).toContain("Test Model · default")
     expect(wide).toContain(directory)
     expect(wide).toContain("2 files changed")
     expect(wide).toContain("12 ms")

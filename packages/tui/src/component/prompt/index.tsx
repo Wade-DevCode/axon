@@ -290,6 +290,10 @@ export function Prompt(props: PromptProps) {
     extmarkToPartIndex: new Map(),
     interrupt: 0,
   })
+  const thinkingLevel = createMemo(() => {
+    if (store.mode === "shell") return
+    return local.model.variant.current() ?? (local.model.variant.list().length > 0 ? "default" : undefined)
+  })
 
   createEffect(
     on(
@@ -1540,6 +1544,14 @@ export function Prompt(props: PromptProps) {
             <Match when={true}>
               <box flexDirection="row" gap={1} minWidth={0}>
                 <text fg={theme.text} wrapMode="none">{store.mode === "shell" ? "Shell" : local.model.parsed().model}</text>
+                <Show when={thinkingLevel()}>
+                  {(level) => (
+                    <>
+                      <text fg={theme.textMuted}>·</text>
+                      <text fg={theme.warning} wrapMode="none">{level()}</text>
+                    </>
+                  )}
+                </Show>
                 <text fg={theme.textMuted}>·</text>
                 <text fg={theme.success} wrapMode="none">{promptDirectory()}</text>
                 <Show when={usage()?.contextLeft}>
