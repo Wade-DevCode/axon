@@ -3,17 +3,27 @@ import { fileURLToPath } from "bun"
 import { useTheme } from "../context/theme"
 import { useDialog } from "../ui/dialog"
 import { useSync } from "../context/sync"
-import { For, Match, Switch, Show, createMemo } from "solid-js"
+import { useLocal } from "../context/local"
+import { useProject } from "../context/project"
+import { For, Match, Switch, Show, createMemo, onMount } from "solid-js"
 import { Product } from "../util/product"
 
 export type DialogStatusProps = {}
 
 export function DialogStatus() {
   const sync = useSync()
+  const local = useLocal()
+  const project = useProject()
   const { theme } = useTheme()
   const dialog = useDialog()
 
-  const enabledFormatters = createMemo(() => sync.data.formatter.filter((f) => f.enabled))
+  onMount(() => dialog.setSize("large"))
+
+  const enabledFormatters = createMemo(() => sync.data.formatter.filter((formatter) => formatter.enabled))
+  const connectedProviders = createMemo(() => sync.data.provider_next.connected.length)
+  const connectedMcp = createMemo(
+    () => Object.values(sync.data.mcp).filter((server) => server.status === "connected").length,
+  )
 
   const plugins = createMemo(() => {
     const list = sync.data.config.plugin ?? []
@@ -25,153 +35,93 @@ export function DialogStatus() {
         const filename = parts.pop() || path
         if (!filename.includes(".")) return { name: filename }
         const basename = filename.split(".")[0]
-        if (basename === "index") {
-          const dirname = parts.pop()
-          const name = dirname || basename
-          return { name }
-        }
+        if (basename === "index") return { name: parts.pop() || basename }
         return { name: basename }
       }
       const index = value.lastIndexOf("@")
       if (index <= 0) return { name: value, version: "latest" }
-      const name = value.substring(0, index)
-      const version = value.substring(index + 1)
-      return { name, version }
+      return { name: value.substring(0, index), version: value.substring(index + 1) }
     })
     return result.toSorted((a, b) => a.name.localeCompare(b.name))
   })
 
   return (
-    <box paddingLeft={2} paddingRight={2} gap={1} paddingBottom={1}>
+    <box paddingLeft={2} paddingRight={2} paddingBottom={1} gap={1}>
       <box flexDirection="row" justifyContent="space-between">
         <text fg={theme.text} attributes={TextAttributes.BOLD}>
-          Status
+          &gt;_ {Product.info.name} <span style={{ fg: theme.textMuted }}>(v{Product.info.version})</span>
         </text>
         <text fg={theme.textMuted} onMouseUp={() => dialog.clear()}>
-          esc
+          esc close
         </text>
       </box>
-      <box border={["left"]} borderColor={theme.borderSubtle} paddingLeft={1}>
-        <text fg={theme.text}>
-          Product <span style={{ fg: theme.textMuted }}>{Product.info.name}</span>
-        </text>
-        <text fg={theme.text}>
-          Author <span style={{ fg: theme.textMuted }}>{Product.info.author}</span>
-        </text>
-        <text fg={theme.text}>
-          Package <span style={{ fg: theme.textMuted }}>{Product.info.packageName}</span>
-        </text>
-        <text fg={theme.text}>
-          Version <span style={{ fg: theme.textMuted }}>{Product.info.version}</span>
-        </text>
+      <text fg={theme.primary}>Use /connect to add or manage model providers</text>
+      <box
+        border={["top", "bottom", "left", "right"]}
+        borderColor={theme.border}
+        paddingLeft={2}
+        paddingRight={2}
+        paddingTop={1}
+        paddingBottom={1}
+        gap={1}
+      >
+        <box flexDirection="row">
+          <text width={14} fg={theme.textMuted}>
+            Model:
+          </text>
+          <text fg={theme.text}>{local.model.parsed().provider} / {local.model.parsed().model}</text>
+        </box>
+        <box flexDirection="row">
+          <text width={14} fg={theme.textMuted}>
+            Agent:
+          </text>
+          <text fg={theme.text}>{local.agent.current()?.name ?? "None"}</text>
+        </box>
+        <box flexDirection="row">
+          <text width={14} fg={theme.textMuted}>
+            Directory:
+          </text>
+          <text fg={theme.text} wrapMode="none" truncate flexShrink={1}>
+            {project.instance.directory() || "Not connected"}
+          </text>
+        </box>
+        <box flexDirection="row">
+          <text width={14} fg={theme.textMuted}>
+            Providers:
+          </text>
+          <text fg={connectedProviders() ? theme.success : theme.warning}>
+            {connectedProviders()} connected / {sync.data.provider_next.all.length} available
+          </text>
+        </box>
+        <box flexDirection="row">
+          <text width={14} fg={theme.textMuted}>
+            Components:
+          </text>
+          <text fg={theme.text}>
+            MCP {connectedMcp()}/{Object.keys(sync.data.mcp).length} · LSP {sync.data.lsp.length} · Formatters {enabledFormatters().length} · Plugins {plugins().length}
+          </text>
+        </box>
       </box>
-      <Show when={Object.keys(sync.data.mcp).length > 0} fallback={<text fg={theme.text}>No MCP Servers</text>}>
-        <box>
-          <text fg={theme.text}>{Object.keys(sync.data.mcp).length} MCP Servers</text>
+      <Show when={Object.keys(sync.data.mcp).length > 0}>
+        <box gap={1}>
+          <text fg={theme.textMuted}>MCP Servers</text>
           <For each={Object.entries(sync.data.mcp)}>
             {([key, item]) => (
-              <box flexDirection="row" gap={1}>
-                <text
-                  flexShrink={0}
-                  style={{
-                    fg: (
-                      {
-                        connected: theme.success,
-                        failed: theme.error,
-                        disabled: theme.textMuted,
-                        needs_auth: theme.warning,
-                        needs_client_registration: theme.error,
-                      } as Record<string, typeof theme.success>
-                    )[item.status],
-                  }}
-                >
-                  •
-                </text>
-                <text fg={theme.text} wrapMode="word">
+              <box flexDirection="row" gap={1} paddingLeft={1}>
+                <text fg={item.status === "connected" ? theme.success : theme.warning}>[{item.status === "connected" ? "+" : "!"}]</text>
+                <text fg={theme.text}>
                   <b>{key}</b>{" "}
                   <span style={{ fg: theme.textMuted }}>
                     <Switch fallback={item.status}>
                       <Match when={item.status === "connected"}>Connected</Match>
-                      <Match when={item.status === "failed" && item}>{(val) => val().error}</Match>
+                      <Match when={item.status === "failed" && item}>{(value) => value().error}</Match>
                       <Match when={item.status === "disabled"}>Disabled in configuration</Match>
-                      <Match when={(item.status as string) === "needs_auth"}>
-                        Needs authentication (run: axon mcp auth {key})
-                      </Match>
+                      <Match when={(item.status as string) === "needs_auth"}>Needs authentication</Match>
                       <Match when={(item.status as string) === "needs_client_registration" && item}>
-                        {(val) => (val() as { error: string }).error}
+                        {(value) => (value() as { error: string }).error}
                       </Match>
                     </Switch>
                   </span>
-                </text>
-              </box>
-            )}
-          </For>
-        </box>
-      </Show>
-      {sync.data.lsp.length > 0 && (
-        <box>
-          <text fg={theme.text}>{sync.data.lsp.length} LSP Servers</text>
-          <For each={sync.data.lsp}>
-            {(item) => (
-              <box flexDirection="row" gap={1}>
-                <text
-                  flexShrink={0}
-                  style={{
-                    fg: {
-                      connected: theme.success,
-                      error: theme.error,
-                    }[item.status],
-                  }}
-                >
-                  •
-                </text>
-                <text fg={theme.text} wrapMode="word">
-                  <b>{item.id}</b> <span style={{ fg: theme.textMuted }}>{item.root}</span>
-                </text>
-              </box>
-            )}
-          </For>
-        </box>
-      )}
-      <Show when={enabledFormatters().length > 0} fallback={<text fg={theme.text}>No Formatters</text>}>
-        <box>
-          <text fg={theme.text}>{enabledFormatters().length} Formatters</text>
-          <For each={enabledFormatters()}>
-            {(item) => (
-              <box flexDirection="row" gap={1}>
-                <text
-                  flexShrink={0}
-                  style={{
-                    fg: theme.success,
-                  }}
-                >
-                  •
-                </text>
-                <text wrapMode="word" fg={theme.text}>
-                  <b>{item.name}</b>
-                </text>
-              </box>
-            )}
-          </For>
-        </box>
-      </Show>
-      <Show when={plugins().length > 0} fallback={<text fg={theme.text}>No Plugins</text>}>
-        <box>
-          <text fg={theme.text}>{plugins().length} Plugins</text>
-          <For each={plugins()}>
-            {(item) => (
-              <box flexDirection="row" gap={1}>
-                <text
-                  flexShrink={0}
-                  style={{
-                    fg: theme.success,
-                  }}
-                >
-                  •
-                </text>
-                <text wrapMode="word" fg={theme.text}>
-                  <b>{item.name}</b>
-                  {item.version && <span style={{ fg: theme.textMuted }}> @{item.version}</span>}
                 </text>
               </box>
             )}
