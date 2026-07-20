@@ -1,24 +1,17 @@
 import { TextAttributes } from "@opentui/core"
 import { fileURLToPath } from "bun"
 import { useTheme } from "../context/theme"
-import { useDialog } from "../ui/dialog"
 import { useSync } from "../context/sync"
 import { useLocal } from "../context/local"
 import { useProject } from "../context/project"
-import { For, Match, Switch, Show, createMemo, onMount } from "solid-js"
+import { For, Match, Switch, Show, createMemo } from "solid-js"
 import { Product } from "../util/product"
 
-export type DialogStatusProps = {}
-
-export function DialogStatus() {
+export function StatusReport() {
   const sync = useSync()
   const local = useLocal()
   const project = useProject()
   const { theme } = useTheme()
-  const dialog = useDialog()
-
-  onMount(() => dialog.setSize("large"))
-
   const enabledFormatters = createMemo(() => sync.data.formatter.filter((formatter) => formatter.enabled))
   const connectedProviders = createMemo(() => sync.data.provider_next.connected.length)
   const connectedMcp = createMemo(
@@ -46,13 +39,10 @@ export function DialogStatus() {
   })
 
   return (
-    <box paddingLeft={2} paddingRight={2} paddingBottom={1} gap={1}>
-      <box flexDirection="row" justifyContent="space-between">
+    <box marginTop={1} paddingLeft={2} paddingRight={2} paddingBottom={1} gap={1}>
+      <box flexDirection="row">
         <text fg={theme.text} attributes={TextAttributes.BOLD}>
           &gt;_ {Product.info.name} <span style={{ fg: theme.textMuted }}>(v{Product.info.version})</span>
-        </text>
-        <text fg={theme.textMuted} onMouseUp={() => dialog.clear()}>
-          esc close
         </text>
       </box>
       <text fg={theme.primary}>Use /connect to add or manage model providers</text>

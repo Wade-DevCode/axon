@@ -40,7 +40,6 @@ import { LocalProvider, useLocal } from "./context/local"
 import { DialogModel } from "./component/dialog-model"
 import { useConnected } from "./component/use-connected"
 import { DialogMcp } from "./component/dialog-mcp"
-import { DialogStatus } from "./component/dialog-status"
 import { DialogThemeList } from "./component/dialog-theme-list"
 import { DialogHelp } from "./ui/dialog-help"
 import { DialogAgent } from "./component/dialog-agent"
@@ -783,7 +782,14 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
         title: "View status",
         slashName: "status",
         run: () => {
-          dialog.replace(() => <DialogStatus />)
+          if (route.data.type !== "session") {
+            return toast.show({
+              variant: "info",
+              message: "Open a session to view status",
+              duration: 3000,
+            })
+          }
+          local.status.show(route.data.sessionID)
         },
         category: "System",
       },

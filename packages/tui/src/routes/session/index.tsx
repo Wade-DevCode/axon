@@ -89,6 +89,7 @@ import { AxonSessionHeader, AxonStatusBar } from "./chrome"
 import { changeSummary } from "./presentation"
 import { AxonToolPanel } from "./tool-panel"
 import { HomeWelcome } from "../home/welcome"
+import { StatusReport } from "../../component/dialog-status"
 
 addDefaultParsers(parsers.parsers)
 
@@ -1303,6 +1304,9 @@ export function Session() {
                     </Switch>
                   )}
                 </For>
+                <Show when={local.status.sessionID() === route.sessionID}>
+                  <StatusReport />
+                </Show>
               </scrollbox>
               <box flexShrink={0}>
                 <Show when={permissions().length > 0}>

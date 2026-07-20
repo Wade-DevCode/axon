@@ -129,6 +129,9 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
     }
 
     const agent = createAgent()
+    const [statusStore, setStatusStore] = createStore({
+      sessionID: undefined as string | undefined,
+    })
 
     function createModel() {
       const [modelStore, setModelStore] = createStore<{
@@ -536,6 +539,14 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
     const result = {
       model,
       agent,
+      status: {
+        sessionID() {
+          return statusStore.sessionID
+        },
+        show(sessionID: string) {
+          setStatusStore("sessionID", sessionID)
+        },
+      },
       mcp,
       session,
     }
