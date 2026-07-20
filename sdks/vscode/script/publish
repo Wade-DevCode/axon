@@ -13,7 +13,7 @@ echo "Latest version: $version"
 
 # package-marketplace
 package_path="dist/axon-${version}.vsix"
-vsce package --no-git-tag-version --no-update-package-json --no-dependencies --skip-license -o "$package_path" "$version"
+vsce package --no-git-tag-version --no-update-package-json --no-dependencies --allow-package-secrets home --skip-license -o "$package_path" "$version"
 
 # publish-marketplace
 vsce publish --packagePath "$package_path"
