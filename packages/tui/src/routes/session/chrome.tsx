@@ -45,11 +45,11 @@ export function AxonSessionHeader(props: {
       </box>
       <text fg={props.ready ? theme.success : theme.warning} wrapMode="none">
         AX{" "}
-        {props.density === "wide"
-          ? `${props.ready ? "Ready" : "Working"} · ${props.agent}`
-          : props.ready
+        {props.density === "compact"
+          ? props.ready
             ? "Ready"
-            : "Working"}
+            : "Working"
+          : `${props.ready ? "Ready" : "Working"} · ${props.agent}`}
       </text>
     </box>
   )

@@ -45,7 +45,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 `;
 
 exports[`renders the real session hierarchy responsively and preserves the Prompt plugin contract: normal session 1`] = `
-"   AXON feature/axon                                                                     AX Ready
+"   AXON feature/axon                                                            AX Ready · review
   ────────────────────────────────────────────────────────────────────────────────────────────────
 
      I found the issue.

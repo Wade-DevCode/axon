@@ -271,6 +271,7 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
     setup.renderer.resize(100, 30)
     const normal = await capture(setup, "Change Summary")
     expect(snapshotFrame(normal)).toMatchSnapshot("normal session")
+    expect(normal).toContain("AX Ready · review")
 
     setup.renderer.resize(72, 40)
     const compact = await capture(setup, "Change Summary")
