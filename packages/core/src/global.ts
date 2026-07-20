@@ -1,6 +1,6 @@
 import path from "path"
 import fs from "fs/promises"
-import { xdgData, xdgCache, xdgConfig, xdgState } from "xdg-basedir"
+import { xdgData, xdgCache, xdgState } from "xdg-basedir"
 import os from "os"
 import { Context, Effect, Layer } from "effect"
 import { Flock } from "./util/flock"
@@ -11,8 +11,6 @@ const app = "axon"
 const data = path.join(xdgData!, app)
 const cache = path.join(xdgCache!, app)
 const config = path.join(os.homedir(), `.${app}`)
-const legacyConfig = path.join(xdgConfig!, app)
-const configMigration = path.join(config, ".migrated-from-xdg")
 const state = path.join(xdgState!, app)
 const tmp = path.join(os.tmpdir(), app)
 
@@ -33,12 +31,6 @@ const paths = {
 export const Path = paths
 
 Flock.setGlobal({ state })
-
-if (legacyConfig !== config && !(await fs.stat(configMigration).then(() => true).catch(() => false))) {
-  await fs.cp(legacyConfig, config, { recursive: true, force: false, errorOnExist: false }).catch(() => {})
-  await fs.mkdir(config, { recursive: true })
-  await fs.writeFile(configMigration, "")
-}
 
 await Promise.all([
   fs.mkdir(Path.data, { recursive: true }),
