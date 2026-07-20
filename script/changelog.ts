@@ -48,7 +48,7 @@ Examples:
 await rm(file, { force: true })
 
 const quiet = values.quiet
-const cmd = ["axon", "run"]
+const cmd = [process.env.AXON_BIN_PATH ?? "axon", "run"]
 cmd.push("--variant", values.variant)
 cmd.push("--command", "changelog", "--", ...args)
 

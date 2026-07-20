@@ -42,9 +42,8 @@ jobs:
           axon-app-id: ${{ vars.AXON_APP_ID }}
           axon-app-secret: ${{ secrets.AXON_APP_SECRET }}
 
-      - name: Install Axon
-        if: inputs.bump || inputs.version
-        run: npm install -g @wanghuimvp/axon
+      - name: Build Axon for changelog
+        run: bun ./packages/axon/script/build.ts --single --skip-embed-web-ui
 
       - id: version
         run: |
@@ -54,6 +53,7 @@ jobs:
           AXON_BUMP: ${{ inputs.bump }}
           AXON_VERSION: ${{ inputs.version }}
           AXON_API_KEY: ${{ secrets.AXON_API_KEY }}
+          AXON_BIN_PATH: ${{ github.workspace }}/packages/axon/dist/axon-linux-x64/bin/axon
           GH_REPO: ${{ (github.ref_name == 'beta' && 'Wade-DevCode/axon-beta') || github.repository }}
     outputs:
       version: ${{ steps.version.outputs.version }}
