@@ -10,7 +10,7 @@ import fsNode from "fs/promises"
 import { Flag } from "@axon-ai/core/flag/flag"
 import { Auth } from "../auth"
 import { Env } from "../env"
-import { applyEdits, modify } from "jsonc-parser"
+import { applyEdits, modify, parse } from "jsonc-parser"
 import { InstallationLocal, InstallationPluginVersion, InstallationVersion } from "@axon-ai/core/installation/version"
 import { existsSync } from "fs"
 import { Account } from "@/account/account"
@@ -240,6 +240,13 @@ export const layer = Layer.effect(
       yield* Effect.logInfo("loading", { path: filepath })
       const text = yield* readConfigFile(filepath)
       if (!text) return {} as Info
+      const parsed = parse(text)
+      if (filepath === path.join(Global.Path.config, "config.json") && isRecord(parsed) && "providers" in parsed) {
+        const archived = yield* Effect.promise(() =>
+          fsNode.rename(filepath, `${filepath}.legacy-${Date.now()}`).then(() => true, () => false),
+        )
+        if (archived) return {} as Info
+      }
       return yield* loadConfig(text, { path: filepath }, env)
     })
 
