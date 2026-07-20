@@ -38,14 +38,16 @@ await prepareReleaseFiles()
 console.log("\n=== cli ===\n")
 await $`bun ./packages/axon/script/publish.ts`
 
-console.log("\n=== preview cli ===\n")
-await $`bun ./packages/cli/script/publish.ts`
+if (!process.env.AXON_SKIP_AUXILIARY_PUBLISH) {
+  console.log("\n=== preview cli ===\n")
+  await $`bun ./packages/cli/script/publish.ts`
 
-console.log("\n=== sdk ===\n")
-await $`bun ./packages/sdk/js/script/publish.ts`
+  console.log("\n=== sdk ===\n")
+  await $`bun ./packages/sdk/js/script/publish.ts`
 
-console.log("\n=== plugin ===\n")
-await $`bun ./packages/plugin/script/publish.ts`
+  console.log("\n=== plugin ===\n")
+  await $`bun ./packages/plugin/script/publish.ts`
+}
 
 if (Script.release && !process.env.AXON_SKIP_DESKTOP) {
   await $`bun ./packages/desktop/scripts/finalize-latest-json.ts`

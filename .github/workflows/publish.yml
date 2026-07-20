@@ -502,6 +502,7 @@ jobs:
           AXON_VERSION: ${{ needs.version.outputs.version }}
           AXON_RELEASE: ${{ needs.version.outputs.release }}
           AXON_SKIP_DESKTOP: true
+          AXON_SKIP_AUXILIARY_PUBLISH: true
           AUR_KEY: ${{ secrets.AUR_KEY }}
           GITHUB_TOKEN: ${{ steps.committer.outputs.token }}
           GH_REPO: ${{ needs.version.outputs.repo }}
