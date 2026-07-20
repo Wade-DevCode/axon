@@ -44,7 +44,7 @@ jobs:
 
       - name: Install Axon
         if: inputs.bump || inputs.version
-        run: bun i -g @wanghuimvp/axon
+        run: npm install -g @wanghuimvp/axon
 
       - id: version
         run: |
