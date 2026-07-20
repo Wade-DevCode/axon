@@ -48,7 +48,7 @@ import { useKV } from "../../context/kv"
 import { DialogSkill } from "../dialog-skill"
 import { DialogWorkspaceUnavailable } from "../dialog-workspace-unavailable"
 import { useArgs } from "../../context/args"
-import { AXON_BASE_MODE, useBindings, useCommandShortcut, useLeaderActive, useAxonKeymap } from "../../keymap"
+import { AXON_BASE_MODE, useBindings, useLeaderActive, useAxonKeymap } from "../../keymap"
 import { useTuiConfig } from "../../config"
 import { usePromptWorkspace } from "./workspace"
 import { usePromptMove } from "./move"
@@ -148,8 +148,6 @@ export function Prompt(props: PromptProps) {
   const history = usePromptHistory()
   const stash = usePromptStash()
   const keymap = useAxonKeymap()
-  const agentShortcut = useCommandShortcut("agent.cycle")
-  const paletteShortcut = useCommandShortcut("command.palette.show")
   const renderer = useRenderer()
   const exit = useExit()
   const dimensions = useTerminalDimensions()
@@ -1587,14 +1585,6 @@ export function Prompt(props: PromptProps) {
                 )}
               </Show>
               <Switch>
-                <Match when={store.mode === "normal"}>
-                  <text fg={theme.text} wrapMode="none">
-                    {agentShortcut()} <span style={{ fg: theme.textMuted }}>agents</span>
-                  </text>
-                  <text fg={theme.text} wrapMode="none">
-                    {paletteShortcut()} <span style={{ fg: theme.textMuted }}>commands</span>
-                  </text>
-                </Match>
                 <Match when={store.mode === "shell"}>
                   <text fg={theme.text}>
                     esc <span style={{ fg: theme.textMuted }}>exit shell mode</span>
