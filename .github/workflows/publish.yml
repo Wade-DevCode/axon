@@ -230,14 +230,6 @@ jobs:
       fail-fast: false
       matrix:
         settings:
-          - host: macos-26-intel
-            target: x86_64-apple-darwin
-            platform_flag: --mac --x64
-            bun_install_flags: --os=darwin --cpu=x64
-          - host: macos-26
-            target: aarch64-apple-darwin
-            platform_flag: --mac --arm64
-            bun_install_flags: --os=darwin --cpu=arm64
           - host: "windows-2025"
             target: aarch64-pc-windows-msvc
             platform_flag: --win --arm64
