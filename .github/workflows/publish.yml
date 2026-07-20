@@ -43,8 +43,10 @@ jobs:
           axon-app-secret: ${{ secrets.AXON_APP_SECRET }}
 
       - name: Build Axon for changelog
-        if: secrets.AXON_API_KEY != ''
+        if: env.AXON_API_KEY != ''
         run: bun ./packages/axon/script/build.ts --single --skip-embed-web-ui
+        env:
+          AXON_API_KEY: ${{ secrets.AXON_API_KEY }}
 
       - id: version
         run: |
