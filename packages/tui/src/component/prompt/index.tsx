@@ -1409,7 +1409,16 @@ export function Prompt(props: PromptProps) {
             />
           </box>
         </box>
-        <box width="100%" flexDirection="row" paddingLeft={2} paddingRight={2} paddingTop={1} justifyContent="space-between">
+        <box
+          width="100%"
+          height={2}
+          flexDirection="row"
+          paddingLeft={2}
+          paddingRight={2}
+          paddingTop={1}
+          justifyContent="space-between"
+          overflow="hidden"
+        >
           <Switch>
             <Match when={status().type !== "idle"}>
               <box
@@ -1542,8 +1551,10 @@ export function Prompt(props: PromptProps) {
               </box>
             </Match>
             <Match when={true}>
-              <box flexDirection="row" gap={1} minWidth={0}>
-                <text fg={theme.text} wrapMode="none">{store.mode === "shell" ? "Shell" : local.model.parsed().model}</text>
+              <box flexDirection="row" gap={1} minWidth={0} flexGrow={1} flexShrink={1}>
+                <text fg={theme.text} wrapMode="none" truncate flexShrink={1}>
+                  {store.mode === "shell" ? "Shell" : local.model.parsed().model}
+                </text>
                 <Show when={thinkingLevel()}>
                   {(level) => (
                     <>
@@ -1553,7 +1564,9 @@ export function Prompt(props: PromptProps) {
                   )}
                 </Show>
                 <text fg={theme.textMuted}>·</text>
-                <text fg={theme.success} wrapMode="none">{promptDirectory()}</text>
+                <text fg={theme.success} wrapMode="none" truncate flexGrow={1} flexShrink={1}>
+                  {promptDirectory()}
+                </text>
                 <Show when={usage()?.contextLeft}>
                   <text fg={theme.textMuted}>·</text>
                   <text fg={theme.warning} wrapMode="none">Context {usage()!.contextLeft}</text>
@@ -1567,7 +1580,7 @@ export function Prompt(props: PromptProps) {
             </Match>
           </Switch>
           <Show when={status().type !== "retry"}>
-            <box gap={2} flexDirection="row">
+            <box gap={2} flexDirection="row" flexShrink={0}>
               <Show when={editorContextLabelState() !== "none" ? editorFileLabelDisplay() : undefined}>
                 {(file) => (
                   <text fg={editorContextLabelState() === "pending" ? theme.secondary : theme.textMuted}>{file()}</text>
@@ -1575,10 +1588,10 @@ export function Prompt(props: PromptProps) {
               </Show>
               <Switch>
                 <Match when={store.mode === "normal"}>
-                  <text fg={theme.text}>
+                  <text fg={theme.text} wrapMode="none">
                     {agentShortcut()} <span style={{ fg: theme.textMuted }}>agents</span>
                   </text>
-                  <text fg={theme.text}>
+                  <text fg={theme.text} wrapMode="none">
                     {paletteShortcut()} <span style={{ fg: theme.textMuted }}>commands</span>
                   </text>
                 </Match>
