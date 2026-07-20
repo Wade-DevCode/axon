@@ -7,8 +7,16 @@ const output = [`version=${Script.version}`]
 const sha = process.env.GITHUB_SHA ?? (await $`git rev-parse HEAD`.text()).trim()
 
 if (!Script.preview) {
-  await $`bun script/changelog.ts --to ${sha}`.cwd(process.cwd())
   const file = `${process.cwd()}/UPCOMING_CHANGELOG.md`
+  if (process.env.AXON_API_KEY) {
+    await $`bun script/changelog.ts --to ${sha}`.cwd(process.cwd())
+  } else {
+    const tag = (await $`git describe --tags --abbrev=0 ${sha}`.nothrow().text()).trim()
+    const changes = tag
+      ? await $`git log --no-merges --format=${"- %s"} ${tag}..${sha}`.text()
+      : await $`git log --no-merges --format=${"- %s"} ${sha}`.text()
+    await Bun.write(file, changes || "No notable changes")
+  }
   const body = await Bun.file(file)
     .text()
     .catch(() => "No notable changes")
