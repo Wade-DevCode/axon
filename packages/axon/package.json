@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "version": "1.17.10",
+  "version": "0.5.53",
   "name": "axon",
   "type": "module",
   "license": "MIT",

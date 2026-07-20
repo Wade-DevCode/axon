@@ -1,6 +1,6 @@
 {
   "name": "@axon-ai/console-mail",
-  "version": "1.17.10",
+  "version": "0.5.53",
   "dependencies": {
     "@jsx-email/all": "2.2.3",
     "@jsx-email/cli": "1.4.3",
