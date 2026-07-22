@@ -465,6 +465,15 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
   const [pasteSummaryEnabled, setPasteSummaryEnabled] = createSignal(
     kv.get("paste_summary_enabled", !sync.data.config.experimental?.disable_paste_summary),
   )
+  const [terminalAnimationFrame, setTerminalAnimationFrame] = createSignal(0)
+
+  createEffect(() => {
+    if (!terminalTitleEnabled() || Flag.AXON_DISABLE_TERMINAL_TITLE || route.data.type !== "session") return
+    if (sync.session.status(route.data.sessionID) === "idle") return
+
+    const timer = setInterval(() => setTerminalAnimationFrame((frame) => (frame + 1) % 4), 350)
+    onCleanup(() => clearInterval(timer))
+  })
 
   // Update terminal window title based on current route and session
   createEffect(() => {
@@ -480,15 +489,17 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
     }
 
     if (route.data.type === "session") {
-      setTerminalProgress(sync.session.status(route.data.sessionID) !== "idle")
+      const working = sync.session.status(route.data.sessionID) !== "idle"
+      setTerminalProgress(working)
       const session = sync.session.get(route.data.sessionID)
+      const prefix = working ? ["◐", "◓", "◑", "◒"][terminalAnimationFrame()] + " " : ""
       if (!session || isDefaultTitle(session.title)) {
-        renderer.setTerminalTitle("Axon")
+        renderer.setTerminalTitle(`${prefix}Axon`)
         return
       }
 
       const title = session.title.length > 40 ? session.title.slice(0, 37) + "..." : session.title
-      renderer.setTerminalTitle(`Axon | ${title}`)
+      renderer.setTerminalTitle(`${prefix}Axon | ${title}`)
       return
     }
 
