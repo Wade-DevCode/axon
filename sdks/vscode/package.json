@@ -2,7 +2,7 @@
   "name": "axon",
   "displayName": "Axon",
   "description": "Axon for VS Code",
-  "version": "0.5.60",
+  "version": "0.5.61",
   "publisher": "sst-dev",
   "repository": {
     "type": "git",
