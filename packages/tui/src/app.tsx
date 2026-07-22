@@ -80,7 +80,7 @@ import { DialogVariant } from "./component/dialog-variant"
 import { createTuiAttention } from "./attention"
 import * as TuiAudio from "./audio"
 import { win32DisableProcessedInput, win32FlushInputBuffer } from "./terminal-win32"
-import { destroyRenderer } from "./util/renderer"
+import { destroyRenderer, setTerminalProgress } from "./util/renderer"
 import { cliErrorMessage, errorFormat } from "./util/error"
 import { registerSpinner } from "opentui-spinner/solid"
 import { StartupProvider, useStartupProgress } from "./context/startup"
@@ -468,14 +468,19 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
 
   // Update terminal window title based on current route and session
   createEffect(() => {
-    if (!terminalTitleEnabled() || Flag.AXON_DISABLE_TERMINAL_TITLE) return
+    if (!terminalTitleEnabled() || Flag.AXON_DISABLE_TERMINAL_TITLE) {
+      setTerminalProgress(false)
+      return
+    }
 
     if (route.data.type === "home") {
+      setTerminalProgress(false)
       renderer.setTerminalTitle("Axon")
       return
     }
 
     if (route.data.type === "session") {
+      setTerminalProgress(sync.session.status(route.data.sessionID) !== "idle")
       const session = sync.session.get(route.data.sessionID)
       if (!session || isDefaultTitle(session.title)) {
         renderer.setTerminalTitle("Axon")
@@ -488,6 +493,7 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
     }
 
     if (route.data.type === "plugin") {
+      setTerminalProgress(false)
       renderer.setTerminalTitle(`Axon | ${route.data.id}`)
     }
   })
