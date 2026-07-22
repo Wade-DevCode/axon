@@ -1,6 +1,6 @@
 {
   "name": "@axon-ai/console-function",
-  "version": "1.17.10",
+  "version": "0.5.58",
   "$schema": "https://json.schemastore.org/package.json",
   "private": true,
   "type": "module",

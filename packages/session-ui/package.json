@@ -1,6 +1,6 @@
 {
   "name": "@axon-ai/session-ui",
-  "version": "1.17.10",
+  "version": "0.5.58",
   "private": true,
   "type": "module",
   "license": "MIT",
