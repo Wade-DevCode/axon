@@ -2,7 +2,7 @@
   "name": "axon-developer-agent",
   "displayName": "Axon Developer Agent",
   "description": "Run Axon as an AI coding agent in the VS Code sidebar.",
-  "version": "0.1.6",
+  "version": "0.5.61",
   "preview": true,
   "publisher": "wanghuimvp",
   "repository": {
