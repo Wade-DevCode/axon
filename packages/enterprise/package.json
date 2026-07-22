@@ -1,6 +1,6 @@
 {
   "name": "@axon-ai/enterprise",
-  "version": "1.17.10",
+  "version": "0.5.56",
   "private": true,
   "type": "module",
   "license": "MIT",
