@@ -31,6 +31,11 @@ export function parseModel(model: string) {
   }
 }
 
+function isStoredModel(value: unknown): value is { providerID: string; modelID: string } {
+  if (!value || typeof value !== "object") return false
+  return "providerID" in value && "modelID" in value && typeof value.providerID === "string" && typeof value.modelID === "string"
+}
+
 export function recentModels(
   model: { providerID: string; modelID: string },
   recent: { providerID: string; modelID: string }[],
@@ -136,6 +141,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
     function createModel() {
       const [modelStore, setModelStore] = createStore<{
         ready: boolean
+        selected: { providerID: string; modelID: string } | undefined
         model: Record<
           string,
           {
@@ -154,6 +160,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
         variant: Record<string, string | undefined>
       }>({
         ready: false,
+        selected: undefined,
         model: {},
         recent: [],
         favorite: [],
@@ -172,6 +179,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
         }
         state.pending = false
         void writeJsonAtomic(filePath, {
+          selected: modelStore.selected,
           model: modelStore.model,
           recent: modelStore.recent,
           favorite: modelStore.favorite,
@@ -183,6 +191,11 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
         .then((x) => {
           if (!x || typeof x !== "object") return
           const value = x as Record<string, unknown>
+          const legacy = typeof value.model === "object" && value.model !== null
+            ? Object.values(value.model).find(isStoredModel)
+            : undefined
+          const selected = isStoredModel(value.selected) ? value.selected : legacy
+          if (selected) setModelStore("selected", selected)
           if (typeof value.model === "object" && value.model !== null)
             setModelStore("model", value.model as Record<string, { providerID: string; modelID: string }>)
           if (Array.isArray(value.recent)) setModelStore("recent", value.recent)
@@ -240,6 +253,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
         const a = agent.current()
         return (
           getFirstValidModel(
+            () => modelStore.selected,
             () => a && modelStore.model[a.name],
             () => a && a.model,
             fallbackModel,
@@ -286,9 +300,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
           if (next >= recent.length) next = 0
           const val = recent[next]
           if (!val) return
-          const a = agent.current()
-          if (!a) return
-          setModelStore("model", a.name, { ...val })
+          setModelStore("selected", { ...val })
           save()
         },
         cycleFavorite(direction: 1 | -1) {
@@ -315,9 +327,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
           }
           const next = favorites[index]
           if (!next) return
-          const a = agent.current()
-          if (!a) return
-          setModelStore("model", a.name, { ...next })
+          setModelStore("selected", { ...next })
           setModelStore("recent", recentModels(next, modelStore.recent))
           save()
         },
@@ -331,9 +341,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
               })
               return
             }
-            const a = agent.current()
-            if (!a) return
-            setModelStore("model", a.name, model)
+            setModelStore("selected", model)
             if (options?.recent) {
               setModelStore("recent", recentModels(model, modelStore.recent))
               save()
