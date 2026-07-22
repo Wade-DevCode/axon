@@ -14,7 +14,6 @@ import {
   untrack,
   useContext,
 } from "solid-js"
-import { Dynamic } from "solid-js/web"
 import path from "node:path"
 import { mkdir, writeFile } from "node:fs/promises"
 import { useRoute, useRouteData } from "../../context/route"
@@ -86,7 +85,7 @@ import { AxonComposer } from "../../component/axon-composer"
 import { brandDensity, type BrandDensity } from "../../util/brand-layout"
 import { AxonChangeSummary } from "./change-summary"
 import { AxonSessionHeader, AxonStatusBar } from "./chrome"
-import { changeSummary } from "./presentation"
+import { changeSummary, sessionActivity, sessionTimeline, type TimelineEntry } from "./presentation"
 import { AxonToolPanel } from "./tool-panel"
 import { HomeWelcome } from "../home/welcome"
 import { StatusReport } from "../../component/dialog-status"
@@ -1510,12 +1509,12 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
     if (!user || !user.time) return 0
     return props.message.time.completed - user.time.created
   })
-  const activity = createMemo(() => (final() ? Locale.titlecase(props.message.mode) : "Working"))
+  const activity = createMemo(() => sessionActivity(props.parts, Boolean(final()), props.message.mode))
 
   const childShortcut = useCommandShortcut("session.child.first")
   const backgroundShortcut = useCommandShortcut("session.background")
   const tools = createMemo(() => props.parts.filter((part): part is ToolPart => part.type === "tool"))
-  const content = createMemo(() => props.parts.filter((part) => part.type !== "tool"))
+  const timeline = createMemo(() => sessionTimeline(props.parts))
   const files = createMemo(() => changeSummary(tools()))
 
   return (
@@ -1527,31 +1526,13 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
           </text>
         </box>
       </Show>
-      <For each={content()}>
-        {(part, index) => {
-          const component = createMemo(() => PART_MAPPING[part.type as keyof typeof PART_MAPPING])
-          return (
-            <Show when={component()}>
-              <Dynamic
-                last={index() === content().length - 1}
-                component={component()}
-                part={part as any}
-                message={props.message}
-              />
-            </Show>
-          )
-        }}
+      <For each={timeline()}>
+        {(entry, index) => (
+          <AssistantTimelineEntry entry={entry} last={index() === timeline().length - 1} message={props.message} />
+        )}
       </For>
       <Show when={!ctx.showDetails()}>
-        <AxonToolPanel parts={tools()} density={ctx.density()} onOpen={ctx.openDetails} />
         <AxonChangeSummary files={files()} density={ctx.density()} />
-      </Show>
-      <Show when={ctx.showDetails()}>
-        <For each={tools()}>
-          {(part, index) => (
-            <ToolPart last={index() === tools().length - 1} part={part} message={props.message} />
-          )}
-        </For>
       </Show>
       <Show when={props.parts.some((x) => x.type === "tool" && x.tool === "task")}>
         <box paddingTop={1} paddingLeft={3}>
@@ -1622,10 +1603,33 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
   )
 }
 
-const PART_MAPPING = {
-  text: TextPart,
-  tool: ToolPart,
-  reasoning: ReasoningPart,
+function AssistantTimelineEntry(props: { entry: TimelineEntry; last: boolean; message: AssistantMessage }) {
+  const ctx = use()
+  if (props.entry.type === "content") {
+    if (props.entry.part.type === "text") {
+      return <TextPart last={props.last} part={props.entry.part} message={props.message} />
+    }
+    if (props.entry.part.type === "reasoning") {
+      return <ReasoningPart last={props.last} part={props.entry.part} message={props.message} />
+    }
+    return null
+  }
+  const entry = props.entry
+
+  return (
+    <Show
+      when={!ctx.showDetails()}
+      fallback={
+        <For each={entry.parts}>
+          {(part, index) => (
+            <ToolPart last={props.last && index() === entry.parts.length - 1} part={part} message={props.message} />
+          )}
+        </For>
+      }
+    >
+      <AxonToolPanel parts={entry.parts} density={ctx.density()} onOpen={ctx.openDetails} />
+    </Show>
+  )
 }
 
 const INLINE_TOOL_ICON_WIDTH = 2

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test"
-import type { ToolPart, ToolState } from "@axon-ai/sdk/v2"
-import { changeSummary, toolRow } from "../../../src/routes/session/presentation"
+import type { Part, ToolPart, ToolState } from "@axon-ai/sdk/v2"
+import { changeSummary, sessionActivity, sessionTimeline, toolRow } from "../../../src/routes/session/presentation"
 
 function tool(name: string, state: ToolState, id = `${name}-part`): ToolPart {
   return {
@@ -66,9 +66,13 @@ describe("toolRow", () => {
     expect(toolRow(completed("write", {}, {})).target).toBe("Completed title")
     expect(
       toolRow(
-        completed("edit", { filePath: "src/a.ts" }, {
-          diff: "--- old\n+++ new\n@@ -1 +1,2 @@\n-old\n+new\n+extra",
-        }),
+        completed(
+          "edit",
+          { filePath: "src/a.ts" },
+          {
+            diff: "--- old\n+++ new\n@@ -1 +1,2 @@\n-old\n+new\n+extra",
+          },
+        ),
       ),
     ).toMatchObject({ additions: 2, deletions: 1 })
   })
@@ -107,14 +111,66 @@ describe("toolRow", () => {
   test("aggregates proven ApplyPatch counts for one activity row", () => {
     expect(
       toolRow(
-        completed("apply_patch", {}, {
-          files: [
-            { relativePath: "a.ts", patch: "--- old\n+++ new\n@@ -1 +1 @@\n-one\n+two" },
-            { relativePath: "b.ts", patch: "--- old\n+++ new\n@@ -0,0 +1,2 @@\n+three\n+four" },
-          ],
-        }),
+        completed(
+          "apply_patch",
+          {},
+          {
+            files: [
+              { relativePath: "a.ts", patch: "--- old\n+++ new\n@@ -1 +1 @@\n-one\n+two" },
+              { relativePath: "b.ts", patch: "--- old\n+++ new\n@@ -0,0 +1,2 @@\n+three\n+four" },
+            ],
+          },
+        ),
       ),
     ).toMatchObject({ additions: 3, deletions: 1 })
+  })
+})
+
+describe("sessionTimeline", () => {
+  test("keeps tool activity between surrounding narrative parts", () => {
+    const before = {
+      id: "before",
+      sessionID: "session",
+      messageID: "message",
+      type: "text",
+      text: "Inspecting",
+    } satisfies Part
+    const read = completed("read", { filePath: "src/a.ts" }, {})
+    const grep = completed("grep", { pattern: "needle" }, {})
+    const after = {
+      id: "after",
+      sessionID: "session",
+      messageID: "message",
+      type: "text",
+      text: "Found it",
+    } satisfies Part
+
+    expect(sessionTimeline([before, read, grep, after])).toEqual([
+      { type: "content", part: before },
+      { type: "tools", parts: [read, grep] },
+      { type: "content", part: after },
+    ])
+  })
+})
+
+describe("sessionActivity", () => {
+  test("describes the current tool instead of a generic working state", () => {
+    expect(
+      sessionActivity(
+        [
+          tool("read", {
+            status: "running",
+            input: { filePath: "src/a.ts" },
+            time: { start: 100 },
+          }),
+        ],
+        false,
+        "build",
+      ),
+    ).toBe("Reading")
+    expect(sessionActivity([completed("custom_plugin-tool", {}, {})], false, "build")).toBe("Reviewing results")
+    expect(sessionActivity([], false, "build")).toBe("Thinking")
+    expect(sessionActivity([], true, "build")).toBe("Build")
   })
 })
 
@@ -122,9 +178,13 @@ describe("changeSummary", () => {
   test("counts Edit diffs without diff headers", () => {
     expect(
       changeSummary([
-        completed("edit", { filePath: "src/a.ts" }, {
-          diff: "--- a/src/a.ts\n+++ b/src/a.ts\n@@ -1,2 +1,3 @@\n-old\n+new\n+extra\n context",
-        }),
+        completed(
+          "edit",
+          { filePath: "src/a.ts" },
+          {
+            diff: "--- a/src/a.ts\n+++ b/src/a.ts\n@@ -1,2 +1,3 @@\n-old\n+new\n+extra\n context",
+          },
+        ),
       ]),
     ).toEqual([{ path: "src/a.ts", additions: 2, deletions: 1 }])
   })
@@ -132,9 +192,13 @@ describe("changeSummary", () => {
   test("does not mistake content beginning with three signs for diff headers", () => {
     expect(
       changeSummary([
-        completed("edit", { filePath: "src/a.ts" }, {
-          diff: "--- a/src/a.ts\n+++ b/src/a.ts\n@@ -1 +1 @@\n----old\n++++new",
-        }),
+        completed(
+          "edit",
+          { filePath: "src/a.ts" },
+          {
+            diff: "--- a/src/a.ts\n+++ b/src/a.ts\n@@ -1 +1 @@\n----old\n++++new",
+          },
+        ),
       ]),
     ).toEqual([{ path: "src/a.ts", additions: 1, deletions: 1 }])
   })
@@ -142,9 +206,13 @@ describe("changeSummary", () => {
   test("counts header-lookalike lines inside a hunk body", () => {
     expect(
       changeSummary([
-        completed("edit", { filePath: "src/a.ts" }, {
-          diff: "--- src/a.ts\n+++ src/a.ts\n@@ -1 +1 @@\n--- old\n+++ new",
-        }),
+        completed(
+          "edit",
+          { filePath: "src/a.ts" },
+          {
+            diff: "--- src/a.ts\n+++ src/a.ts\n@@ -1 +1 @@\n--- old\n+++ new",
+          },
+        ),
       ]),
     ).toEqual([{ path: "src/a.ts", additions: 1, deletions: 1 }])
   })
@@ -152,9 +220,13 @@ describe("changeSummary", () => {
   test("rejects invented hunks whose body does not match declared counts", () => {
     expect(
       changeSummary([
-        completed("edit", { filePath: "src/a.ts" }, {
-          diff: "--- src/a.ts\n+++ src/a.ts\n@@ -1,2 +1,2 @@\n-old\n+new",
-        }),
+        completed(
+          "edit",
+          { filePath: "src/a.ts" },
+          {
+            diff: "--- src/a.ts\n+++ src/a.ts\n@@ -1,2 +1,2 @@\n-old\n+new",
+          },
+        ),
       ]),
     ).toEqual([{ path: "src/a.ts" }])
   })
@@ -162,9 +234,13 @@ describe("changeSummary", () => {
   test("rejects invented hunks containing invalid body lines", () => {
     expect(
       changeSummary([
-        completed("edit", { filePath: "src/a.ts" }, {
-          diff: "--- src/a.ts\n+++ src/a.ts\n@@ -1 +1 @@\n?invented\n-old\n+new",
-        }),
+        completed(
+          "edit",
+          { filePath: "src/a.ts" },
+          {
+            diff: "--- src/a.ts\n+++ src/a.ts\n@@ -1 +1 @@\n?invented\n-old\n+new",
+          },
+        ),
       ]),
     ).toEqual([{ path: "src/a.ts" }])
   })
@@ -172,10 +248,13 @@ describe("changeSummary", () => {
   test("validates multiple hunks and no-newline markers", () => {
     expect(
       changeSummary([
-        completed("edit", { filePath: "src/a.ts" }, {
-          diff:
-            "--- src/a.ts\n+++ src/a.ts\n@@ -1 +1 @@\n-old\n\\ No newline at end of file\n+new\n\\ No newline at end of file\n@@ -10 +10,2 @@\n context\n+extra",
-        }),
+        completed(
+          "edit",
+          { filePath: "src/a.ts" },
+          {
+            diff: "--- src/a.ts\n+++ src/a.ts\n@@ -1 +1 @@\n-old\n\\ No newline at end of file\n+new\n\\ No newline at end of file\n@@ -10 +10,2 @@\n context\n+extra",
+          },
+        ),
       ]),
     ).toEqual([{ path: "src/a.ts", additions: 2, deletions: 1 }])
   })
@@ -183,10 +262,13 @@ describe("changeSummary", () => {
   test("accepts createTwoFilesPatch no-newline markers after context", () => {
     expect(
       changeSummary([
-        completed("edit", { filePath: "src/a.ts" }, {
-          diff:
-            "Index: src/a.ts\n===================================================================\n--- src/a.ts\n+++ src/a.ts\n@@ -1,2 +1,2 @@\n-old\n+new\n tail\n\\ No newline at end of file\n",
-        }),
+        completed(
+          "edit",
+          { filePath: "src/a.ts" },
+          {
+            diff: "Index: src/a.ts\n===================================================================\n--- src/a.ts\n+++ src/a.ts\n@@ -1,2 +1,2 @@\n-old\n+new\n tail\n\\ No newline at end of file\n",
+          },
+        ),
       ]),
     ).toEqual([{ path: "src/a.ts", additions: 1, deletions: 1 }])
   })
@@ -194,21 +276,28 @@ describe("changeSummary", () => {
   test("rejects misplaced and repeated no-newline markers", () => {
     expect(
       changeSummary([
-        completed("edit", { filePath: "before.ts" }, {
-          diff: "--- before.ts\n+++ before.ts\n@@ -1 +1 @@\n\\ No newline at end of file\n-old\n+new",
-        }),
-        completed("edit", { filePath: "repeat.ts" }, {
-          diff:
-            "--- repeat.ts\n+++ repeat.ts\n@@ -1 +1 @@\n-old\n\\ No newline at end of file\n\\ No newline at end of file\n+new",
-        }),
+        completed(
+          "edit",
+          { filePath: "before.ts" },
+          {
+            diff: "--- before.ts\n+++ before.ts\n@@ -1 +1 @@\n\\ No newline at end of file\n-old\n+new",
+          },
+        ),
+        completed(
+          "edit",
+          { filePath: "repeat.ts" },
+          {
+            diff: "--- repeat.ts\n+++ repeat.ts\n@@ -1 +1 @@\n-old\n\\ No newline at end of file\n\\ No newline at end of file\n+new",
+          },
+        ),
       ]),
     ).toEqual([{ path: "before.ts" }, { path: "repeat.ts" }])
   })
 
   test("does not prove zero counts from an arbitrary string", () => {
-    expect(
-      changeSummary([completed("edit", { filePath: "src/a.ts" }, { diff: "not a unified diff" })]),
-    ).toEqual([{ path: "src/a.ts" }])
+    expect(changeSummary([completed("edit", { filePath: "src/a.ts" }, { diff: "not a unified diff" })])).toEqual([
+      { path: "src/a.ts" },
+    ])
   })
 
   test("supports Write metadata while omitting unprovable counts", () => {
@@ -217,9 +306,13 @@ describe("changeSummary", () => {
     ])
     expect(
       changeSummary([
-        completed("write", { filePath: "src/write.ts" }, {
-          diff: "--- old\n+++ new\n@@ -1 +1 @@\n-old\n+new",
-        }),
+        completed(
+          "write",
+          { filePath: "src/write.ts" },
+          {
+            diff: "--- old\n+++ new\n@@ -1 +1 @@\n-old\n+new",
+          },
+        ),
       ]),
     ).toEqual([{ path: "src/write.ts", additions: 1, deletions: 1 }])
   })
@@ -227,24 +320,25 @@ describe("changeSummary", () => {
   test("validates and counts ApplyPatch file patches", () => {
     expect(
       changeSummary([
-        completed("apply_patch", {}, {
-          files: [
-            null,
-            { relativePath: "src/b.ts" },
-            {
-              relativePath: "src/a.ts",
-              filePath: "C:/repo/src/a.ts",
-              patch: "--- old\n+++ new\n@@ -1 +1 @@\n-one\n+two",
-              additions: 99,
-              deletions: 99,
-            },
-          ],
-        }),
+        completed(
+          "apply_patch",
+          {},
+          {
+            files: [
+              null,
+              { relativePath: "src/b.ts" },
+              {
+                relativePath: "src/a.ts",
+                filePath: "C:/repo/src/a.ts",
+                patch: "--- old\n+++ new\n@@ -1 +1 @@\n-one\n+two",
+                additions: 99,
+                deletions: 99,
+              },
+            ],
+          },
+        ),
       ]),
-    ).toEqual([
-      { path: "src/a.ts", additions: 1, deletions: 1 },
-      { path: "src/b.ts" },
-    ])
+    ).toEqual([{ path: "src/a.ts", additions: 1, deletions: 1 }, { path: "src/b.ts" }])
   })
 
   test("merges duplicate proven counts and sorts paths", () => {
@@ -252,9 +346,13 @@ describe("changeSummary", () => {
       changeSummary([
         completed("edit", { filePath: "z.ts" }, { diff: "--- old\n+++ new\n@@ -0,0 +1 @@\n+one" }),
         completed("write", { filePath: "a.ts" }, { diff: "--- old\n+++ new\n@@ -1 +0,0 @@\n-one" }),
-        completed("edit", { filePath: "z.ts" }, {
-          diff: "--- old\n+++ new\n@@ -1 +1 @@\n-three\n+two",
-        }),
+        completed(
+          "edit",
+          { filePath: "z.ts" },
+          {
+            diff: "--- old\n+++ new\n@@ -1 +1 @@\n-three\n+two",
+          },
+        ),
       ]),
     ).toEqual([
       { path: "a.ts", additions: 0, deletions: 1 },

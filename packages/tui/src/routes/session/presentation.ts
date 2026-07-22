@@ -1,4 +1,4 @@
-import type { ToolPart } from "@axon-ai/sdk/v2"
+import type { Part, ToolPart } from "@axon-ai/sdk/v2"
 
 export type ToolRowStatus = "pending" | "running" | "success" | "failed" | "cancelled"
 
@@ -20,6 +20,10 @@ export type ChangeFile = {
   deletions?: number
 }
 
+export type TimelineEntry =
+  | { type: "content"; part: Exclude<Part, ToolPart> }
+  | { type: "tools"; parts: readonly ToolPart[] }
+
 const kinds: Record<string, string> = {
   read: "Read",
   grep: "Search",
@@ -29,6 +33,43 @@ const kinds: Record<string, string> = {
   apply_patch: "Patch",
   bash: "Run",
   task: "Agent",
+}
+
+const activities: Record<string, string> = {
+  read: "Reading",
+  grep: "Searching",
+  glob: "Searching",
+  edit: "Editing",
+  write: "Writing",
+  apply_patch: "Applying patch",
+  bash: "Running command",
+  task: "Delegating",
+  websearch: "Searching the web",
+  webfetch: "Fetching from the web",
+  skill: "Loading skill",
+  todowrite: "Updating plan",
+  question: "Waiting for input",
+}
+
+export function sessionTimeline(parts: readonly Part[]): TimelineEntry[] {
+  return parts.reduce<TimelineEntry[]>((entries, part) => {
+    if (part.type !== "tool") return [...entries, { type: "content", part }]
+    const last = entries.at(-1)
+    if (last?.type !== "tools") return [...entries, { type: "tools", parts: [part] }]
+    return [...entries.slice(0, -1), { type: "tools", parts: [...last.parts, part] }]
+  }, [])
+}
+
+export function sessionActivity(parts: readonly Part[], final: boolean, mode: string) {
+  if (final) return titleCase(mode)
+  const active = parts.findLast(
+    (part): part is ToolPart => part.type === "tool" && ["pending", "running"].includes(part.state.status),
+  )
+  if (active) return activities[active.tool] ?? `Running ${titleCase(active.tool)}`
+  const reasoning = parts.findLast((part) => part.type === "reasoning")
+  if (reasoning && reasoning.time.end === undefined) return "Thinking"
+  if (parts.some((part) => part.type === "tool")) return "Reviewing results"
+  return "Thinking"
 }
 
 export function toolRow(part: ToolPart, now = Date.now()): ToolRow {
