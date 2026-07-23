@@ -1,7 +1,7 @@
 {
   "name": "@axon-ai/desktop",
   "private": true,
-  "version": "1.17.10",
+  "version": "0.5.67",
   "type": "module",
   "license": "MIT",
   "homepage": "https://github.com/Wade-DevCode/axon",
