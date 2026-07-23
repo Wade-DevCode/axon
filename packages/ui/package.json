@@ -1,6 +1,6 @@
 {
   "name": "@axon-ai/ui",
-  "version": "1.17.10",
+  "version": "0.5.65",
   "type": "module",
   "license": "MIT",
   "exports": {
