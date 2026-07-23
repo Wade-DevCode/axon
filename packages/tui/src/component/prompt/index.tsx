@@ -1401,10 +1401,12 @@ export function Prompt(props: PromptProps) {
                   input.cursorColor = theme.text
                 }, 0)
               }}
-              onMouseDown={(event: MouseEvent) => {
-                event.target?.focus()
+              onMouseDown={(event: MouseEvent) => event.target?.focus()}
+              onMouseUp={(event: MouseEvent) => {
                 if (props.disabled || event.button !== MouseButton.RIGHT) return
                 if (renderer.getSelection()?.getSelectedText()) return
+                event.preventDefault()
+                event.stopPropagation()
                 keymap.dispatchCommand("prompt.paste")
               }}
               focusedBackgroundColor={theme.backgroundPanel}
