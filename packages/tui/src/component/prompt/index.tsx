@@ -1,6 +1,7 @@
 import {
   BoxRenderable,
   TextareaRenderable,
+  MouseButton,
   MouseEvent,
   PasteEvent,
   decodePasteBytes,
@@ -1400,7 +1401,12 @@ export function Prompt(props: PromptProps) {
                   input.cursorColor = theme.text
                 }, 0)
               }}
-              onMouseDown={(r: MouseEvent) => r.target?.focus()}
+              onMouseDown={(event: MouseEvent) => {
+                event.target?.focus()
+                if (props.disabled || event.button !== MouseButton.RIGHT) return
+                if (renderer.getSelection()?.getSelectedText()) return
+                keymap.dispatchCommand("prompt.paste")
+              }}
               focusedBackgroundColor={theme.backgroundPanel}
               cursorColor={props.disabled ? theme.backgroundPanel : theme.text}
               syntaxStyle={syntax()}
