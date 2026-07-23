@@ -165,6 +165,7 @@ describe("plugin.codex", () => {
     })
     let refreshRequests = 0
     const apiRequests: { authorization: string | null; accountId: string | null }[] = []
+    const proxyRequests: { authorization: string | null; accountId: string | null }[] = []
 
     using server = Bun.serve({
       port: 0,
@@ -184,6 +185,14 @@ describe("plugin.codex", () => {
 
         if (url.pathname === "/backend-api/codex/responses") {
           apiRequests.push({
+            authorization: request.headers.get("authorization"),
+            accountId: request.headers.get("ChatGPT-Account-Id"),
+          })
+          return new Response("{}", { status: 200 })
+        }
+
+        if (url.pathname === "/openai/responses") {
+          proxyRequests.push({
             authorization: request.headers.get("authorization"),
             accountId: request.headers.get("ChatGPT-Account-Id"),
           })
@@ -244,6 +253,9 @@ describe("plugin.codex", () => {
       { authorization: "Bearer access-new", accountId: "acc-123" },
       { authorization: "Bearer access-new", accountId: "acc-123" },
     ])
+
+    await (await loaded.fetch!(new URL("/openai/responses", server.url).toString())).text()
+    expect(proxyRequests).toEqual([{ authorization: "Bearer access-new", accountId: "acc-123" }])
   })
 })
 
