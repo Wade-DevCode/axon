@@ -1165,6 +1165,14 @@ export function Prompt(props: PromptProps) {
     )
   }
 
+  function handlePromptMouseUp(event: MouseEvent) {
+    if (props.disabled || event.button !== MouseButton.RIGHT) return
+    if (renderer.getSelection()?.getSelectedText()) return
+    event.preventDefault()
+    event.stopPropagation()
+    void pasteClipboard()
+  }
+
   async function pasteClipboard() {
     const content = await clipboard.read?.()
     if (content?.mime.startsWith("image/")) {
@@ -1334,6 +1342,8 @@ export function Prompt(props: PromptProps) {
             flexShrink={0}
             backgroundColor={theme.backgroundPanel}
             width="100%"
+            onMouseDown={() => input.focus()}
+            onMouseUp={handlePromptMouseUp}
           >
             <textarea
               width="100%"
@@ -1402,14 +1412,6 @@ export function Prompt(props: PromptProps) {
                   if (!input || input.isDestroyed) return
                   input.cursorColor = theme.text
                 }, 0)
-              }}
-              onMouseDown={(event: MouseEvent) => event.target?.focus()}
-              onMouseUp={(event: MouseEvent) => {
-                if (props.disabled || event.button !== MouseButton.RIGHT) return
-                if (renderer.getSelection()?.getSelectedText()) return
-                event.preventDefault()
-                event.stopPropagation()
-                void pasteClipboard()
               }}
               focusedBackgroundColor={theme.backgroundPanel}
               cursorColor={props.disabled ? theme.backgroundPanel : theme.text}
