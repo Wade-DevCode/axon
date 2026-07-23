@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "version": "1.17.10",
+  "version": "0.5.64",
   "name": "@axon-ai/core",
   "type": "module",
   "license": "MIT",
