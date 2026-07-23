@@ -1165,11 +1165,12 @@ export function Prompt(props: PromptProps) {
     )
   }
 
-  function handlePromptMouseUp(event: MouseEvent) {
+  function handlePromptMouseDown(event: MouseEvent) {
     if (props.disabled || event.button !== MouseButton.RIGHT) return
     if (renderer.getSelection()?.getSelectedText()) return
     event.preventDefault()
     event.stopPropagation()
+    input.focus()
     void pasteClipboard()
   }
 
@@ -1342,8 +1343,7 @@ export function Prompt(props: PromptProps) {
             flexShrink={0}
             backgroundColor={theme.backgroundPanel}
             width="100%"
-            onMouseDown={() => input.focus()}
-            onMouseUp={handlePromptMouseUp}
+            onMouseDown={handlePromptMouseDown}
           >
             <textarea
               width="100%"
