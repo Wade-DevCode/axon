@@ -371,18 +371,7 @@ export function Prompt(props: PromptProps) {
         run: async (ctx: CommandContext<Renderable, KeyEvent>) => {
           ctx.event.preventDefault()
           ctx.event.stopPropagation()
-          const content = await clipboard.read?.()
-          if (content?.mime.startsWith("image/")) {
-            await pasteAttachment({
-              filename: "clipboard",
-              mime: content.mime,
-              content: content.data,
-            })
-            return
-          }
-          if (content?.mime === "text/plain") {
-            await pasteInputText(content.data)
-          }
+          await pasteClipboard()
         },
       },
       {
@@ -1176,6 +1165,19 @@ export function Prompt(props: PromptProps) {
     )
   }
 
+  async function pasteClipboard() {
+    const content = await clipboard.read?.()
+    if (content?.mime.startsWith("image/")) {
+      await pasteAttachment({
+        filename: "clipboard",
+        mime: content.mime,
+        content: content.data,
+      })
+      return
+    }
+    if (content?.mime === "text/plain") await pasteInputText(content.data)
+  }
+
   async function pasteInputText(text: string) {
     const normalizedText = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
     const pastedContent = normalizedText.trim()
@@ -1407,7 +1409,7 @@ export function Prompt(props: PromptProps) {
                 if (renderer.getSelection()?.getSelectedText()) return
                 event.preventDefault()
                 event.stopPropagation()
-                keymap.dispatchCommand("prompt.paste")
+                void pasteClipboard()
               }}
               focusedBackgroundColor={theme.backgroundPanel}
               cursorColor={props.disabled ? theme.backgroundPanel : theme.text}
