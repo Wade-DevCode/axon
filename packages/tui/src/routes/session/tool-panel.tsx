@@ -1,6 +1,7 @@
 import type { ToolPart } from "@axon-ai/sdk/v2"
 import { TextAttributes } from "@opentui/core"
 import { createEffect, createMemo, createSignal, For, onCleanup, Show } from "solid-js"
+import { Spinner } from "../../component/spinner"
 import { useTheme } from "../../context/theme"
 import type { BrandDensity } from "../../util/brand-layout"
 import { Locale } from "../../util/locale"
@@ -15,6 +16,7 @@ export function AxonToolPanel(props: {
   const theme = useTheme().theme
   const [now, setNow] = createSignal(props.now ?? Date.now())
   const rows = createMemo(() => props.parts.map((part) => ({ part, row: toolRow(part, now()) })))
+  const completedCount = createMemo(() => props.parts.filter((p) => p.state.status === "completed").length)
 
   createEffect(() => {
     if (props.now !== undefined || !props.parts.some((part) => part.state.status === "running")) return
@@ -29,6 +31,7 @@ export function AxonToolPanel(props: {
     if (status === "failed") return theme.error
     return theme.textMuted
   }
+  const formatDuration = (ms: number) => Locale.duration(ms)
   const error = (value?: string) =>
     value ? Locale.truncate(value, props.density === "compact" ? 48 : props.density === "normal" ? 60 : 80) : undefined
 
@@ -43,9 +46,16 @@ export function AxonToolPanel(props: {
         borderColor={theme.borderActive}
         paddingLeft={1}
       >
-        <text fg={theme.textMuted} attributes={TextAttributes.BOLD}>
-          Activity
-        </text>
+        <box flexDirection="row" gap={1}>
+          <text fg={theme.textMuted} attributes={TextAttributes.BOLD}>
+            Activity
+          </text>
+          <Show when={rows().length > 1}>
+            <text fg={theme.textMuted}>
+              {completedCount()}/{rows().length}
+            </text>
+          </Show>
+        </box>
         <For each={rows()}>
           {(item) => (
             <Show
@@ -53,9 +63,18 @@ export function AxonToolPanel(props: {
               fallback={
                 <box flexDirection="row" justifyContent="space-between" onMouseUp={() => props.onOpen?.(item.part)}>
                   <box flexDirection="row" gap={1} minWidth={0}>
-                    <text fg={theme.text} attributes={TextAttributes.BOLD} wrapMode="none">
-                      {item.row.kind}
-                    </text>
+                    <Show when={item.row.status === "running" || item.row.status === "pending"}>
+                      <Spinner color={color(item.row.status)}>
+                        <text fg={theme.text} attributes={TextAttributes.BOLD} wrapMode="none">
+                          {item.row.kind}
+                        </text>
+                      </Spinner>
+                    </Show>
+                    <Show when={item.row.status !== "running" && item.row.status !== "pending"}>
+                      <text fg={theme.text} attributes={TextAttributes.BOLD} wrapMode="none">
+                        {item.row.kind}
+                      </text>
+                    </Show>
                     <text fg={theme.textMuted} wrapMode="none">
                       {item.row.target}
                     </text>
@@ -72,7 +91,7 @@ export function AxonToolPanel(props: {
                       <text fg={theme.diffRemoved}>-{item.row.deletions}</text>
                     </Show>
                     <Show when={item.row.duration !== undefined}>
-                      <text fg={theme.textMuted}>{item.row.duration} ms</text>
+                      <text fg={theme.textMuted}>{formatDuration(item.row.duration!)}</text>
                     </Show>
                   </box>
                 </box>
@@ -80,13 +99,30 @@ export function AxonToolPanel(props: {
             >
               <box flexDirection="column" onMouseUp={() => props.onOpen?.(item.part)}>
                 <box flexDirection="row" justifyContent="space-between">
-                  <text fg={theme.text} attributes={TextAttributes.BOLD} wrapMode="none">
-                    {item.row.kind}
-                  </text>
+                  <Show when={item.row.status === "running" || item.row.status === "pending"}>
+                    <Spinner color={color(item.row.status)}>
+                      <text fg={theme.text} attributes={TextAttributes.BOLD} wrapMode="none">
+                        {item.row.kind}
+                      </text>
+                    </Spinner>
+                  </Show>
+                  <Show when={item.row.status !== "running" && item.row.status !== "pending"}>
+                    <text fg={theme.text} attributes={TextAttributes.BOLD} wrapMode="none">
+                      {item.row.kind}
+                    </text>
+                  </Show>
                   <text fg={color(item.row.status)}>{item.row.status}</text>
                 </box>
                 <text fg={theme.textMuted} wrapMode="none">
                   {item.row.target || "-"}
+                  <Show
+                    when={
+                      item.row.duration !== undefined &&
+                      (item.row.status === "running" || item.row.status === "pending")
+                    }
+                  >
+                    <span style={{ fg: theme.textMuted }}> · {formatDuration(item.row.duration!)}</span>
+                  </Show>
                   <Show when={error(item.row.error)}>
                     <span style={{ fg: color(item.row.status) }}> · {error(item.row.error)}</span>
                   </Show>

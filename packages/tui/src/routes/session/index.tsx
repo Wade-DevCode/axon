@@ -1592,6 +1592,26 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
               <Show when={duration()}>
                 <span style={{ fg: theme.textMuted }}> · {Locale.duration(duration())}</span>
               </Show>
+              <Show when={final() && props.message.tokens}>
+                <span style={{ fg: theme.textMuted }}>
+                  {" · "}
+                  {Locale.number(
+                    props.message.tokens.total ??
+                      props.message.tokens.input +
+                        props.message.tokens.output +
+                        props.message.tokens.reasoning +
+                        props.message.tokens.cache.read +
+                        props.message.tokens.cache.write,
+                  )}
+                  {" tok"}
+                </span>
+              </Show>
+              <Show when={final() && props.message.cost > 0}>
+                <span style={{ fg: theme.textMuted }}>
+                  {" · $"}
+                  {props.message.cost < 0.01 ? props.message.cost.toFixed(4) : props.message.cost.toFixed(2)}
+                </span>
+              </Show>
               <Show when={props.message.error?.name === "MessageAbortedError"}>
                 <span style={{ fg: theme.textMuted }}> · interrupted</span>
               </Show>
@@ -1679,7 +1699,7 @@ function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: Ass
             duration={isDone() ? Locale.duration(duration()) : undefined}
           />
         </box>
-        <Show when={(!inMinimal() || expanded()) && summary().body}>
+        <Show when={(!inMinimal() || expanded() || !isDone()) && summary().body}>
           <box paddingLeft={inMinimal() ? 2 : 0} marginTop={1}>
             <code
               filetype="markdown"
