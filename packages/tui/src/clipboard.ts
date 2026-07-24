@@ -57,6 +57,12 @@ export async function read() {
       Buffer.alloc(0),
     )
     if (image.length) return { data: image.toString().trim(), mime: "image/png" }
+
+    const native = readCommand(platform(), release().includes("WSL"))
+    if (native) {
+      const text = await command(native[0], native.slice(1)).catch(() => Buffer.alloc(0))
+      if (text.length) return { data: text.toString(), mime: "text/plain" }
+    }
   }
 
   if (platform() === "linux") {
@@ -71,6 +77,17 @@ export async function read() {
   const { default: clipboardy } = await import("clipboardy")
   const text = await clipboardy.read().catch(() => undefined)
   if (text) return { data: text, mime: "text/plain" }
+}
+
+export function readCommand(os: NodeJS.Platform, wsl: boolean): [string, ...string[]] | undefined {
+  if (os !== "win32" && !wsl) return
+  return [
+    "powershell.exe",
+    "-NonInteractive",
+    "-NoProfile",
+    "-Command",
+    "[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false); [Console]::Out.Write((Get-Clipboard -Raw))",
+  ]
 }
 
 export function copyCommand(

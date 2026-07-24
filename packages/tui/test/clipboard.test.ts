@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test"
-import { copyCommand } from "../src/clipboard"
+import { copyCommand, readCommand } from "../src/clipboard"
 
 test("prefers Wayland clipboard when available", () => {
   expect(copyCommand("linux", true, (name) => name === "wl-copy")).toEqual(["wl-copy"])
@@ -16,4 +16,16 @@ test("falls back through X11 clipboard commands", () => {
 
 test("returns undefined when native clipboard is unavailable", () => {
   expect(copyCommand("linux", false, () => false)).toBeUndefined()
+})
+
+test("reads Windows text clipboard with PowerShell", () => {
+  expect(readCommand("win32", false)).toEqual([
+    "powershell.exe",
+    "-NonInteractive",
+    "-NoProfile",
+    "-Command",
+    "[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false); [Console]::Out.Write((Get-Clipboard -Raw))",
+  ])
+  expect(readCommand("linux", true)?.[0]).toBe("powershell.exe")
+  expect(readCommand("linux", false)).toBeUndefined()
 })
