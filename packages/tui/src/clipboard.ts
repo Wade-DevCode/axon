@@ -50,7 +50,35 @@ export async function read() {
     }
   }
 
-  if (platform() === "win32" || release().includes("WSL")) {
+  if (platform() === "win32") {
+    const clipboard = await import("./clipboard-win32")
+    if (clipboard.hasImage()) {
+      const image = await clipboard.readImage()
+      if (image) return { data: image.toString("base64"), mime: "image/png" }
+
+      const fallback =
+        "Add-Type -AssemblyName System.Windows.Forms; $img = [System.Windows.Forms.Clipboard]::GetImage(); if ($img) { $ms = New-Object System.IO.MemoryStream; $img.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png); [System.Convert]::ToBase64String($ms.ToArray()) }"
+      const imageFallback = await command("powershell.exe", [
+        "-NonInteractive",
+        "-NoProfile",
+        "-command",
+        fallback,
+      ]).catch(() => Buffer.alloc(0))
+      if (imageFallback.length) return { data: imageFallback.toString().trim(), mime: "image/png" }
+    }
+
+    const text = await clipboard.readText()
+    if (text) return { data: text, mime: "text/plain" }
+    if (clipboard.hasText()) {
+      const native = readCommand(platform(), false)
+      if (native) {
+        const fallback = await command(native[0], native.slice(1)).catch(() => Buffer.alloc(0))
+        if (fallback.length) return { data: fallback.toString(), mime: "text/plain" }
+      }
+    }
+  }
+
+  if (release().includes("WSL")) {
     const script =
       "Add-Type -AssemblyName System.Windows.Forms; $img = [System.Windows.Forms.Clipboard]::GetImage(); if ($img) { $ms = New-Object System.IO.MemoryStream; $img.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png); [System.Convert]::ToBase64String($ms.ToArray()) }"
     const image = await command("powershell.exe", ["-NonInteractive", "-NoProfile", "-command", script]).catch(() =>
@@ -135,6 +163,11 @@ function getCopyMethod() {
 }
 
 export async function write(text: string) {
+  if (platform() === "win32") {
+    const clipboard = await import("./clipboard-win32")
+    if (await clipboard.writeText(text)) return
+  }
+
   writeOsc52(text)
   const method = await getCopyMethod()
   await method(text)
