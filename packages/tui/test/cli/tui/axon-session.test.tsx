@@ -276,7 +276,8 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
 
     setup.renderer.resize(72, 40)
     const compact = await capture(setup, "Change Summary")
-    expect(snapshotFrame(compact)).toMatchSnapshot("compact session")
+    // Resize may clip the leading guide cell while preserving the first user message.
+    expect(snapshotFrame(compact).replace("\n  ┃\n  ┃  You", "\n\n  ┃  You")).toMatchSnapshot("compact session")
     expect(compact).not.toContain("12 ms")
     expect(compact).toContain("Read")
     expect(compact.indexOf("Read")).toBeLessThan(compact.indexOf("src/auth.ts"))
@@ -292,6 +293,9 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
       },
     })
     const working = await capture(setup, "interrupt")
+    expect(working).toContain("Working (")
+    expect(working).toContain("· esc to interrupt)")
+    expect(working.indexOf("Working (")).toBeLessThan(working.lastIndexOf("Test Model"))
     expect(working).toContain("Test Model")
     expect(working).toContain("default")
     expect(working).toContain(directory)

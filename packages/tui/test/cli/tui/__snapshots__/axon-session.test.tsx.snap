@@ -81,7 +81,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 exports[`renders the real session hierarchy responsively and preserves the Prompt plugin contract: compact session 1`] = `
 "  feature/axon                                                AX Ready
   ────────────────────────────────────────────────────────────────────
-  ┃
+
   ┃  You
   ┃  Please inspect auth
   ┃

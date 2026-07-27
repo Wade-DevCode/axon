@@ -146,6 +146,7 @@ export function Prompt(props: PromptProps) {
   const dialog = useDialog()
   const toast = useToast()
   const status = createMemo(() => sync.data.session_status?.[props.sessionID ?? ""] ?? { type: "idle" })
+  const [workingSeconds, setWorkingSeconds] = createSignal(0)
   const history = usePromptHistory()
   const stash = usePromptStash()
   const keymap = useAxonKeymap()
@@ -157,6 +158,20 @@ export function Prompt(props: PromptProps) {
   const list = createMemo(() => props.placeholders?.normal ?? [])
   const shell = createMemo(() => props.placeholders?.shell ?? [])
   const fileContextEnabled = createMemo(() => kv.get("file_context_enabled", true))
+  createEffect(
+    on(
+      () => status().type !== "idle",
+      (working) => {
+        setWorkingSeconds(0)
+        if (!working) return
+        const started = Date.now()
+        const timer = setInterval(() => {
+          setWorkingSeconds(Math.floor((Date.now() - started) / 1000))
+        }, 1000)
+        onCleanup(() => clearInterval(timer))
+      },
+    ),
+  )
   const [dismissedEditorSelectionKey, setDismissedEditorSelectionKey] = createSignal<string>()
   const editorContext = createMemo(() => {
     const selection = fileContextEnabled() ? editor.selection() : undefined
@@ -1335,6 +1350,89 @@ export function Prompt(props: PromptProps) {
         <box
           width="100%"
         >
+          <Show when={status().type !== "idle"}>
+            <box
+              width="100%"
+              height={1}
+              paddingLeft={3}
+              paddingRight={2}
+              flexDirection="row"
+              gap={1}
+              flexShrink={0}
+            >
+              <Show when={kv.get("animations_enabled", true)} fallback={<text fg={theme.textMuted}>[⋯]</text>}>
+                <spinner color={spinnerDef().color} frames={spinnerDef().frames} interval={40} />
+              </Show>
+              <Switch>
+                <Match when={status().type === "retry"}>
+                  {(() => {
+                    const retry = createMemo(() => {
+                      const value = status()
+                      if (value.type !== "retry") return
+                      return value
+                    })
+                    const message = createMemo(() => {
+                      const value = retry()
+                      if (!value) return
+                      if (value.message.includes("exceeded your current quota") && value.message.includes("gemini"))
+                        return "gemini is way too hot right now"
+                      if (value.message.length > 80) return value.message.slice(0, 80) + "..."
+                      return value.message
+                    })
+                    const isTruncated = createMemo(() => {
+                      const value = retry()
+                      if (!value) return false
+                      return value.message.length > 120
+                    })
+                    const [seconds, setSeconds] = createSignal(0)
+                    onMount(() => {
+                      const timer = setInterval(() => {
+                        const next = retry()?.next
+                        if (next) setSeconds(Math.round((next - Date.now()) / 1000))
+                      }, 1000)
+
+                      onCleanup(() => {
+                        clearInterval(timer)
+                      })
+                    })
+                    const handleMessageClick = () => {
+                      const value = retry()
+                      if (!value) return
+                      if (isTruncated()) {
+                        void DialogAlert.show(dialog, "Retry Error", value.message)
+                      }
+                    }
+
+                    const retryText = () => {
+                      const value = retry()
+                      if (!value) return ""
+                      const truncatedHint = isTruncated() ? " (click to expand)" : ""
+                      const duration = formatDuration(seconds())
+                      const retryInfo = ` [retrying ${duration ? `in ${duration} ` : ""}attempt #${value.attempt}]`
+                      return message() + truncatedHint + retryInfo
+                    }
+
+                    return (
+                      <box onMouseUp={handleMessageClick} flexGrow={1} flexShrink={1}>
+                        <text fg={theme.error} wrapMode="none" truncate>
+                          {retryText()}
+                        </text>
+                      </box>
+                    )
+                  })()}
+                </Match>
+                <Match when={true}>
+                  <text fg={theme.textMuted} wrapMode="none">
+                    Working ({formatDuration(workingSeconds()) || "0s"} · esc{" "}
+                    <span style={{ fg: store.interrupt > 0 ? theme.primary : theme.textMuted }}>
+                      {store.interrupt > 0 ? "again to interrupt" : "to interrupt"}
+                    </span>
+                    )
+                  </text>
+                </Match>
+              </Switch>
+            </box>
+          </Show>
           <box
             paddingLeft={2}
             paddingRight={2}
@@ -1421,93 +1519,12 @@ export function Prompt(props: PromptProps) {
         </box>
         <box
           width="100%"
-          height={status().type === "idle" ? 2 : 3}
+          height={1}
           flexDirection="column"
           paddingLeft={2}
           paddingRight={2}
-          paddingTop={1}
           overflow="hidden"
         >
-          <Show when={status().type !== "idle"}>
-            <box
-              width="100%"
-              flexDirection="row"
-              gap={1}
-              justifyContent={status().type === "retry" ? "space-between" : "flex-start"}
-            >
-              <box flexShrink={0} flexDirection="row" gap={1}>
-                <box marginLeft={1}>
-                  <Show when={kv.get("animations_enabled", true)} fallback={<text fg={theme.textMuted}>[⋯]</text>}>
-                    <spinner color={spinnerDef().color} frames={spinnerDef().frames} interval={40} />
-                  </Show>
-                </box>
-                <box flexDirection="row" gap={1} flexShrink={0}>
-                  {(() => {
-                    const retry = createMemo(() => {
-                      const s = status()
-                      if (s.type !== "retry") return
-                      return s
-                    })
-                    const message = createMemo(() => {
-                      const r = retry()
-                      if (!r) return
-                      if (r.message.includes("exceeded your current quota") && r.message.includes("gemini"))
-                        return "gemini is way too hot right now"
-                      if (r.message.length > 80) return r.message.slice(0, 80) + "..."
-                      return r.message
-                    })
-                    const isTruncated = createMemo(() => {
-                      const r = retry()
-                      if (!r) return false
-                      return r.message.length > 120
-                    })
-                    const [seconds, setSeconds] = createSignal(0)
-                    onMount(() => {
-                      const timer = setInterval(() => {
-                        const next = retry()?.next
-                        if (next) setSeconds(Math.round((next - Date.now()) / 1000))
-                      }, 1000)
-
-                      onCleanup(() => {
-                        clearInterval(timer)
-                      })
-                    })
-                    const handleMessageClick = () => {
-                      const r = retry()
-                      if (!r) return
-                      if (isTruncated()) {
-                        void DialogAlert.show(dialog, "Retry Error", r.message)
-                      }
-                    }
-
-                    const retryText = () => {
-                      const r = retry()
-                      if (!r) return ""
-                      const baseMessage = message()
-                      const truncatedHint = isTruncated() ? " (click to expand)" : ""
-                      const duration = formatDuration(seconds())
-                      const retryInfo = ` [retrying ${duration ? `in ${duration} ` : ""}attempt #${r.attempt}]`
-                      return baseMessage + truncatedHint + retryInfo
-                    }
-
-                    return (
-                      <Show when={retry()}>
-                        <box onMouseUp={handleMessageClick}>
-                          <text fg={theme.error}>{retryText()}</text>
-                        </box>
-                      </Show>
-                    )
-                  })()}
-                </box>
-              </box>
-              <text fg={store.interrupt > 0 ? theme.primary : theme.text}>
-                esc{" "}
-                <span style={{ fg: store.interrupt > 0 ? theme.primary : theme.textMuted }}>
-                  {store.interrupt > 0 ? "again to interrupt" : "interrupt"}
-                </span>
-              </text>
-            </box>
-          </Show>
           <box width="100%" flexDirection="row" justifyContent="space-between">
             <Switch>
               <Match when={workspace.notice()}>
