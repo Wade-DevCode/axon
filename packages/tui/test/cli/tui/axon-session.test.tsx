@@ -38,7 +38,7 @@ const assistant = {
   modelID: "test-model",
   path: { cwd: directory, root: worktree },
   cost: 0,
-  tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } },
+  tokens: { input: 10_000, output: 1_000, reasoning: 500, cache: { read: 100, write: 0 } },
   time: { created: 2, completed: 30 },
   finish: "stop",
 }
@@ -196,7 +196,8 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
     expect(wide).toContain("Test Model · default")
     expect(wide).toContain(directory)
     expect(wide).toContain("2 files changed")
-    expect(wide).toContain("12 ms")
+    expect(wide).toContain("12ms")
+    expect(wide).toContain("11.6K used")
 
     api!.keymap.dispatchCommand("session.toggle.actions")
     const detailed = await capture(setup, "1 - old")
@@ -206,7 +207,7 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
     await capture(setup, "Change Summary")
 
     api!.keymap.dispatchCommand("agent.cycle")
-    const selectedAgent = await capture(setup, "Test Model")
+    const selectedAgent = await capture(setup, "AX Ready · review")
     expect(selectedAgent).toContain("Test Model")
 
     events.emit({
@@ -280,6 +281,33 @@ test("renders the real session hierarchy responsively and preserves the Prompt p
     expect(compact).toContain("Read")
     expect(compact.indexOf("Read")).toBeLessThan(compact.indexOf("src/auth.ts"))
 
+    setup.renderer.resize(140, 40)
+    events.emit({
+      directory,
+      project: "proj_test",
+      payload: {
+        id: "evt_session_busy",
+        type: "session.status",
+        properties: { sessionID, status: { type: "busy" } },
+      },
+    })
+    const working = await capture(setup, "interrupt")
+    expect(working).toContain("Test Model")
+    expect(working).toContain("default")
+    expect(working).toContain(directory)
+    expect(working).toContain("Context 94% left")
+    expect(working).toContain("11.6K used")
+    events.emit({
+      directory,
+      project: "proj_test",
+      payload: {
+        id: "evt_session_idle",
+        type: "session.status",
+        properties: { sessionID, status: { type: "idle" } },
+      },
+    })
+    await capture(setup, "AX Ready")
+
     if (!api || !slots) throw new Error("plugin host did not expose the Session slot fixture")
     const pluginApi = api
     slots.register({
@@ -326,7 +354,10 @@ async function capture(setup: Awaited<ReturnType<typeof createTestRenderer>>, co
     await Promise.resolve()
     await setup.renderOnce()
     const frame = setup.captureCharFrame()
-    if (frame.includes(content)) return frame
+    if (frame.includes(content)) {
+      await setup.renderOnce()
+      return setup.captureCharFrame()
+    }
     await Bun.sleep(10)
   }
   return setup.captureCharFrame()

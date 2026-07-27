@@ -14,18 +14,18 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 
      I found the issue.
 
-    │ Activity
-    │ Read src/auth.ts                                                             success 12 ms
-    │ Search refreshToken                                                          success 12 ms
-    │ Edit src/auth.ts                                                       success +1 -1 12 ms
-    │ Test bun test auth                                                           success 12 ms
-    │ Write src/session.ts                                                   success +1 -0 12 ms
+    │ Activity 5/5
+    │ Read src/auth.ts                                                              success 12ms
+    │ Search refreshToken                                                           success 12ms
+    │ Edit src/auth.ts                                                        success +1 -1 12ms
+    │ Test bun test auth                                                            success 12ms
+    │ Write src/session.ts                                                    success +1 -0 12ms
 
     │ Change Summary
     │ src/auth.ts                                                                          +1 -1
     │ src/session.ts                                                                       +1 -0
 
-     >  Build · Test Model · 29ms
+     >  Build · Test Model · 29ms · 11.6K tok
 
 
 
@@ -37,7 +37,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 
 
 
-    Test Model · default · /tmp/axon/packages/tui                tab agents  ctrl+p commands
+    Test Model · default · /tmp/axon/packages/tui              · Context 94% left · 11.6K used
 
    2 files changed                                                                                  • Axon local
 
@@ -50,18 +50,18 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 
      I found the issue.
 
-    │ Activity
-    │ Read src/auth.ts                                                               success 12 ms
-    │ Search refreshToken                                                            success 12 ms
-    │ Edit src/auth.ts                                                         success +1 -1 12 ms
-    │ Test bun test auth                                                             success 12 ms
-    │ Write src/session.ts                                                     success +1 -0 12 ms
+    │ Activity 5/5
+    │ Read src/auth.ts                                                                success 12ms
+    │ Search refreshToken                                                             success 12ms
+    │ Edit src/auth.ts                                                          success +1 -1 12ms
+    │ Test bun test auth                                                              success 12ms
+    │ Write src/session.ts                                                      success +1 -0 12ms
 
     │ Change Summary
     │ src/auth.ts                                                                            +1 -1
     │ src/session.ts                                                                         +1 -0
 
-     >  Build · Test Model · 29ms
+     >  Build · Test Model · 29ms · 11.6K tok
 
   ┃
   ┃  Choose a path
@@ -90,7 +90,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 
      I found the issue.
 
-  │ Activity
+  │ Activity 5/5
   │ Read                                                       success
   │ src/auth.ts
   │ Search                                                     success
@@ -106,7 +106,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
   │ src/auth.ts                                                  +1 -1
   │ src/session.ts                                               +1 -0
 
-     >  Build · Test Model · 29ms
+     >  Build · Test Model · 29ms · 11.6K tok
 
   ┃
   ┃  Choose a path
