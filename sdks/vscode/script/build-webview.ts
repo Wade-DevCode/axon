@@ -13,7 +13,7 @@ const child = Bun.spawn(
   ],
   {
     cwd: join(import.meta.dir, "../../../packages/app"),
-    env: { ...Bun.env, AXON_CHANNEL: "prod" },
+    env: { ...Bun.env, AXON_CHANNEL: "prod", AXON_VSCODE: "true" },
     stdin: "inherit",
     stdout: "inherit",
     stderr: "inherit",
