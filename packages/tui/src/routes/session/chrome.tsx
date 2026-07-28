@@ -59,21 +59,21 @@ export function AxonStatusBar(props: { changedFiles: number; density: BrandDensi
   const theme = useTheme().theme
 
   return (
-    <box
-      width="100%"
-      flexDirection="row"
-      justifyContent="space-between"
-      flexShrink={0}
-      paddingLeft={props.density === "compact" ? 0 : 1}
-      paddingRight={props.density === "compact" ? 0 : 1}
-    >
-      <box flexDirection="row" gap={props.density === "wide" ? 2 : 1} minWidth={0}>
-        <Show when={props.density !== "compact" && props.changedFiles > 0}>
+    <Show when={props.density !== "compact" && props.changedFiles > 0}>
+      <box
+        width="100%"
+        flexDirection="row"
+        justifyContent="space-between"
+        flexShrink={0}
+        paddingLeft={1}
+        paddingRight={1}
+      >
+        <box flexDirection="row" gap={props.density === "wide" ? 2 : 1} minWidth={0}>
           <text fg={theme.info}>
             {props.changedFiles} file{props.changedFiles === 1 ? "" : "s"} changed
           </text>
-        </Show>
+        </box>
       </box>
-    </box>
+    </Show>
   )
 }

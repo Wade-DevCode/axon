@@ -48,6 +48,7 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
 "   AXON feature/axon                                                            AX Ready · review
   ────────────────────────────────────────────────────────────────────────────────────────────────
 
+
      I found the issue.
 
     │ Activity 5/5
@@ -74,13 +75,14 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
   ┃
 
    2 files changed
-
 "
 `;
 
 exports[`renders the real session hierarchy responsively and preserves the Prompt plugin contract: compact session 1`] = `
 "  feature/axon                                                AX Ready
   ────────────────────────────────────────────────────────────────────
+
+
 
   ┃  You
   ┃  Please inspect auth
@@ -117,7 +119,5 @@ exports[`renders the real session hierarchy responsively and preserves the Promp
   ┃
   ┃  ↑↓ select  enter submit  esc dismiss
   ┃
-
-
 "
 `;
