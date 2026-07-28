@@ -64,11 +64,7 @@ export function AxonToolPanel(props: {
                 <box flexDirection="row" justifyContent="space-between" onMouseUp={() => props.onOpen?.(item.part)}>
                   <box flexDirection="row" gap={1} minWidth={0}>
                     <Show when={item.row.status === "running" || item.row.status === "pending"}>
-                      <Spinner color={color(item.row.status)}>
-                        <text fg={theme.text} attributes={TextAttributes.BOLD} wrapMode="none">
-                          {item.row.kind}
-                        </text>
-                      </Spinner>
+                      <Spinner color={color(item.row.status)}>{item.row.kind}</Spinner>
                     </Show>
                     <Show when={item.row.status !== "running" && item.row.status !== "pending"}>
                       <text fg={theme.text} attributes={TextAttributes.BOLD} wrapMode="none">
@@ -100,11 +96,7 @@ export function AxonToolPanel(props: {
               <box flexDirection="column" onMouseUp={() => props.onOpen?.(item.part)}>
                 <box flexDirection="row" justifyContent="space-between">
                   <Show when={item.row.status === "running" || item.row.status === "pending"}>
-                    <Spinner color={color(item.row.status)}>
-                      <text fg={theme.text} attributes={TextAttributes.BOLD} wrapMode="none">
-                        {item.row.kind}
-                      </text>
-                    </Spinner>
+                    <Spinner color={color(item.row.status)}>{item.row.kind}</Spinner>
                   </Show>
                   <Show when={item.row.status !== "running" && item.row.status !== "pending"}>
                     <text fg={theme.text} attributes={TextAttributes.BOLD} wrapMode="none">

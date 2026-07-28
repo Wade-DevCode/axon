@@ -45,12 +45,12 @@ test("reacts to pending, running, and terminal transitions without leaking its r
     now.mockReturnValue(1100)
     ;(refreshes[0]?.[0] as () => void)()
     await app.renderOnce()
-    expect(app.captureCharFrame()).toContain("1000 ms")
+    expect(app.captureCharFrame()).toContain("1.0s")
 
     setPart(tool("completed"))
     await app.renderOnce()
     expect(clear).toHaveBeenCalledWith(handle)
-    expect(app.captureCharFrame()).toContain("150 ms")
+    expect(app.captureCharFrame()).toContain("150ms")
   } finally {
     app.renderer.destroy()
     jest.restoreAllMocks()
@@ -59,22 +59,24 @@ test("reacts to pending, running, and terminal transitions without leaking its r
 
 test("keeps compact empty-target and error rows to exactly two lines", async () => {
   const frame = await render(
-    () => <AxonToolPanel
-      density="compact"
-      now={500}
-      parts={[
-        tool("pending", "mystery_plugin"),
-        tool("error", "bash", "Build exploded"),
-        tool("error", "bash", "Request aborted"),
-      ]}
-    />,
+    () => (
+      <AxonToolPanel
+        density="compact"
+        now={500}
+        parts={[
+          tool("pending", "mystery_plugin"),
+          tool("error", "bash", "Build exploded"),
+          tool("error", "bash", "Request aborted"),
+        ]}
+      />
+    ),
     72,
   )
   const lines = visibleLines(frame)
 
   expect(lines).toEqual([
-    "Activity",
-    "Mystery Plugin pending",
+    "Activity 0/3",
+    "SPINNER Mystery Plugin pending",
     "-",
     "Run failed",
     "- · Build exploded",
@@ -85,11 +87,13 @@ test("keeps compact empty-target and error rows to exactly two lines", async () 
 
 test("retains concise failed and cancelled errors in normal activity rows", async () => {
   const frame = await render(
-    () => <AxonToolPanel
-      density="normal"
-      now={500}
-      parts={[tool("error", "bash", "Build exploded"), tool("error", "bash", "Request aborted")]}
-    />,
+    () => (
+      <AxonToolPanel
+        density="normal"
+        now={500}
+        parts={[tool("error", "bash", "Build exploded"), tool("error", "bash", "Request aborted")]}
+      />
+    ),
     100,
   )
 
@@ -164,6 +168,7 @@ function visibleLines(frame: string) {
     .split("\n")
     .map((line) => line.trim())
     .map((line) => line.replace(/^│\s?/, ""))
+    .map((line) => line.replace(/^[\u2800-\u28ff]\s+/, "SPINNER "))
     .map((line) => line.replace(/\s+/g, " "))
     .filter(Boolean)
 }
