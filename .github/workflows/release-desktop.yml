@@ -1,5 +1,5 @@
 name: release-desktop
-run-name: "release desktop ${{ inputs.version }}"
+run-name: "release Desktop ${{ inputs.version || github.ref_name }}"
 
 on:
   workflow_call:
@@ -8,14 +8,30 @@ on:
         description: "Release version"
         required: true
         type: string
+    secrets:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+      AZURE_TRUSTED_SIGNING_ACCOUNT_NAME:
+        required: true
+      AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE:
+        required: true
+      AZURE_TRUSTED_SIGNING_ENDPOINT:
+        required: true
   workflow_dispatch:
     inputs:
       version:
-        description: "Existing release version without the v prefix"
+        description: "Desktop release version without the desktop-v prefix"
         required: true
         type: string
+  push:
+    tags:
+      - "desktop-v*.*.*"
 
-concurrency: release-desktop-${{ inputs.version }}
+concurrency: release-desktop-${{ inputs.version || github.ref_name }}
 
 permissions:
   id-token: write
@@ -26,7 +42,7 @@ jobs:
     if: github.repository == 'Wade-DevCode/axon'
     runs-on: windows-2025
     env:
-      AXON_VERSION: ${{ inputs.version }}
+      AXON_VERSION: ${{ inputs.version || github.ref_name }}
       AXON_CHANNEL: prod
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -37,7 +53,7 @@ jobs:
     steps:
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         with:
-          ref: ${{ startsWith(inputs.version, 'v') && inputs.version || format('v{0}', inputs.version) }}
+          fetch-depth: 0
 
       - uses: ./.github/actions/setup-bun
 
@@ -45,25 +61,37 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Normalize version
+        shell: pwsh
+        run: |
+          $version = "$env:AXON_VERSION" -replace '^(desktop-)?v', ''
+          if ($version -notmatch '^\d+\.\d+\.\d+([.-][0-9A-Za-z.-]+)?$') {
+            throw "Invalid Desktop release version: $version"
+          }
+          "AXON_VERSION=$version" >> $env:GITHUB_ENV
+
+      - name: Require signing configuration
+        shell: pwsh
+        run: |
+          $required = @(
+            "AZURE_CLIENT_ID",
+            "AZURE_TENANT_ID",
+            "AZURE_SUBSCRIPTION_ID",
+            "AZURE_TRUSTED_SIGNING_ACCOUNT_NAME",
+            "AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE",
+            "AZURE_TRUSTED_SIGNING_ENDPOINT"
+          )
+          $missing = $required | Where-Object { [string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($_)) }
+          if ($missing) {
+            throw "Stable Desktop releases require Azure Trusted Signing: $($missing -join ', ')"
+          }
+
       - name: Azure login
-        if: >-
-          env.AZURE_CLIENT_ID != '' &&
-          env.AZURE_TENANT_ID != '' &&
-          env.AZURE_SUBSCRIPTION_ID != '' &&
-          env.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME != '' &&
-          env.AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE != '' &&
-          env.AZURE_TRUSTED_SIGNING_ENDPOINT != ''
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           client-id: ${{ env.AZURE_CLIENT_ID }}
           tenant-id: ${{ env.AZURE_TENANT_ID }}
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Normalize version
-        shell: pwsh
-        run: |
-          $version = "$env:AXON_VERSION" -replace '^v', ''
-          "AXON_VERSION=$version" >> $env:GITHUB_ENV
 
       - name: Prepare desktop app
         run: bun ./scripts/prepare.ts
@@ -80,6 +108,15 @@ jobs:
         working-directory: packages/desktop
         timeout-minutes: 60
 
+      - name: Verify installer signature
+        shell: pwsh
+        run: |
+          $installer = Get-Item "${{ github.workspace }}\packages\desktop\dist\axon-desktop-win-x64.exe"
+          $signature = Get-AuthenticodeSignature $installer.FullName
+          if ($signature.Status -ne "Valid") {
+            throw "Desktop installer signature is $($signature.Status): $($signature.StatusMessage)"
+          }
+
       - name: Upload desktop installer
         shell: pwsh
         env:
@@ -93,4 +130,22 @@ jobs:
             throw "No desktop release assets found"
           }
 
-          gh release upload "v$env:AXON_VERSION" $files --clobber --repo "${{ github.repository }}"
+          $tag = "desktop-v$env:AXON_VERSION"
+          gh release view $tag --repo "${{ github.repository }}" *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag $files `
+              --target "$env:GITHUB_SHA" `
+              --title "Axon Desktop v$env:AXON_VERSION" `
+              --generate-notes `
+              --latest `
+              --repo "${{ github.repository }}"
+          } else {
+            gh release upload $tag $files --clobber --repo "${{ github.repository }}"
+            if ($LASTEXITCODE -ne 0) {
+              throw "Failed to upload Desktop assets to $tag"
+            }
+            gh release edit $tag --latest --repo "${{ github.repository }}"
+          }
+          if ($LASTEXITCODE -ne 0) {
+            throw "Failed to create or update Desktop release $tag"
+          }

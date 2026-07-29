@@ -1,0 +1,51 @@
+name: release-suite
+run-name: "release suite CLI ${{ inputs.cli_version }}, Desktop ${{ inputs.desktop_version }}, VS Code ${{ inputs.vscode_version }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      cli_version:
+        description: "CLI version without the cli-v prefix"
+        required: true
+        type: string
+      cli_scope:
+        description: "CLI npm platform scope"
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - windows
+      desktop_version:
+        description: "Desktop version without the desktop-v prefix"
+        required: true
+        type: string
+      vscode_version:
+        description: "VS Code version without the vscode-v prefix"
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  cli:
+    uses: ./.github/workflows/release-cli.yml
+    with:
+      version: ${{ inputs.cli_version }}
+      scope: ${{ inputs.cli_scope }}
+    secrets: inherit
+
+  desktop:
+    uses: ./.github/workflows/release-desktop.yml
+    with:
+      version: ${{ inputs.desktop_version }}
+    secrets: inherit
+
+  vscode:
+    uses: ./.github/workflows/release-vscode.yml
+    with:
+      version: ${{ inputs.vscode_version }}
+      publish: true
+    secrets: inherit

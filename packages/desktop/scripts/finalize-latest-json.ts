@@ -107,7 +107,7 @@ function pick(list: Item[], exts: string[]) {
 
 function link(raw: string) {
   if (raw.startsWith("https://") || raw.startsWith("http://")) return raw
-  return `https://github.com/${repo}/releases/download/v${version}/${raw}`
+  return `https://github.com/${repo}/releases/download/desktop-v${version}/${raw}`
 }
 
 async function sign(url: string, key: string) {
@@ -208,7 +208,7 @@ const tmp = process.env.RUNNER_TEMP ?? "/tmp"
 const file = path.join(tmp, "latest.json")
 await Bun.write(file, JSON.stringify(data, null, 2))
 
-const tag = `v${version}`
+const tag = `desktop-v${version}`
 
 if (dryRun) {
   console.log(`dry-run: wrote latest.json for ${tag} to ${file}`)

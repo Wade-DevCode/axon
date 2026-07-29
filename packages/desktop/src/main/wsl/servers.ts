@@ -13,7 +13,7 @@ import type {
 } from "../../preload/types"
 import { WSL_SERVERS_KEY } from "../store-keys"
 import { getStore } from "../store"
-import { expectAxonVersion, pendingRestartAfterWslInstall, wslServerIdsToStartOnInitialize } from "./startup"
+import { expectAxonInstalled, pendingRestartAfterWslInstall, wslServerIdsToStartOnInitialize } from "./startup"
 import { clearWslDistroState, wslServerIdToRestart } from "./policy"
 import {
   installWslDistro,
@@ -58,7 +58,6 @@ export function wslServerIdForDistro(distro: string) {
 }
 
 export function createWslServersController(
-  appVersion: string,
   spawnSidecar: SpawnSidecar,
   options?: WslServersControllerOptions,
 ) {
@@ -133,7 +132,7 @@ export function createWslServersController(
     const version = resolved
       ? await (options?.readCommandVersion ?? readWslCommandVersion)(resolved, distro, opts)
       : null
-    return axonCheck(distro, resolved, version, appVersion)
+    return axonCheck(distro, resolved, version)
   }
 
   const refreshAxonCheck = async (distro: string, opts?: { signal?: AbortSignal }) => {
@@ -342,12 +341,12 @@ export function createWslServersController(
 
     async installAxon(name: string) {
       await runJob({ kind: "install-axon", distro: name, startedAt: Date.now() }, async (abort) => {
-        const result = await installWslAxon(appVersion, name, { signal: abort.signal })
+        const result = await installWslAxon(name, { signal: abort.signal })
         if (result.code !== 0) {
           throw new Error(summarize(result.stderr || result.stdout) || "Axon installation failed")
         }
         await refreshAxonCheck(name, { signal: abort.signal })
-        expectAxonVersion(state.axonChecks[name]?.version ?? null, appVersion, name)
+        expectAxonInstalled(state.axonChecks[name]?.version ?? null, name)
         const id = wslServerIdToRestart(state.servers, name)
         if (id) await startServer(id)
       })
@@ -448,14 +447,13 @@ function axonCheck(
   distro: string,
   resolvedPath: string | null,
   version: string | null,
-  expectedVersion: string,
 ): WslAxonCheck {
   if (!resolvedPath) {
     return {
       distro,
       resolvedPath: null,
       version: null,
-      expectedVersion,
+      expectedVersion: null,
       matchesDesktop: null,
       error: "axon is not installed in this distro",
     }
@@ -465,7 +463,7 @@ function axonCheck(
       distro,
       resolvedPath,
       version: null,
-      expectedVersion,
+      expectedVersion: null,
       matchesDesktop: null,
       error: "axon is installed but could not run",
     }
@@ -474,8 +472,8 @@ function axonCheck(
     distro,
     resolvedPath,
     version,
-    expectedVersion,
-    matchesDesktop: version === expectedVersion,
+    expectedVersion: null,
+    matchesDesktop: null,
     error: null,
   }
 }

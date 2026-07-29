@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test"
 import { clearWslDistroState, requireWslIpcString, wslServerIdToRestart, wslTerminalArgs } from "./policy"
 import {
-  expectAxonVersion,
+  expectAxonInstalled,
   pendingRestartAfterWslInstall,
   pollWslHealth,
   wslServerIdsToStartOnInitialize,
@@ -20,10 +20,10 @@ test("starts every configured WSL server on initialization", () => {
   ).toEqual(["wsl:Debian", "wsl:Ubuntu-24.04"])
 })
 
-test("rejects an update that did not install the desktop version", () => {
-  expect(() => expectAxonVersion("1.16.2", "1.16.2")).not.toThrow()
-  expect(() => expectAxonVersion("1.14.35", "1.16.2")).toThrow(
-    "Axon update finished but Debian still reports 1.14.35; expected 1.16.2",
+test("rejects an installation that did not expose an Axon version", () => {
+  expect(() => expectAxonInstalled("0.5.74")).not.toThrow()
+  expect(() => expectAxonInstalled(null)).toThrow(
+    "Axon installation finished but Debian still reports no version",
   )
 })
 
@@ -100,7 +100,6 @@ test("ignores stale background Axon checks after removing a WSL server", async (
   persistedServers = []
   releaseAxonResolve = undefined
   const controller = createWslServersController(
-    "1.16.2",
     async () => ({
       listener: {
         stop: () => undefined,
@@ -127,7 +126,6 @@ test("ignores stale startup Axon checks after removing a WSL server", async () =
   persistedServers = [{ id: "wsl:Debian", distro: "Debian" }]
   releaseAxonResolve = undefined
   const controller = createWslServersController(
-    "1.16.2",
     async () => new Promise<never>(() => undefined),
     testControllerOptions(),
   )

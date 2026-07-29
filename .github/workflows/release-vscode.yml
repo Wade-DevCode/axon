@@ -1,0 +1,151 @@
+name: release-vscode
+run-name: "release VS Code ${{ inputs.version || github.ref_name || 'build only' }}"
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "VS Code extension version without the vscode-v prefix"
+        required: true
+        type: string
+      publish:
+        description: "Publish the extension"
+        required: false
+        default: true
+        type: boolean
+    secrets:
+      VSCE_PAT:
+        required: true
+      OPENVSX_TOKEN:
+        required: false
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "VS Code extension version; required when publishing"
+        required: false
+        type: string
+      publish:
+        description: "Publish to marketplaces and GitHub Releases"
+        required: true
+        default: false
+        type: boolean
+  push:
+    tags:
+      - "vscode-v*.*.*"
+
+concurrency: release-vscode-${{ inputs.version || github.ref_name }}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-bun
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+
+      - name: Resolve release
+        id: release
+        shell: bash
+        env:
+          REQUESTED_PUBLISH: ${{ inputs.publish }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          package_version=$(node -p "require('./sdks/vscode/package.json').version")
+          version="$package_version"
+          publish=false
+
+          if [[ "$GITHUB_REF" == refs/tags/vscode-v* ]]; then
+            version="${GITHUB_REF_NAME#vscode-v}"
+            publish=true
+          elif [[ "$REQUESTED_PUBLISH" == "true" ]]; then
+            version="$REQUESTED_VERSION"
+            publish=true
+          fi
+
+          if [[ "$publish" == "true" && -z "$version" ]]; then
+            echo "A version is required when publishing"
+            exit 1
+          fi
+          if [[ "$version" != "$package_version" ]]; then
+            echo "Release version $version does not match package version $package_version"
+            exit 1
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=vscode-v$version" >> "$GITHUB_OUTPUT"
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
+
+      - name: Install extension dependencies
+        run: bun install
+        working-directory: ./sdks/vscode
+
+      - name: Package VSIX
+        id: package
+        shell: bash
+        run: |
+          path="dist/axon-developer-agent-${{ steps.release.outputs.version }}.vsix"
+          npx --yes @vscode/vsce@3.9.2 package --no-git-tag-version --no-update-package-json --no-dependencies --skip-license -o "$path"
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+        working-directory: ./sdks/vscode
+
+      - name: Enforce VSIX budget
+        shell: bash
+        run: |
+          path="sdks/vscode/${{ steps.package.outputs.path }}"
+          files=$(unzip -Z1 "$path" | wc -l)
+          bytes=$(stat --format=%s "$path")
+          echo "VSIX contains $files files and $bytes compressed bytes"
+          if (( files > 250 )); then
+            echo "VSIX file budget exceeded: $files > 250"
+            exit 1
+          fi
+          if (( bytes > 8388608 )); then
+            echo "VSIX size budget exceeded: $bytes > 8388608"
+            exit 1
+          fi
+
+      - name: Upload VSIX
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: axon-vscode-${{ steps.release.outputs.version }}-${{ github.sha }}
+          path: sdks/vscode/${{ steps.package.outputs.path }}
+          if-no-files-found: error
+
+      - name: Publish extension
+        if: steps.release.outputs.publish == 'true'
+        run: |
+          npm install --global @vscode/vsce@3.9.2 ovsx
+          ./script/publish "${{ steps.package.outputs.path }}"
+        working-directory: ./sdks/vscode
+        env:
+          AXON_VSCODE_VERSION: ${{ steps.release.outputs.version }}
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          OPENVSX_TOKEN: ${{ secrets.OPENVSX_TOKEN }}
+
+      - name: Publish permanent VSIX
+        if: steps.release.outputs.publish == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ steps.release.outputs.tag }}"
+          path="sdks/vscode/${{ steps.package.outputs.path }}"
+          if ! gh release view "$tag" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release create "$tag" \
+              --target "$GITHUB_SHA" \
+              --title "Axon VS Code v${{ steps.release.outputs.version }}" \
+              --generate-notes \
+              --latest=false \
+              --repo "${{ github.repository }}"
+          fi
+          gh release upload "$tag" "$path" --clobber --repo "${{ github.repository }}"

@@ -2,11 +2,9 @@ export function wslServerIdsToStartOnInitialize(servers: { id: string }[]) {
   return servers.map((server) => server.id)
 }
 
-export function expectAxonVersion(installed: string | null, expected: string, distro = "Debian") {
-  if (installed === expected) return
-  throw new Error(
-    `Axon update finished but ${distro} still reports ${installed ?? "no version"}; expected ${expected}`,
-  )
+export function expectAxonInstalled(installed: string | null, distro = "Debian") {
+  if (installed) return
+  throw new Error(`Axon installation finished but ${distro} still reports no version`)
 }
 
 export const pendingRestartAfterWslInstall = (runtime: { available: boolean }) => !runtime.available

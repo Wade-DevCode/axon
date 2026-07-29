@@ -137,7 +137,6 @@ const main = Effect.gen(function* () {
   initCrashReporter()
 
   const wslServers = createWslServersController(
-    app.getVersion(),
     async (distro) => {
       logger.log("spawning wsl sidecar", { distro })
       return spawnWslSidecar(distro, {

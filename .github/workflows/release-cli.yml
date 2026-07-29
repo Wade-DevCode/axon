@@ -2,23 +2,37 @@ name: release-cli
 run-name: "release CLI ${{ inputs.version || github.ref_name }} (${{ inputs.scope || 'all' }})"
 
 on:
+  workflow_call:
+    inputs:
+      version:
+        description: "CLI release version without the cli-v prefix"
+        required: true
+        type: string
+      scope:
+        description: "npm platform scope"
+        required: false
+        default: all
+        type: string
+    secrets:
+      NPM_TOKEN:
+        required: true
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version without the v prefix"
+        description: "CLI release version without the cli-v prefix"
         required: true
         type: string
       scope:
         description: "npm platform scope"
         required: true
-        default: windows
+        default: all
         type: choice
         options:
           - windows
           - all
   push:
     tags:
-      - "v*"
+      - "cli-v*.*.*"
 
 concurrency: release-cli-${{ inputs.version || github.ref_name }}
 
@@ -51,10 +65,3 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: false
         run: bun ./packages/axon/script/release.ts
-
-  release-desktop-windows:
-    needs: release
-    uses: ./.github/workflows/release-desktop.yml
-    with:
-      version: ${{ inputs.version || github.ref_name }}
-    secrets: inherit

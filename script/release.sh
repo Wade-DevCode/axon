@@ -2,7 +2,7 @@
 set -euo pipefail
 
 version=""
-scope="windows"
+scope="all"
 dry_run="false"
 
 while [[ $# -gt 0 ]]; do
@@ -67,5 +67,5 @@ command -v gh >/dev/null || {
 }
 
 "${command[@]}"
-echo "Dispatched Axon $version ($scope)."
+echo "Dispatched Axon CLI $version ($scope)."
 echo "Monitor with: gh run watch --repo Wade-DevCode/axon"

@@ -5,7 +5,7 @@ param(
   [string]$Version,
 
   [ValidateSet("windows", "all")]
-  [string]$Scope = "windows",
+  [string]$Scope = "all",
 
   [switch]$DryRun
 )
@@ -50,5 +50,5 @@ if ($LASTEXITCODE -ne 0) {
   throw "Failed to dispatch the GitHub Actions release workflow."
 }
 
-Write-Host "Dispatched Axon $Version ($Scope)."
+Write-Host "Dispatched Axon CLI $Version ($Scope)."
 Write-Host "Monitor with: gh run watch --repo Wade-DevCode/axon"

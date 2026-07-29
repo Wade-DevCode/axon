@@ -259,13 +259,10 @@ export async function installWslDistro(name: string, opts?: RunWslOptions) {
   )
 }
 
-export async function installWslAxon(version: string, distro: string, opts?: RunWslOptions) {
+export async function installWslAxon(distro: string, opts?: RunWslOptions) {
   return runInteractiveCommand(
     resolveSystem32Command("wsl.exe"),
-    wslArgs(
-      ["bash", "-lc", `curl -fsSL https://opencode.ai/install | bash -s -- --version ${shellEscape(version)}`],
-      distro,
-    ),
+    wslArgs(["bash", "-lc", "npm install -g @wanghuimvp/axon@latest"], distro),
     withTimeout(opts, DEFAULT_WSL_INSTALL_TIMEOUT_MS),
     DEFAULT_WSL_INSTALL_TIMEOUT_MS,
   )

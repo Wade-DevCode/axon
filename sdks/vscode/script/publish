@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-tag=${GITHUB_REF_NAME:-$(git tag --points-at HEAD | grep -E '^vscode-v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)}
-if [ -z "$tag" ]; then
-    echo "No vscode release tag found at HEAD"
-    exit 1
+version=${AXON_VSCODE_VERSION:-}
+if [ -z "$version" ]; then
+    tag=${GITHUB_REF_NAME:-$(git tag --points-at HEAD | grep -E '^vscode-v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)}
+    if [ -z "$tag" ]; then
+        echo "No vscode release version or tag found"
+        exit 1
+    fi
+    version=${tag#vscode-v}
 fi
-version=${tag#vscode-v}
 package_version=$(node -p "require('./package.json').version")
 if [ "$version" != "$package_version" ]; then
     echo "Tag version $version does not match package version $package_version"
@@ -14,9 +17,15 @@ if [ "$version" != "$package_version" ]; then
 fi
 echo "Publishing version: $version"
 
-# package-marketplace
-package_path="dist/axon-${version}.vsix"
-vsce package --no-git-tag-version --no-update-package-json --no-dependencies --skip-license -o "$package_path" "$version"
+package_path=${1:-}
+if [ -z "$package_path" ]; then
+    package_path="dist/axon-${version}.vsix"
+    vsce package --no-git-tag-version --no-update-package-json --no-dependencies --skip-license -o "$package_path" "$version"
+fi
+if [ ! -f "$package_path" ]; then
+    echo "VSIX not found: $package_path"
+    exit 1
+fi
 
 # publish-marketplace
 vsce publish --packagePath "$package_path"

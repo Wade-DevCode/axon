@@ -15,7 +15,7 @@ const scope =
   process.argv.find((arg) => arg.startsWith("--scope="))?.slice("--scope=".length) ??
   process.env.AXON_RELEASE_SCOPE ??
   "all"
-const version = (process.env.AXON_VERSION ?? process.env.GITHUB_REF_NAME ?? "").replace(/^v/, "")
+const version = (process.env.AXON_VERSION ?? process.env.GITHUB_REF_NAME ?? "").replace(/^(?:cli-)?v/, "")
 
 if (scope !== "windows" && scope !== "all") throw new Error(`Unsupported release scope: ${scope}`)
 if (!semver.valid(version)) throw new Error(`Invalid release version: ${version || "<empty>"}`)
@@ -156,7 +156,7 @@ async function verifyCleanInstall() {
 async function publishGitHubRelease() {
   const repo = process.env.GH_REPO ?? process.env.GITHUB_REPOSITORY
   if (!repo) throw new Error("GH_REPO or GITHUB_REPOSITORY is required for an all-platform release")
-  const tag = `v${version}`
+  const tag = `cli-v${version}`
   const assets = Array.from(new Bun.Glob("*").scanSync({ cwd: releaseDir })).map((file) => path.join(releaseDir, file))
   const exists = await Bun.spawn(["gh", "release", "view", tag, "--repo", repo], {
     cwd: dir,
@@ -179,8 +179,9 @@ async function publishGitHubRelease() {
     "--target",
     process.env.GITHUB_SHA ?? "main",
     "--title",
-    `Axon ${tag}`,
+    `Axon CLI v${version}`,
     "--generate-notes",
+    "--latest=false",
     "--repo",
     repo,
   ])

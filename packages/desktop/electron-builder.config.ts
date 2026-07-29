@@ -135,7 +135,7 @@ function getConfig() {
         appId,
         productName: "Axon",
         protocols: { name: "Axon", schemes: ["axon"] },
-        publish: { provider: "github", owner: "anomalyco", repo: "axon", channel: "latest" },
+        publish: { provider: "github", owner: "Wade-DevCode", repo: "axon", channel: "latest" },
         deb: { fpm: [legacyDesktopEntryFpm] },
         rpm: { packageName: "axon", fpm: [legacyDesktopEntryFpm] },
       }

@@ -146,6 +146,21 @@ const table = sqliteTable("session", {
 
 - Always run `bun typecheck` from package directories (e.g., `packages/axon`), never `tsc` directly.
 
+## Product Releases
+
+- Read `docs/product-release-process.md` before changing or running a release
+  workflow.
+- Treat CLI, Desktop, and VS Code as independent products with independent
+  versions, tags, workflows, and completion checks.
+- Use `release-cli.yml` with `cli-vX.Y.Z`,
+  `release-desktop.yml` with `desktop-vX.Y.Z`, and
+  `release-vscode.yml` with `vscode-vX.Y.Z`.
+- Use `release-suite.yml` only when all three products were explicitly
+  requested. Never make one product workflow trigger another implicitly.
+- A successful Actions job is not sufficient proof of release. Verify npm,
+  GitHub Release assets, installer signature and launch, or marketplace state
+  for the requested product.
+
 ## V2 Session Core
 
 - Keep durable prompt admission separate from model execution. `SessionV2.prompt(...)` admits one durable `session_input` row before scheduling advisory `SessionExecution.wake(sessionID)` unless `resume: false` requests admit-only behavior. The serialized runner promotes admitted inputs into visible user messages at safe boundaries.

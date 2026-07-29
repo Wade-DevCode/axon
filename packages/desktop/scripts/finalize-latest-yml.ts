@@ -111,7 +111,7 @@ if (macX64 || macArm64) {
 }
 
 // Upload to release
-const tag = `v${version}`
+const tag = `desktop-v${version}`
 const tmp = process.env.RUNNER_TEMP ?? "/tmp"
 
 for (const [filename, content] of Object.entries(output)) {
