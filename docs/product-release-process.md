@@ -776,6 +776,20 @@ Completed in the safe GitHub build change:
 - product tags and `release-suite.yml` explicitly retain full publication
   behavior.
 
+Verified on 2026-07-30 with diagnostic version
+`0.0.0-build.20260730`:
+
+- CLI Windows build-only run
+  [30507582810](https://github.com/Wade-DevCode/axon/actions/runs/30507582810)
+  produced three Windows archives plus matching SHA-256 checksums;
+- Desktop Windows x64 build-only run
+  [30507584568](https://github.com/Wade-DevCode/axon/actions/runs/30507584568)
+  produced the installer, blockmap, and `latest.yml`;
+- the Desktop signing, Azure login, signature verification, and Release
+  publication steps were skipped;
+- npm returned `404` for the diagnostic version and neither product created a
+  diagnostic GitHub Release.
+
 ## Required operating rule
 
 Before any future external build or release:
