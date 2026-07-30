@@ -230,6 +230,29 @@ for diagnostics but expire, so they are not the permanent download location.
 In particular, the released VSIX should be attached to its
 `vscode-vX.Y.Z` GitHub Release in addition to marketplace publication.
 
+## Active workflow inventory
+
+Keep the active Actions directory limited to workflows that serve the current
+repository:
+
+| Workflow | Responsibility |
+| --- | --- |
+| `release-cli.yml` | Build or release the CLI |
+| `release-desktop.yml` | Build or release Desktop |
+| `release-vscode.yml` | Build or release the VS Code extension |
+| `release-suite.yml` | Explicitly coordinate all three product releases |
+| `typecheck.yml` | Run monorepo type checking on `main` and pull requests |
+| `storybook.yml` | Build shared UI Storybook when its sources change |
+| `generate.yml` | Regenerate committed code after changes reach `main` |
+| `nix-eval.yml` | Validate Nix outputs on `main` and pull requests |
+| `nix-hashes.yml` | Recompute native Nix dependency hashes |
+| `pr-standards.yml` | Enforce the repository PR title and template rules |
+
+Use GitHub-hosted runners for these workflows. Do not restore upstream
+maintenance bots, scheduled branch sync, cloud deployment, Discord/statistics,
+or AI issue automation without documenting their owner, required secrets,
+trigger, and completion check first.
+
 ## Required release gates
 
 ### CLI
