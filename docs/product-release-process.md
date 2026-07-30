@@ -243,7 +243,7 @@ repository:
 | `release-suite.yml` | Explicitly coordinate all three product releases |
 | `typecheck.yml` | Run monorepo type checking on `main` and pull requests |
 | `storybook.yml` | Build shared UI Storybook when its sources change |
-| `generate.yml` | Regenerate committed code after changes reach `main` |
+| `generate.yml` | Regenerate committed code only when explicitly requested |
 | `nix-eval.yml` | Validate Nix outputs on `main` and pull requests |
 | `nix-hashes.yml` | Recompute native Nix dependency hashes |
 | `pr-standards.yml` | Enforce the repository PR title and template rules |
