@@ -1,5 +1,5 @@
 name: release-vscode
-run-name: "release VS Code ${{ inputs.version || github.ref_name || 'build only' }}"
+run-name: "${{ (github.event_name == 'push' || inputs.publish == true) && 'release' || 'build' }} VS Code ${{ inputs.version || github.ref_name || 'current manifest' }}"
 
 on:
   workflow_call:
@@ -11,11 +11,11 @@ on:
       publish:
         description: "Publish the extension"
         required: false
-        default: true
+        default: false
         type: boolean
     secrets:
       VSCE_PAT:
-        required: true
+        required: false
       OPENVSX_TOKEN:
         required: false
   workflow_dispatch:

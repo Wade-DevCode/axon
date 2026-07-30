@@ -369,6 +369,12 @@ PowerShell dispatcher:
 ```
 
 This dispatches `.github/workflows/release-cli.yml` from clean, pushed `main`.
+The dispatcher explicitly passes `publish=true`.
+
+A manual GitHub `workflow_dispatch` defaults to `publish=false`. In that mode
+the workflow builds and validates the requested target set, creates archives
+and `checksums.txt`, and uploads an Actions artifact. It does not authenticate
+to npm, publish packages, or create a GitHub Release.
 
 The all-platform CLI job:
 
@@ -380,15 +386,18 @@ The all-platform CLI job:
 6. Performs a clean npm installation and checks `axon --version`.
 7. Creates or updates GitHub Release `cli-vX.Y.Z`.
 8. Uploads 12 archives plus `checksums.txt`.
+9. Uploads the same validated archive set as an Actions artifact.
 
 ### Windows-only CLI scope
 
-`-Scope windows` publishes three Windows npm platform packages and a wrapper.
-It does not create a Git tag or GitHub Release. npm versions are immutable, so a
-later all-platform release must use a different version.
+With `publish=true`, `-Scope windows` publishes three Windows npm platform
+packages and a wrapper. It does not create a Git tag or GitHub Release. npm
+versions are immutable, so a later all-platform release must use a different
+version.
 
-The CLI workflow does not invoke Desktop or VS Code. Windows-only scope is a CLI
-test release and does not create a GitHub Release.
+With `publish=false`, Windows-only scope builds and uploads the three Windows
+archives without touching npm. The CLI workflow does not invoke Desktop or VS
+Code.
 
 ### CLI release outputs
 
@@ -487,12 +496,14 @@ from that directory.
 `release-desktop.yml` is independent. It can run from:
 
 - a `desktop-vX.Y.Z` tag;
-- a manual dispatch with an explicit version;
-- `release-suite.yml` with an explicit Desktop version.
+- a manual dispatch with an explicit version and optional `publish`;
+- `release-suite.yml` with an explicit Desktop version and `publish=true`.
 
-It builds the triggering commit, creates or updates the
-`desktop-vX.Y.Z` GitHub Release, and uploads only Desktop assets. It does not
-require a CLI tag or CLI Release.
+A manual dispatch defaults to `publish=false`: it builds an unsigned installer
+and uploads an Actions artifact without requiring Azure credentials. A
+`desktop-vX.Y.Z` tag or explicit `publish=true` requires signing, creates or
+updates the Desktop GitHub Release, and uploads only Desktop assets. Desktop
+does not require a CLI tag or CLI Release.
 
 Desktop is the only product that marks its GitHub Release as repository
 `Latest`. CLI and VS Code releases explicitly set `latest=false`, preserving
@@ -506,13 +517,17 @@ Current Windows x64 outputs:
 - `axon-desktop-win-x64.exe.blockmap`
 - `latest.yml`
 
-They are GitHub Release assets, not Actions artifacts and not npm packages.
+Every successful build uploads them as an Actions artifact. A signed
+`publish=true` run also uploads them as permanent GitHub Release assets. They
+are not npm packages.
 
 ### Desktop signing
 
-Stable Windows releases require all Azure Trusted Signing credentials. The
-workflow fails before building when any signing value is missing and verifies
-that the final installer has a valid Authenticode signature before publication.
+Stable Windows releases require all Azure Trusted Signing credentials. A
+`publish=true` run fails before building when any signing value is missing and
+verifies that the final installer has a valid Authenticode signature before
+publication. A `publish=false` build deliberately skips Azure login and produces
+an unsigned diagnostic artifact that must not be called a release.
 
 The historical `v0.5.74` installer remains unsigned; the new gate applies to
 future `desktop-vX.Y.Z` releases.
@@ -750,6 +765,16 @@ Completed in the app-server protocol change:
 - network startup failures remain retryable, while protocol mismatches fail
   immediately with a product-specific upgrade message;
 - the generated JavaScript SDK includes the handshake fields.
+
+Completed in the safe GitHub build change:
+
+- manual and reusable product workflows default to `publish=false`;
+- build-only runs upload versioned Actions artifacts without publishing;
+- CLI build-only runs do not authenticate to or mutate npm;
+- Desktop build-only runs do not require Azure credentials or create a GitHub
+  Release;
+- product tags and `release-suite.yml` explicitly retain full publication
+  behavior.
 
 ## Required operating rule
 

@@ -16,9 +16,11 @@ const scope =
   process.env.AXON_RELEASE_SCOPE ??
   "all"
 const version = (process.env.AXON_VERSION ?? process.env.GITHUB_REF_NAME ?? "").replace(/^(?:cli-)?v/, "")
+const publish = process.env.AXON_RELEASE_PUBLISH === "true"
 
 if (scope !== "windows" && scope !== "all") throw new Error(`Unsupported release scope: ${scope}`)
 if (!semver.valid(version)) throw new Error(`Invalid release version: ${version || "<empty>"}`)
+if (publish && !process.env.NODE_AUTH_TOKEN) throw new Error("NODE_AUTH_TOKEN is required to publish the CLI")
 
 const targets = releaseTargets.filter((target) => scope === "all" || target.os === "win32")
 const expected = targets.map((target) => releaseTargetName(pkg.name, target)).sort()
@@ -31,19 +33,23 @@ delete releaseEnv.AXON_RELEASE
 
 process.chdir(dir)
 
-await run([npm, "whoami"])
-await validateExistingWrapper()
+if (publish) {
+  await run([npm, "whoami"])
+  await validateExistingWrapper()
+}
 await run(["bun", "./script/build.ts", ...(scope === "windows" ? ["--platform=windows"] : [])])
 await validateBuild()
-if (scope === "all") await packageReleaseAssets()
-await run(["bun", "./script/publish.ts"])
-await verifyRegistry()
-if (scope === "all") {
-  await verifyCleanInstall()
-  await publishGitHubRelease()
+await packageReleaseAssets()
+if (publish) {
+  await run(["bun", "./script/publish.ts"])
+  await verifyRegistry()
+  if (scope === "all") {
+    await verifyCleanInstall()
+    await publishGitHubRelease()
+  }
 }
 
-console.log(`Released Axon ${version} (${scope})`)
+console.log(`${publish ? "Released" : "Built"} Axon ${version} (${scope})`)
 
 async function validateExistingWrapper() {
   const metadata = await registryPackage(wrapperName)

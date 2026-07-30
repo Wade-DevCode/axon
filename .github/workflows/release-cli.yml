@@ -1,5 +1,5 @@
 name: release-cli
-run-name: "release CLI ${{ inputs.version || github.ref_name }} (${{ inputs.scope || 'all' }})"
+run-name: "${{ (github.event_name == 'push' || inputs.publish == true) && 'release' || 'build' }} CLI ${{ inputs.version || github.ref_name }} (${{ inputs.scope || 'all' }})"
 
 on:
   workflow_call:
@@ -13,9 +13,14 @@ on:
         required: false
         default: all
         type: string
+      publish:
+        description: "Publish npm packages and the CLI GitHub Release"
+        required: false
+        default: false
+        type: boolean
     secrets:
       NPM_TOKEN:
-        required: true
+        required: false
   workflow_dispatch:
     inputs:
       version:
@@ -30,6 +35,11 @@ on:
         options:
           - windows
           - all
+      publish:
+        description: "Publish npm packages and the CLI GitHub Release"
+        required: true
+        default: false
+        type: boolean
   push:
     tags:
       - "cli-v*.*.*"
@@ -60,8 +70,16 @@ jobs:
         env:
           AXON_VERSION: ${{ inputs.version || github.ref_name }}
           AXON_RELEASE_SCOPE: ${{ inputs.scope || 'all' }}
+          AXON_RELEASE_PUBLISH: ${{ github.event_name == 'push' || inputs.publish == true }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: false
         run: bun ./packages/axon/script/release.ts
+
+      - name: Upload CLI build
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: axon-cli-${{ inputs.version || github.ref_name }}-${{ inputs.scope || 'all' }}-${{ github.sha }}
+          path: packages/axon/release/*
+          if-no-files-found: error

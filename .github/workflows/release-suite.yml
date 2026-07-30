@@ -35,12 +35,14 @@ jobs:
     with:
       version: ${{ inputs.cli_version }}
       scope: ${{ inputs.cli_scope }}
+      publish: true
     secrets: inherit
 
   desktop:
     uses: ./.github/workflows/release-desktop.yml
     with:
       version: ${{ inputs.desktop_version }}
+      publish: true
     secrets: inherit
 
   vscode:

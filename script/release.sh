@@ -54,7 +54,7 @@ if [[ "$(git -C "$repo" rev-parse HEAD)" != "$remote" ]]; then
   exit 1
 fi
 
-command=(gh workflow run release-cli.yml --repo Wade-DevCode/axon --ref main -f "version=$version" -f "scope=$scope")
+command=(gh workflow run release-cli.yml --repo Wade-DevCode/axon --ref main -f "version=$version" -f "scope=$scope" -f "publish=true")
 if [[ "$dry_run" == "true" ]]; then
   printf '%q ' "${command[@]}"
   printf '\n'

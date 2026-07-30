@@ -33,7 +33,8 @@ $arguments = @(
   "--repo", "Wade-DevCode/axon",
   "--ref", "main",
   "-f", "version=$Version",
-  "-f", "scope=$Scope"
+  "-f", "scope=$Scope",
+  "-f", "publish=true"
 )
 
 if ($DryRun) {

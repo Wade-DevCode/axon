@@ -1,5 +1,5 @@
 name: release-desktop
-run-name: "release Desktop ${{ inputs.version || github.ref_name }}"
+run-name: "${{ (github.event_name == 'push' || inputs.publish == true) && 'release' || 'build' }} Desktop ${{ inputs.version || github.ref_name }}"
 
 on:
   workflow_call:
@@ -8,25 +8,35 @@ on:
         description: "Release version"
         required: true
         type: string
+      publish:
+        description: "Sign and publish the Desktop GitHub Release"
+        required: false
+        default: false
+        type: boolean
     secrets:
       AZURE_CLIENT_ID:
-        required: true
+        required: false
       AZURE_TENANT_ID:
-        required: true
+        required: false
       AZURE_SUBSCRIPTION_ID:
-        required: true
+        required: false
       AZURE_TRUSTED_SIGNING_ACCOUNT_NAME:
-        required: true
+        required: false
       AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE:
-        required: true
+        required: false
       AZURE_TRUSTED_SIGNING_ENDPOINT:
-        required: true
+        required: false
   workflow_dispatch:
     inputs:
       version:
         description: "Desktop release version without the desktop-v prefix"
         required: true
         type: string
+      publish:
+        description: "Sign and publish the Desktop GitHub Release"
+        required: true
+        default: false
+        type: boolean
   push:
     tags:
       - "desktop-v*.*.*"
@@ -44,6 +54,7 @@ jobs:
     env:
       AXON_VERSION: ${{ inputs.version || github.ref_name }}
       AXON_CHANNEL: prod
+      AXON_RELEASE_PUBLISH: ${{ github.event_name == 'push' || inputs.publish == true }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -71,6 +82,7 @@ jobs:
           "AXON_VERSION=$version" >> $env:GITHUB_ENV
 
       - name: Require signing configuration
+        if: env.AXON_RELEASE_PUBLISH == 'true'
         shell: pwsh
         run: |
           $required = @(
@@ -87,6 +99,7 @@ jobs:
           }
 
       - name: Azure login
+        if: env.AXON_RELEASE_PUBLISH == 'true'
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           client-id: ${{ env.AZURE_CLIENT_ID }}
@@ -109,6 +122,7 @@ jobs:
         timeout-minutes: 60
 
       - name: Verify installer signature
+        if: env.AXON_RELEASE_PUBLISH == 'true'
         shell: pwsh
         run: |
           $installer = Get-Item "${{ github.workspace }}\packages\desktop\dist\axon-desktop-win-x64.exe"
@@ -117,7 +131,18 @@ jobs:
             throw "Desktop installer signature is $($signature.Status): $($signature.StatusMessage)"
           }
 
-      - name: Upload desktop installer
+      - name: Upload Desktop build
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: axon-desktop-${{ inputs.version || github.ref_name }}-windows-x64-${{ github.sha }}
+          path: |
+            packages/desktop/dist/axon-desktop-win-x64.exe
+            packages/desktop/dist/axon-desktop-win-x64.exe.blockmap
+            packages/desktop/dist/latest.yml
+          if-no-files-found: error
+
+      - name: Publish Desktop release
+        if: env.AXON_RELEASE_PUBLISH == 'true'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
