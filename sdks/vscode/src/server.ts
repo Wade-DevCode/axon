@@ -5,6 +5,7 @@ import { createServer } from "node:net"
 import { dirname, isAbsolute, join, resolve } from "node:path"
 import { promisify } from "node:util"
 import { workspace, type Disposable } from "vscode"
+import { type CompatibleServerHealth, requireCompatibleServerHealth } from "./server-protocol"
 
 const exec = promisify(execFile)
 
@@ -12,6 +13,7 @@ export type AxonServerConnection = {
   url: string
   token: string
   modelState: AxonModelState
+  server: CompatibleServerHealth
 }
 
 type AxonModel = { providerID: string; modelID: string }
@@ -92,11 +94,18 @@ export class AxonServer implements Disposable {
       throw error
     })
 
-    await waitForServer(url, token, timeout, child, () => this.output)
+    const server = await waitForServer(url, token, timeout, child, () => this.output).catch((error) => {
+      if (!child.killed) {
+        child.kill()
+      }
+      this.process = undefined
+      throw error
+    })
     this.connection = {
       url,
       token,
       modelState: await readModelState(command, directory),
+      server,
     }
     return this.connection
   }
@@ -210,14 +219,12 @@ async function waitForServer(
       throw new Error(`Axon stopped before the sidebar connected.\n${output().trim()}`)
     }
 
-    const healthy = await fetch(`${url}/global/health`, {
+    const response = await fetch(`${url}/global/health`, {
       headers: { Authorization: `Basic ${token}` },
       signal: AbortSignal.timeout(1_000),
-    })
-      .then((response) => response.ok)
-      .catch(() => false)
-    if (healthy) {
-      return
+    }).catch(() => undefined)
+    if (response?.ok) {
+      return requireCompatibleServerHealth(await response.json().catch(() => undefined))
     }
     await new Promise((resolve) => setTimeout(resolve, 250))
   }

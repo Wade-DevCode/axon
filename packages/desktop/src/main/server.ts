@@ -6,6 +6,7 @@ import { getLogger } from "./logging"
 import { getUserShell, loadShellEnv } from "./shell-env"
 import { getStore } from "./store"
 import { DEFAULT_SERVER_URL_KEY } from "./store-keys"
+import { requireCompatibleServerHealth } from "./server-protocol"
 
 export type HealthCheck = { wait: Promise<void> }
 
@@ -195,16 +196,15 @@ export async function checkHealth(url: string, password?: string | null): Promis
     headers.set("authorization", `Basic ${auth}`)
   }
 
-  try {
-    const res = await fetch(healthUrl, {
-      method: "GET",
-      headers,
-      signal: AbortSignal.timeout(3000),
-    })
-    return res.ok
-  } catch {
-    return false
-  }
+  const res = await fetch(healthUrl, {
+    method: "GET",
+    headers,
+    signal: AbortSignal.timeout(3000),
+  }).catch(() => undefined)
+  if (!res?.ok) return false
+
+  requireCompatibleServerHealth(await res.json().catch(() => undefined))
+  return true
 }
 
 function createSidecarEnv(): Record<string, string> {

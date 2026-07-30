@@ -37,12 +37,21 @@ suite("Axon server", () => {
       const response = await fetch(`${connection.url}/global/health`, {
         headers: { Authorization: `Basic ${connection.token}`, Origin: origin },
       })
-      const health = (await response.json()) as { healthy?: boolean; version?: string }
+      const health = (await response.json()) as {
+        healthy?: boolean
+        version?: string
+        runtimeVersion?: string
+        protocolVersion?: number
+        capabilities?: string[]
+      }
 
       equal(response.ok, true)
       equal(response.headers.get("access-control-allow-origin"), origin)
       equal(health.healthy, true)
       equal(typeof health.version, "string")
+      equal(health.runtimeVersion, connection.server.runtimeVersion)
+      equal(health.protocolVersion, connection.server.protocolVersion)
+      equal(Array.isArray(health.capabilities), true)
       equal(Array.isArray(connection.modelState.recent), true)
       equal(typeof connection.modelState.variant, "object")
     } finally {

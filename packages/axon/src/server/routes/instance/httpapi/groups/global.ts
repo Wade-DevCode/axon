@@ -1,5 +1,6 @@
 import { ConfigV1 } from "@axon-ai/core/v1/config/config"
 import { EventV2 } from "@axon-ai/core/event"
+import { AppServerProtocol } from "@axon-ai/core/app-server-protocol"
 import { EventManifest } from "@/event-manifest"
 import { InstanceDisposed } from "@/server/event"
 import "@axon-ai/core/account"
@@ -11,6 +12,9 @@ import { described } from "./metadata"
 const GlobalHealth = Schema.Struct({
   healthy: Schema.Literal(true),
   version: Schema.String,
+  runtimeVersion: Schema.String,
+  protocolVersion: Schema.Literal(AppServerProtocol.VERSION),
+  capabilities: Schema.Array(Schema.Literals(AppServerProtocol.CAPABILITIES)),
 })
 
 const SyncEventSchemas = EventManifest.Latest.values()

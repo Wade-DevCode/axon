@@ -7304,6 +7304,9 @@ export type GlobalHealthResponses = {
   200: {
     healthy: true
     version: string
+    runtimeVersion: string
+    protocolVersion: 1
+    capabilities: Array<"sessions" | "diffs" | "permissions">
   }
 }
 

@@ -155,11 +155,17 @@ Every app-server health or initialization response must expose:
 
 ```json
 {
+  "healthy": true,
+  "version": "0.5.75",
   "runtimeVersion": "0.5.75",
   "protocolVersion": 1,
   "capabilities": ["sessions", "diffs", "permissions"]
 }
 ```
+
+`version` remains as a compatibility alias for existing SDK consumers;
+`runtimeVersion` is the explicit runtime identity used by the protocol
+handshake.
 
 Desktop embeds an exact tested runtime version. VS Code declares a supported
 protocol range and manages a compatible sidecar. A client must show a clear
@@ -693,7 +699,7 @@ A VS Code release is complete only after:
 - Latest fork release asset: `axon-desktop-win-x64.exe` on `v0.5.74`
 - Active official platform: Windows x64 only
 - `v0.5.74` installer: unsigned
-- Update-provider repository: still points to `anomalyco/axon`
+- Production update-provider repository: `Wade-DevCode/axon`
 
 ### VS Code
 
@@ -715,10 +721,8 @@ A VS Code release is complete only after:
    distributions.
 4. VS Code still depends on an externally installed Axon CLI; the
    extension-managed sidecar is not implemented yet.
-5. App-server protocol version and capability negotiation are not implemented
-   yet.
-6. Open VSX currently has no Axon extension.
-7. Large JavaScript chunks remain inside the VSIX despite the enforced package
+5. Open VSX currently has no Axon extension.
+6. Large JavaScript chunks remain inside the VSIX despite the enforced package
    budget.
 
 ## Implementation status
@@ -734,6 +738,18 @@ Completed in the release-system decoupling change:
 - the production updater repository and WSL npm package identity are Axon-owned;
 - the mixed upstream workflow is outside the active Actions directory;
 - `release-suite.yml` provides explicit three-product orchestration.
+
+Completed in the app-server protocol change:
+
+- `/global/health` exposes runtime version, protocol version, and capabilities;
+- protocol version `1` advertises `sessions`, `diffs`, and `permissions`;
+- Desktop validates the embedded and WSL sidecar handshake before accepting the
+  server;
+- VS Code validates its external CLI sidecar handshake before loading the
+  sidebar;
+- network startup failures remain retryable, while protocol mismatches fail
+  immediately with a product-specific upgrade message;
+- the generated JavaScript SDK includes the handshake fields.
 
 ## Required operating rule
 

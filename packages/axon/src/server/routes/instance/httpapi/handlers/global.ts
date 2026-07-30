@@ -2,6 +2,7 @@ import { Config } from "@/config/config"
 import { GlobalBus, type GlobalEvent as GlobalBusEvent } from "@/bus/global"
 import { EffectBridge } from "@/effect/bridge"
 import { EventV2 } from "@axon-ai/core/event"
+import { AppServerProtocol } from "@axon-ai/core/app-server-protocol"
 import { Installation } from "@/installation"
 import { disposeAllInstancesAndEmitGlobalDisposed } from "@/server/global-lifecycle"
 import { InstallationVersion } from "@axon-ai/core/installation/version"
@@ -72,7 +73,13 @@ export const globalHandlers = HttpApiBuilder.group(RootHttpApi, "global", (handl
     const bridge = yield* EffectBridge.make()
 
     const health = Effect.fn("GlobalHttpApi.health")(function* () {
-      return { healthy: true as const, version: InstallationVersion }
+      return {
+        healthy: true as const,
+        version: InstallationVersion,
+        runtimeVersion: InstallationVersion,
+        protocolVersion: AppServerProtocol.VERSION,
+        capabilities: [...AppServerProtocol.CAPABILITIES],
+      }
     })
 
     const event = Effect.fn("GlobalHttpApi.event")(function* () {
