@@ -28,7 +28,10 @@ describe("axon acp lifecycle subprocess", () => {
     "close capability and close request",
     ({ home, llm, axon }) =>
       Effect.gen(function* () {
-        const acp = yield* createAcpClient({ axon }, { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) })
+        const acp = yield* createAcpClient(
+          { axon },
+          { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) },
+        )
         const initialized = yield* initialize(acp)
         expect(initialized.agentCapabilities?.sessionCapabilities?.close).toEqual({})
 
@@ -42,7 +45,10 @@ describe("axon acp lifecycle subprocess", () => {
     "loadSession capability and load request return session config options",
     ({ home, llm, axon }) =>
       Effect.gen(function* () {
-        const acp = yield* createAcpClient({ axon }, { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) })
+        const acp = yield* createAcpClient(
+          { axon },
+          { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) },
+        )
         const initialized = yield* initialize(acp)
         expect(initialized.agentCapabilities?.loadSession).toBe(true)
         const session = yield* newSession(acp, home)
@@ -63,7 +69,10 @@ describe("axon acp lifecycle subprocess", () => {
     "list request includes a live ACP-created session",
     ({ home, llm, axon }) =>
       Effect.gen(function* () {
-        const acp = yield* createAcpClient({ axon }, { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) })
+        const acp = yield* createAcpClient(
+          { axon },
+          { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) },
+        )
         yield* initialize(acp)
         const session = yield* newSession(acp, home)
         const listed = expectOk(yield* acp.request<ListSessionsResponse>("session/list", { cwd: home }))
@@ -88,7 +97,10 @@ describe("axon acp lifecycle subprocess", () => {
     "resume request returns session config options",
     ({ home, llm, axon }) =>
       Effect.gen(function* () {
-        const acp = yield* createAcpClient({ axon }, { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) })
+        const acp = yield* createAcpClient(
+          { axon },
+          { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) },
+        )
         yield* initialize(acp)
         const session = yield* newSession(acp, home)
         const resumed = expectOk(

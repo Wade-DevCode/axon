@@ -622,7 +622,10 @@ export function Titlebar(props: { update?: TitlebarUpdate }) {
             </div>
 
             <div class="min-w-0 flex items-center justify-center pointer-events-none">
-              <div id="axon-titlebar-center" class="pointer-events-auto min-w-0 flex justify-center w-fit max-w-full" />
+              <div
+                id="axon-titlebar-center"
+                class="pointer-events-auto min-w-0 flex justify-center w-fit max-w-full"
+              />
             </div>
 
             <div

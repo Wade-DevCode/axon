@@ -313,26 +313,26 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
                                               <ProjectProvider>
                                                 <SyncProvider>
                                                   <DataProvider>
-                                                    <LocalProvider>
-                                                      <PromptStashProvider>
-                                                        <DialogProvider>
-                                                          <FrecencyProvider>
-                                                            <PromptHistoryProvider>
-                                                              <PromptRefProvider>
-                                                                <EditorContextProvider>
-                                                                  <LocationProvider>
-                                                                    <App
-                                                                      onSnapshot={input.onSnapshot}
-                                                                      pluginHost={input.pluginHost}
-                                                                    />
-                                                                  </LocationProvider>
-                                                                </EditorContextProvider>
-                                                              </PromptRefProvider>
-                                                            </PromptHistoryProvider>
-                                                          </FrecencyProvider>
-                                                        </DialogProvider>
-                                                      </PromptStashProvider>
-                                                    </LocalProvider>
+                                                  <LocalProvider>
+                                                    <PromptStashProvider>
+                                                      <DialogProvider>
+                                                        <FrecencyProvider>
+                                                          <PromptHistoryProvider>
+                                                            <PromptRefProvider>
+                                                              <EditorContextProvider>
+                                                                <LocationProvider>
+                                                                  <App
+                                                                    onSnapshot={input.onSnapshot}
+                                                                    pluginHost={input.pluginHost}
+                                                                  />
+                                                                </LocationProvider>
+                                                              </EditorContextProvider>
+                                                            </PromptRefProvider>
+                                                          </PromptHistoryProvider>
+                                                        </FrecencyProvider>
+                                                      </DialogProvider>
+                                                    </PromptStashProvider>
+                                                  </LocalProvider>
                                                   </DataProvider>
                                                 </SyncProvider>
                                               </ProjectProvider>
@@ -1107,7 +1107,9 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
         evt.stopPropagation()
       }}
       onMouseUp={
-        !Flag.AXON_EXPERIMENTAL_DISABLE_COPY_ON_SELECT ? () => Selection.copy(renderer, toast, clipboard) : undefined
+        !Flag.AXON_EXPERIMENTAL_DISABLE_COPY_ON_SELECT
+          ? () => Selection.copy(renderer, toast, clipboard)
+          : undefined
       }
     >
       <Show when={Flag.AXON_SHOW_TTFD}>

@@ -22,7 +22,9 @@ test("starts every configured WSL server on initialization", () => {
 
 test("rejects an installation that did not expose an Axon version", () => {
   expect(() => expectAxonInstalled("0.5.74")).not.toThrow()
-  expect(() => expectAxonInstalled(null)).toThrow("Axon installation finished but Debian still reports no version")
+  expect(() => expectAxonInstalled(null)).toThrow(
+    "Axon installation finished but Debian still reports no version",
+  )
 })
 
 test("restarts an existing distro server after updating Axon", () => {

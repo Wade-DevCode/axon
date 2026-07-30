@@ -306,7 +306,8 @@ export const dict = {
   "go.problem.item4":
     "Inclui GLM-5.2, GLM-5.1, Kimi K2.7 Code, Kimi K2.6, MiMo-V2.5-Pro, MiMo-V2.5, Qwen3.7 Max, Qwen3.7 Plus, Qwen3.6 Plus, MiniMax M2.7, MiniMax M3, DeepSeek V4 Pro e DeepSeek V4 Flash",
   "go.how.title": "Como o Go funciona",
-  "go.how.body": "O Go começa em $5 no primeiro mês, depois $10/mês. Você pode usá-lo com o Axon ou qualquer agente.",
+  "go.how.body":
+    "O Go começa em $5 no primeiro mês, depois $10/mês. Você pode usá-lo com o Axon ou qualquer agente.",
   "go.how.step1.title": "Crie uma conta",
   "go.how.step1.beforeLink": "siga as",
   "go.how.step1.link": "instruções de configuração",
@@ -726,14 +727,16 @@ export const dict = {
     "Não necessariamente, mas provavelmente. Você precisará de uma assinatura de IA se quiser conectar o Axon a um provedor pago, embora você possa trabalhar com",
   "download.faq.a3.localLink": "modelos locais",
   "download.faq.a3.afterLocal.beforeZen": "de graça. Embora incentivemos os usuários a usar o",
-  "download.faq.a3.afterZen": ", o Axon funciona com todos os provedores populares, como OpenAI, Anthropic, xAI etc.",
+  "download.faq.a3.afterZen":
+    ", o Axon funciona com todos os provedores populares, como OpenAI, Anthropic, xAI etc.",
 
   "download.faq.a5.p1": "O Axon é 100% gratuito para usar.",
   "download.faq.a5.p2.beforeZen":
     "Quaisquer custos adicionais virão da sua assinatura de um provedor de modelo. Embora o Axon funcione com qualquer provedor de modelo, recomendamos o uso do",
   "download.faq.a5.p2.afterZen": ".",
 
-  "download.faq.a6.p1": "Seus dados e informações só são armazenados quando você cria links compartilháveis no Axon.",
+  "download.faq.a6.p1":
+    "Seus dados e informações só são armazenados quando você cria links compartilháveis no Axon.",
   "download.faq.a6.p2.beforeShare": "Saiba mais sobre",
   "download.faq.a6.shareLink": "páginas de compartilhamento",
 

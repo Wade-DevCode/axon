@@ -40,7 +40,13 @@ import { StickyAccordionHeader } from "@axon-ai/ui/sticky-accordion-header"
 import { TextField } from "@axon-ai/ui/text-field"
 import { TextReveal } from "@axon-ai/ui/text-reveal"
 import { TextShimmer } from "@axon-ai/ui/text-shimmer"
-import type { AssistantMessage, Message as MessageType, Part as PartType, ToolPart, UserMessage } from "@axon-ai/sdk/v2"
+import type {
+  AssistantMessage,
+  Message as MessageType,
+  Part as PartType,
+  ToolPart,
+  UserMessage,
+} from "@axon-ai/sdk/v2"
 import { showToast } from "@/utils/toast"
 import { getDirectory, getFilename } from "@axon-ai/core/util/path"
 import { Popover as KobaltePopover } from "@kobalte/core/popover"

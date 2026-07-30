@@ -452,10 +452,14 @@ export const {
       }
       try {
         const projectPromise = tracked("workspace", project.sync({ fetch: startupFetch }))
-        const sessionListPromise = args.continue ? projectPromise.then(() => startupFetch(listSessions())) : undefined
+        const sessionListPromise = args.continue
+          ? projectPromise.then(() => startupFetch(listSessions()))
+          : undefined
 
         // blocking - include session.list when continuing a session
-        const providersPromise = startupFetch(sdk.client.config.providers({ workspace }, { throwOnError: true }))
+        const providersPromise = startupFetch(
+          sdk.client.config.providers({ workspace }, { throwOnError: true }),
+        )
         const providerListPromise = startupFetch(sdk.client.provider.list({ workspace }, { throwOnError: true }))
         const capabilitiesPromise = sdk.client.experimental.capabilities
           .get({ workspace }, { throwOnError: true })

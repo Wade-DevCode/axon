@@ -497,7 +497,10 @@ describe("Config", () => {
                     permission: { read: "allow" },
                   },
                 },
-                plugin: ["axon-helicone-session", ["@my-org/audit-plugin", { endpoint: "https://audit.example.com" }]],
+                plugin: [
+                  "axon-helicone-session",
+                  ["@my-org/audit-plugin", { endpoint: "https://audit.example.com" }],
+                ],
                 skills: { paths: ["./skills"], urls: ["https://example.com/.well-known/skills/"] },
                 references: {
                   docs: { path: "../docs", description: "Use for product documentation", hidden: true },
@@ -719,7 +722,10 @@ describe("Config", () => {
               fs.writeFile(path.join(parent, "axon.jsonc"), JSON.stringify({ $schema: "parent" })),
               fs.writeFile(path.join(directory, "config.json"), JSON.stringify({ $schema: "directory" })),
               fs.writeFile(path.join(root, ".axon", "axon.json"), JSON.stringify({ $schema: "root-dot" })),
-              fs.writeFile(path.join(directory, ".axon", "axon.jsonc"), JSON.stringify({ $schema: "directory-dot" })),
+              fs.writeFile(
+                path.join(directory, ".axon", "axon.jsonc"),
+                JSON.stringify({ $schema: "directory-dot" }),
+              ),
             ])
           })
 

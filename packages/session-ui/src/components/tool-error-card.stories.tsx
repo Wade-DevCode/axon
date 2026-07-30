@@ -24,7 +24,8 @@ const samples = [
   },
   {
     tool: "read",
-    error: "read File not found: /Users/davidhill/Documents/Local/axon/packages/ui/src/components/does-not-exist.tsx",
+    error:
+      "read File not found: /Users/davidhill/Documents/Local/axon/packages/ui/src/components/does-not-exist.tsx",
   },
   {
     tool: "glob",

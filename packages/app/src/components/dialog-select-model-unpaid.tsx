@@ -119,7 +119,9 @@ export const DialogSelectModelUnpaid: Component<{ model?: ModelState }> = (props
                     </Show>
                     <Show when={i.id === "axon-go"}>
                       <>
-                        <div class="text-14-regular text-text-weak">{language.t("dialog.provider.axonGo.tagline")}</div>
+                        <div class="text-14-regular text-text-weak">
+                          {language.t("dialog.provider.axonGo.tagline")}
+                        </div>
                         <Tag>{language.t("dialog.provider.tag.recommended")}</Tag>
                       </>
                     </Show>

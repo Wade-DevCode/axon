@@ -57,7 +57,10 @@ export function wslServerIdForDistro(distro: string) {
   return `wsl:${distro}`
 }
 
-export function createWslServersController(spawnSidecar: SpawnSidecar, options?: WslServersControllerOptions) {
+export function createWslServersController(
+  spawnSidecar: SpawnSidecar,
+  options?: WslServersControllerOptions,
+) {
   let state: WslServersState = initialState()
   const listeners = new Set<(event: WslServersEvent) => void>()
   const sidecars = new Map<string, RunningSidecar>()
@@ -440,7 +443,11 @@ function normalizePersistedServer(value: unknown): WslServerConfig[] {
   ]
 }
 
-function axonCheck(distro: string, resolvedPath: string | null, version: string | null): WslAxonCheck {
+function axonCheck(
+  distro: string,
+  resolvedPath: string | null,
+  version: string | null,
+): WslAxonCheck {
   if (!resolvedPath) {
     return {
       distro,

@@ -213,10 +213,14 @@ export function DialogAddWslServer(props: DialogWslServerProps = {}) {
     }
     if (axonCheck()?.error) return axonCheck()!.error
     if (axonCheck()?.matchesDesktop === false) {
-      return distro ? language.t("wsl.onboarding.updateAxonIn", { distro }) : language.t("wsl.onboarding.updateAxon")
+      return distro
+        ? language.t("wsl.onboarding.updateAxonIn", { distro })
+        : language.t("wsl.onboarding.updateAxon")
     }
     if (axonReady()) {
-      return distro ? language.t("wsl.onboarding.axonReadyIn", { distro }) : language.t("wsl.onboarding.axonReady")
+      return distro
+        ? language.t("wsl.onboarding.axonReadyIn", { distro })
+        : language.t("wsl.onboarding.axonReady")
     }
     return distro
       ? language.t("wsl.onboarding.installAxonIn", { distro })

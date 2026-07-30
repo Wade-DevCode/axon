@@ -47,8 +47,8 @@ export default function PrivacyPolicy() {
 
               <p>
                 As we continually work to improve our Services, we may need to change this Privacy Policy from time to
-                time. We will alert you of material changes by placing a notice on the Axon website, by sending you an
-                email and/or by some other means. Please note that if you've opted not to receive legal notice emails
+                time. We will alert you of material changes by placing a notice on the Axon website, by sending you
+                an email and/or by some other means. Please note that if you've opted not to receive legal notice emails
                 from us (or you haven't provided us with your email address), those legal notices will still govern your
                 use of the Services, and you are still responsible for reading and understanding them. If you use the
                 Services after any changes to the Privacy Policy have been posted, that means you agree to all of the
@@ -300,8 +300,8 @@ export default function PrivacyPolicy() {
                 requirements and enforcing legal terms including: fulfilling our legal obligations under applicable law,
                 regulation, court order or other legal process, such as preventing, detecting and investigating security
                 incidents and potentially illegal or prohibited activities; protecting the rights, property or safety of
-                you, Axon or another party; enforcing any agreements with you; responding to claims that any posting or
-                other content violates third-party rights; and resolving disputes.
+                you, Axon or another party; enforcing any agreements with you; responding to claims that any posting
+                or other content violates third-party rights; and resolving disputes.
               </p>
 
               <p>

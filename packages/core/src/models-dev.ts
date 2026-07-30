@@ -161,7 +161,11 @@ export const layer = Layer.effect(
 
     const loadFromDisk = fs.readJson(Flag.AXON_MODELS_PATH ?? filepath).pipe(
       Effect.catch((error) => {
-        if (Flag.AXON_MODELS_PATH === undefined && error._tag === "FileSystemError" && error.method === "readJson") {
+        if (
+          Flag.AXON_MODELS_PATH === undefined &&
+          error._tag === "FileSystemError" &&
+          error.method === "readJson"
+        ) {
           return fs.remove(filepath, { force: true }).pipe(Effect.ignore, Effect.as(undefined))
         }
         return Effect.succeed(undefined)
@@ -169,7 +173,9 @@ export const layer = Layer.effect(
       Effect.map((v) => v as Record<string, Provider> | undefined),
     )
 
-    const loadSnapshot = Effect.sync(() => (typeof AXON_MODELS_DEV === "undefined" ? undefined : AXON_MODELS_DEV))
+    const loadSnapshot = Effect.sync(() =>
+      typeof AXON_MODELS_DEV === "undefined" ? undefined : AXON_MODELS_DEV,
+    )
 
     const fetchAndWrite = Effect.fn("ModelsDev.fetchAndWrite")(function* () {
       const text = yield* fetchApi()
@@ -200,24 +206,25 @@ export const layer = Layer.effect(
         }),
       )
       return JSON.parse(text) as Record<string, Provider>
-    }).pipe(
-      Effect.map((data) => {
-        // Axon fork: rebrand axon provider display names everywhere downstream
-        // (footer, model selector, etc.), regardless of whether the data came from the
-        // on-disk cache, a live fetch, or the bundled snapshot. Provider IDs stay "axon".
-        return Object.fromEntries(
-          Object.entries(data).map(([id, provider]) => [
-            id,
-            {
-              ...provider,
-              name: provider.name.replace(/Axon/g, "Axon"),
-            },
-          ]),
-        )
-      }),
-      Effect.withSpan("ModelsDev.populate"),
-      Effect.orDie,
-    )
+    })
+      .pipe(
+        Effect.map((data) => {
+          // Axon fork: rebrand axon provider display names everywhere downstream
+          // (footer, model selector, etc.), regardless of whether the data came from the
+          // on-disk cache, a live fetch, or the bundled snapshot. Provider IDs stay "axon".
+          return Object.fromEntries(
+            Object.entries(data).map(([id, provider]) => [
+              id,
+              {
+                ...provider,
+                name: provider.name.replace(/Axon/g, "Axon"),
+              },
+            ]),
+          )
+        }),
+        Effect.withSpan("ModelsDev.populate"),
+        Effect.orDie,
+      )
 
     const [cachedGet, invalidate] = yield* Effect.cachedInvalidateWithTTL(populate, Duration.infinity)
 

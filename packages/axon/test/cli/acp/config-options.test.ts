@@ -17,7 +17,10 @@ describe("axon acp config option subprocess", () => {
     'model option is listed with category "model"',
     ({ home, llm, axon }) =>
       Effect.gen(function* () {
-        const acp = yield* createAcpClient({ axon }, { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) })
+        const acp = yield* createAcpClient(
+          { axon },
+          { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) },
+        )
         yield* initialize(acp)
         const model = expectSelectOption((yield* newSession(acp, home)).configOptions, "model")
 
@@ -32,7 +35,10 @@ describe("axon acp config option subprocess", () => {
     "model switch updates currentValue",
     ({ home, llm, axon }) =>
       Effect.gen(function* () {
-        const acp = yield* createAcpClient({ axon }, { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) })
+        const acp = yield* createAcpClient(
+          { axon },
+          { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) },
+        )
         yield* initialize(acp)
         const session = yield* newSession(acp, home)
         const model = expectSelectOption(session.configOptions, "model")
@@ -56,7 +62,10 @@ describe("axon acp config option subprocess", () => {
     'effort option is listed with category "thought_level" when selected model supports variants',
     ({ home, llm, axon }) =>
       Effect.gen(function* () {
-        const acp = yield* createAcpClient({ axon }, { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) })
+        const acp = yield* createAcpClient(
+          { axon },
+          { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) },
+        )
         yield* initialize(acp)
         const effort = expectSelectOption((yield* newSession(acp, home)).configOptions, "effort")
 
@@ -71,7 +80,10 @@ describe("axon acp config option subprocess", () => {
     "effort switch updates currentValue",
     ({ home, llm, axon }) =>
       Effect.gen(function* () {
-        const acp = yield* createAcpClient({ axon }, { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) })
+        const acp = yield* createAcpClient(
+          { axon },
+          { AXON_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) },
+        )
         yield* initialize(acp)
         const session = yield* newSession(acp, home)
         const nextEffort = expectAlternateValue(expectSelectOption(session.configOptions, "effort"))

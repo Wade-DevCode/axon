@@ -158,10 +158,10 @@ test("startup holds a recoverable failure before rendering the main UI and toast
         fetch: calls.fetch,
         events: events.source,
         args: {},
-        pluginHost: {
-          async start() {
-            pluginStarted = true
-            markStarted()
+          pluginHost: {
+            async start() {
+              pluginStarted = true
+              markStarted()
           },
           async dispose() {},
         },

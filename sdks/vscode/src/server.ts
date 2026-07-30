@@ -149,9 +149,7 @@ async function readModelState(command: string, directory: string): Promise<AxonM
     return [{ providerID: item.providerID, modelID: item.modelID }]
   })
   const variant = isRecord(value.variant)
-    ? Object.fromEntries(
-        Object.entries(value.variant).filter((item): item is [string, string] => typeof item[1] === "string"),
-      )
+    ? Object.fromEntries(Object.entries(value.variant).filter((item): item is [string, string] => typeof item[1] === "string"))
     : {}
   return { recent, variant }
 }
@@ -183,9 +181,7 @@ async function resolveAxonCommand() {
 
   const executable = match[1].replace(/%dp0%/gi, dirname(wrapper))
   const path = isAbsolute(executable) ? executable : resolve(dirname(wrapper), executable)
-  return access(path)
-    .then(() => path)
-    .catch(() => wrapper)
+  return access(path).then(() => path).catch(() => wrapper)
 }
 
 function findAvailablePort() {
@@ -210,7 +206,13 @@ function findAvailablePort() {
   })
 }
 
-async function waitForServer(url: string, token: string, timeout: number, process: ChildProcess, output: () => string) {
+async function waitForServer(
+  url: string,
+  token: string,
+  timeout: number,
+  process: ChildProcess,
+  output: () => string,
+) {
   const started = Date.now()
   while (Date.now() - started < timeout) {
     if (process.exitCode !== null) {

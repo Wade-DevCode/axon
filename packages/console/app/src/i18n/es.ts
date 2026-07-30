@@ -191,7 +191,8 @@ export const dict = {
     "Zen te da acceso a un conjunto seleccionado de modelos de IA que Axon ha probado y evaluado específicamente para agentes de codificación. No necesitas preocuparte por el rendimiento y la calidad inconsistentes entre proveedores, usa modelos validados que funcionan.",
   "home.zenCta.link": "Aprende sobre Zen",
 
-  "zen.title": "Axon Zen | Un conjunto seleccionado de modelos optimizados y confiables para agentes de codificación",
+  "zen.title":
+    "Axon Zen | Un conjunto seleccionado de modelos optimizados y confiables para agentes de codificación",
   "zen.hero.title": "Modelos optimizados y confiables para agentes de codificación",
   "zen.hero.body":
     "Zen te da acceso a un conjunto seleccionado de modelos de IA que Axon ha probado y evaluado específicamente para agentes de codificación. No necesitas preocuparte por el rendimiento y la calidad inconsistentes, usa modelos validados que funcionan.",
@@ -726,7 +727,8 @@ export const dict = {
     "No necesariamente, pero probablemente. Necesitarás una suscripción de IA si quieres conectar Axon a un proveedor de pago, aunque puedes trabajar con",
   "download.faq.a3.localLink": "modelos locales",
   "download.faq.a3.afterLocal.beforeZen": "gratis. Aunque animamos a los usuarios a usar",
-  "download.faq.a3.afterZen": ", Axon funciona con todos los proveedores populares como OpenAI, Anthropic, xAI, etc.",
+  "download.faq.a3.afterZen":
+    ", Axon funciona con todos los proveedores populares como OpenAI, Anthropic, xAI, etc.",
 
   "download.faq.a5.p1": "Axon es 100% gratuito de usar.",
   "download.faq.a5.p2.beforeZen":

@@ -94,8 +94,9 @@ export class AxonSidebarProvider implements WebviewViewProvider {
       return
     }
 
-    const connection = await (
-      restart ? this.server.restart(directory, this.origin) : this.server.start(directory, this.origin)
+    const connection = await (restart
+      ? this.server.restart(directory, this.origin)
+      : this.server.start(directory, this.origin)
     ).catch((error) => {
       const description = error instanceof Error ? error.message : String(error)
       void this.showError(

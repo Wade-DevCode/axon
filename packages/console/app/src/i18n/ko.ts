@@ -114,7 +114,8 @@ export const dict = {
   "home.install.ariaLabel": "설치 옵션",
 
   "home.what.title": "Axon란 무엇인가요?",
-  "home.what.body": "Axon는 터미널, IDE, 또는 데스크톱에서 코드를 작성할 수 있도록 도와주는 오픈 소스 에이전트입니다.",
+  "home.what.body":
+    "Axon는 터미널, IDE, 또는 데스크톱에서 코드를 작성할 수 있도록 도와주는 오픈 소스 에이전트입니다.",
   "home.what.lsp.title": "LSP 지원",
   "home.what.lsp.body": "LLM에 적합한 LSP를 자동으로 로드합니다",
   "home.what.multiSession.title": "멀티 세션",
@@ -643,7 +644,8 @@ export const dict = {
   "workspace.lite.subscription.monthlyUsage": "월간 사용량",
   "workspace.lite.subscription.resetsIn": "초기화까지 남은 시간:",
   "workspace.lite.subscription.useBalance": "사용 한도 도달 후에는 보유 잔액 사용",
-  "workspace.lite.subscription.selectProvider": 'Go 모델을 사용하려면 axon 설정에서 "Axon Go"를 공급자로 선택하세요.',
+  "workspace.lite.subscription.selectProvider":
+    'Go 모델을 사용하려면 axon 설정에서 "Axon Go"를 공급자로 선택하세요.',
   "workspace.lite.black.message":
     "현재 Axon Black을 구독 중이거나 대기 명단에 등록되어 있습니다. Go로 전환하려면 먼저 구독을 취소해 주세요.",
   "workspace.lite.other.message":

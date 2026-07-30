@@ -150,7 +150,8 @@ export const dict = {
   "home.faq.a2.before": "أسهل طريقة للبدء هي قراءة",
   "home.faq.a2.link": "المقدمة",
   "home.faq.q3": "هل أحتاج لاشتراكات ذكاء اصطناعي إضافية لاستخدام Axon؟",
-  "home.faq.a3.p1": "ليس بالضرورة، فـ Axon يأتي مع مجموعة من النماذج المجانية التي تستطيع استخدامها دون إنشاء حساب.",
+  "home.faq.a3.p1":
+    "ليس بالضرورة، فـ Axon يأتي مع مجموعة من النماذج المجانية التي تستطيع استخدامها دون إنشاء حساب.",
   "home.faq.a3.p2.beforeZen": "وبخلاف ذلك، يمكنك استخدام أي من نماذج البرمجة الشائعة بإنشاء حساب",
   "home.faq.a3.p2.afterZen": ".",
   "home.faq.a3.p3":
@@ -643,7 +644,8 @@ export const dict = {
   "workspace.lite.subscription.monthlyUsage": "الاستخدام الشهري",
   "workspace.lite.subscription.resetsIn": "إعادة تعيين في",
   "workspace.lite.subscription.useBalance": "استخدم رصيدك المتوفر بعد الوصول إلى حدود الاستخدام",
-  "workspace.lite.subscription.selectProvider": 'اختر "Axon Go" كمزود في إعدادات axon الخاصة بك لاستخدام نماذج Go.',
+  "workspace.lite.subscription.selectProvider":
+    'اختر "Axon Go" كمزود في إعدادات axon الخاصة بك لاستخدام نماذج Go.',
   "workspace.lite.black.message":
     "أنت مشترك حاليًا في Axon Black أو في قائمة الانتظار. يرجى إلغاء الاشتراك أولاً إذا كنت ترغب في التبديل إلى Go.",
   "workspace.lite.other.message":

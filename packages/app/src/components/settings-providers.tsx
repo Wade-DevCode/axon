@@ -44,7 +44,9 @@ const SettingsProvidersContent: Component = () => {
   const providers = useProviders()
 
   const connected = createMemo(() => {
-    return providers.connected().filter((p) => p.id !== "axon" || Object.values(p.models).find((m) => m.cost?.input))
+    return providers
+      .connected()
+      .filter((p) => p.id !== "axon" || Object.values(p.models).find((m) => m.cost?.input))
   })
 
   const popular = createMemo(() => {

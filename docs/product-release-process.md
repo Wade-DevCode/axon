@@ -28,11 +28,11 @@ its own release and installation checks.
 
 ## Product summary
 
-| Product | Primary source                                                    | Runtime                                              | Version namespace                           | Official distribution                                  |
-| ------- | ----------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------ |
-| CLI     | `packages/axon`, `packages/tui`                                   | Compiled Bun executable                              | `cli-vX.Y.Z`, npm `@wanghuimvp/axon@X.Y.Z`  | npm and CLI GitHub Release                             |
-| Desktop | `packages/desktop`, `packages/app`, Node build of `packages/axon` | Electron app with an embedded Axon server sidecar    | `desktop-vX.Y.Z`                            | Desktop GitHub Release                                 |
-| VS Code | `sdks/vscode`, `packages/app`                                     | VS Code extension plus external `axon serve` process | `vscode-vX.Y.Z`, extension manifest version | Marketplaces, Actions artifact, VS Code GitHub Release |
+| Product | Primary source | Runtime | Version namespace | Official distribution |
+| --- | --- | --- | --- | --- |
+| CLI | `packages/axon`, `packages/tui` | Compiled Bun executable | `cli-vX.Y.Z`, npm `@wanghuimvp/axon@X.Y.Z` | npm and CLI GitHub Release |
+| Desktop | `packages/desktop`, `packages/app`, Node build of `packages/axon` | Electron app with an embedded Axon server sidecar | `desktop-vX.Y.Z` | Desktop GitHub Release |
+| VS Code | `sdks/vscode`, `packages/app` | VS Code extension plus external `axon serve` process | `vscode-vX.Y.Z`, extension manifest version | Marketplaces, Actions artifact, VS Code GitHub Release |
 
 The internal monorepo package versions such as `1.17.10` are not the public CLI
 or desktop release version. Official workflows inject `AXON_VERSION`.
@@ -127,11 +127,11 @@ References:
 
 ### Runtime placement by product
 
-| Product | Runtime placement                                                  | Required external installation |
-| ------- | ------------------------------------------------------------------ | ------------------------------ |
-| CLI     | Runtime linked into the native CLI executable                      | None                           |
-| Desktop | Exact runtime build embedded as an application sidecar             | None                           |
-| VS Code | Extension-managed sidecar selected for the extension-host platform | None by default                |
+| Product | Runtime placement | Required external installation |
+| --- | --- | --- |
+| CLI | Runtime linked into the native CLI executable | None |
+| Desktop | Exact runtime build embedded as an application sidecar | None |
+| VS Code | Extension-managed sidecar selected for the extension-host platform | None by default |
 
 VS Code should no longer require a separately installed global CLI as its
 default runtime. The extension should resolve its server in this order:
@@ -184,11 +184,11 @@ Protocol changes follow these rules:
 
 The three products should use independent versions and unambiguous tags:
 
-| Product | Example version | Tag              | GitHub Release                              |
-| ------- | --------------- | ---------------- | ------------------------------------------- |
-| CLI     | `0.5.75`        | `cli-v0.5.75`    | CLI archives and checksums only             |
-| Desktop | `0.6.0`         | `desktop-v0.6.0` | Desktop installers and update metadata only |
-| VS Code | `0.1.7`         | `vscode-v0.1.7`  | Permanent VSIX plus marketplace links       |
+| Product | Example version | Tag | GitHub Release |
+| --- | --- | --- | --- |
+| CLI | `0.5.75` | `cli-v0.5.75` | CLI archives and checksums only |
+| Desktop | `0.6.0` | `desktop-v0.6.0` | Desktop installers and update metadata only |
+| VS Code | `0.1.7` | `vscode-v0.1.7` | Permanent VSIX plus marketplace links |
 
 The existing bare `vX.Y.Z` CLI tags can remain readable for historical
 releases, but new automation should use product-prefixed tags. Desktop must not
@@ -213,12 +213,12 @@ Use `stable`, `beta`, and `nightly` consistently across products. Never make
 
 The active workflows should have one product responsibility each:
 
-| Workflow              | Responsibility                                      | Must not do                              |
-| --------------------- | --------------------------------------------------- | ---------------------------------------- |
-| `release-cli.yml`     | Publish npm packages and CLI archives               | Trigger Desktop or VS Code implicitly    |
-| `release-desktop.yml` | Build, sign, publish, and verify Desktop installers | Depend on a CLI release tag              |
-| `release-vscode.yml`  | Build, publish, and verify the VS Code extension    | Assume a global CLI is already installed |
-| `release-suite.yml`   | Explicitly coordinate requested product releases    | Hide partial failures behind one success |
+| Workflow | Responsibility | Must not do |
+| --- | --- | --- |
+| `release-cli.yml` | Publish npm packages and CLI archives | Trigger Desktop or VS Code implicitly |
+| `release-desktop.yml` | Build, sign, publish, and verify Desktop installers | Depend on a CLI release tag |
+| `release-vscode.yml` | Build, publish, and verify the VS Code extension | Assume a global CLI is already installed |
+| `release-suite.yml` | Explicitly coordinate requested product releases | Hide partial failures behind one success |
 
 `release-suite.yml` is optional orchestration, not a fourth release process. It
 accepts three explicit product versions, invokes the three reusable workflows,
@@ -235,18 +235,18 @@ In particular, the released VSIX should be attached to its
 Keep the active Actions directory limited to workflows that serve the current
 repository:
 
-| Workflow              | Responsibility                                         |
-| --------------------- | ------------------------------------------------------ |
-| `release-cli.yml`     | Build or release the CLI                               |
-| `release-desktop.yml` | Build or release Desktop                               |
-| `release-vscode.yml`  | Build or release the VS Code extension                 |
-| `release-suite.yml`   | Explicitly coordinate all three product releases       |
-| `typecheck.yml`       | Run monorepo type checking on `main` and pull requests |
-| `storybook.yml`       | Build shared UI Storybook when its sources change      |
-| `generate.yml`        | Regenerate committed code after changes reach `main`   |
-| `nix-eval.yml`        | Validate Nix outputs on `main` and pull requests       |
-| `nix-hashes.yml`      | Recompute native Nix dependency hashes                 |
-| `pr-standards.yml`    | Enforce the repository PR title and template rules     |
+| Workflow | Responsibility |
+| --- | --- |
+| `release-cli.yml` | Build or release the CLI |
+| `release-desktop.yml` | Build or release Desktop |
+| `release-vscode.yml` | Build or release the VS Code extension |
+| `release-suite.yml` | Explicitly coordinate all three product releases |
+| `typecheck.yml` | Run monorepo type checking on `main` and pull requests |
+| `storybook.yml` | Build shared UI Storybook when its sources change |
+| `generate.yml` | Regenerate committed code after changes reach `main` |
+| `nix-eval.yml` | Validate Nix outputs on `main` and pull requests |
+| `nix-hashes.yml` | Recompute native Nix dependency hashes |
+| `pr-standards.yml` | Enforce the repository PR title and template rules |
 
 Use GitHub-hosted runners for these workflows. Do not restore upstream
 maintenance bots, scheduled branch sync, cloud deployment, Discord/statistics,
@@ -336,16 +336,16 @@ Important files:
 
 The all-platform build creates 12 packages:
 
-| OS          | Architecture | Variants          |
-| ----------- | ------------ | ----------------- |
-| Linux glibc | arm64        | native            |
-| Linux glibc | x64          | AVX2 and baseline |
-| Linux musl  | arm64        | native            |
-| Linux musl  | x64          | AVX2 and baseline |
-| macOS       | arm64        | native            |
-| macOS       | x64          | AVX2 and baseline |
-| Windows     | arm64        | native            |
-| Windows     | x64          | AVX2 and baseline |
+| OS | Architecture | Variants |
+| --- | --- | --- |
+| Linux glibc | arm64 | native |
+| Linux glibc | x64 | AVX2 and baseline |
+| Linux musl | arm64 | native |
+| Linux musl | x64 | AVX2 and baseline |
+| macOS | arm64 | native |
+| macOS | x64 | AVX2 and baseline |
+| Windows | arm64 | native |
+| Windows | x64 | AVX2 and baseline |
 
 Platform package names follow:
 
@@ -488,11 +488,11 @@ inside each selected WSL distribution.
 
 `electron-builder.config.ts` declares:
 
-| OS      | Declared formats            |
-| ------- | --------------------------- |
-| Windows | NSIS `.exe`                 |
-| macOS   | `.dmg` and `.zip`           |
-| Linux   | `.AppImage`, `.deb`, `.rpm` |
+| OS | Declared formats |
+| --- | --- |
+| Windows | NSIS `.exe` |
+| macOS | `.dmg` and `.zip` |
+| Linux | `.AppImage`, `.deb`, `.rpm` |
 
 The source contains architecture-aware native dependencies and supports native
 builds for x64 and arm64 where the CI matrix exists.
@@ -717,12 +717,12 @@ A VS Code release is complete only after:
 
 ## Combined release decision table
 
-| Requested product | Required workflow     | Required version/tag                           | Completion proof                                      |
-| ----------------- | --------------------- | ---------------------------------------------- | ----------------------------------------------------- |
-| CLI               | `release-cli.yml`     | CLI `X.Y.Z`, tag `cli-vX.Y.Z` for all-platform | npm, 12 packages, archives, checksums, clean install  |
-| Desktop           | `release-desktop.yml` | Desktop `X.Y.Z`, tag `desktop-vX.Y.Z`          | installer metadata, valid signature, installed launch |
-| VS Code           | `release-vscode.yml`  | Manifest `X.Y.Z`, tag `vscode-vX.Y.Z`          | budgeted VSIX, permanent asset, marketplace version   |
-| All three         | `release-suite.yml`   | Three explicit product versions                | Three independent job results and every check above   |
+| Requested product | Required workflow | Required version/tag | Completion proof |
+| --- | --- | --- | --- |
+| CLI | `release-cli.yml` | CLI `X.Y.Z`, tag `cli-vX.Y.Z` for all-platform | npm, 12 packages, archives, checksums, clean install |
+| Desktop | `release-desktop.yml` | Desktop `X.Y.Z`, tag `desktop-vX.Y.Z` | installer metadata, valid signature, installed launch |
+| VS Code | `release-vscode.yml` | Manifest `X.Y.Z`, tag `vscode-vX.Y.Z` | budgeted VSIX, permanent asset, marketplace version |
+| All three | `release-suite.yml` | Three explicit product versions | Three independent job results and every check above |
 
 ## Current verified state on 2026-07-29
 

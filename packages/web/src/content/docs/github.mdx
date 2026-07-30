@@ -105,14 +105,14 @@ Or you can set it up manually.
 
 Axon can be triggered by the following GitHub events:
 
-| Event Type                    | Triggered By                           | Details                                                                                                   |
-| ----------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Event Type                    | Triggered By                           | Details                                                                                                           |
+| ----------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `issue_comment`               | Comment on an issue or PR              | Mention `/axon` or `/oc` in your comment. Axon reads context and can create branches, open PRs, or reply. |
 | `pull_request_review_comment` | Comment on specific code lines in a PR | Mention `/axon` or `/oc` while reviewing code. Axon receives file path, line numbers, and diff context.   |
-| `issues`                      | Issue opened or edited                 | Automatically trigger Axon when issues are created or modified. Requires `prompt` input.                  |
-| `pull_request`                | PR opened or updated                   | Automatically trigger Axon when PRs are opened, synchronized, or reopened. Useful for automated reviews.  |
-| `schedule`                    | Cron-based schedule                    | Run Axon on a schedule. Requires `prompt` input. Output goes to logs and PRs (no issue to comment on).    |
-| `workflow_dispatch`           | Manual trigger from GitHub UI          | Trigger Axon on demand via Actions tab. Requires `prompt` input. Output goes to logs and PRs.             |
+| `issues`                      | Issue opened or edited                 | Automatically trigger Axon when issues are created or modified. Requires `prompt` input.                      |
+| `pull_request`                | PR opened or updated                   | Automatically trigger Axon when PRs are opened, synchronized, or reopened. Useful for automated reviews.      |
+| `schedule`                    | Cron-based schedule                    | Run Axon on a schedule. Requires `prompt` input. Output goes to logs and PRs (no issue to comment on).        |
+| `workflow_dispatch`           | Manual trigger from GitHub UI          | Trigger Axon on demand via Actions tab. Requires `prompt` input. Output goes to logs and PRs.                 |
 
 ### Schedule Example
 

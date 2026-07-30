@@ -37,17 +37,17 @@ already-loaded config until then.
 
 ## Where files live
 
-| Scope                         | Path                                                                                                  |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Scope                         | Path                                                                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Project config                | `./axon.json`, `./axon.jsonc`, or `.axon/axon.json` (axon walks up from the cwd to the worktree root) |
-| Global config                 | `~/.axon/axon.json` (NOT `~/.axon/`)                                                                  |
-| Project agents                | `.axon/agent/<name>.md` or `.axon/agents/<name>.md`                                                   |
-| Global agents                 | `~/.axon/agent(s)/<name>.md`                                                                          |
-| Project commands              | `.axon/command/<name>.md` or `.axon/commands/<name>.md`                                               |
-| Global commands               | `~/.axon/command(s)/<name>.md`                                                                        |
-| Project skills                | `.axon/skill(s)/<name>/SKILL.md`                                                                      |
-| Global skills                 | `~/.axon/skill(s)/<name>/SKILL.md`                                                                    |
-| External skills (auto-loaded) | `~/.claude/skills/<name>/SKILL.md`, `~/.agents/skills/<name>/SKILL.md`                                |
+| Global config                 | `~/.axon/axon.json` (NOT `~/.axon/`)                                                                   |
+| Project agents                | `.axon/agent/<name>.md` or `.axon/agents/<name>.md`                                                               |
+| Global agents                 | `~/.axon/agent(s)/<name>.md`                                                                                   |
+| Project commands              | `.axon/command/<name>.md` or `.axon/commands/<name>.md`                                                           |
+| Global commands               | `~/.axon/command(s)/<name>.md`                                                                                 |
+| Project skills                | `.axon/skill(s)/<name>/SKILL.md`                                                                                      |
+| Global skills                 | `~/.axon/skill(s)/<name>/SKILL.md`                                                                             |
+| External skills (auto-loaded) | `~/.claude/skills/<name>/SKILL.md`, `~/.agents/skills/<name>/SKILL.md`                                                    |
 
 Configs from each scope are deep-merged. Project overrides global. Unknown
 top-level keys in `axon.json` are rejected with `ConfigInvalidError`.

@@ -221,7 +221,8 @@ function LabUsageSection(props: { lab: ModelCatalogLab; data: StatsLabData | nul
   return (
     <section id="usage" data-section="model-panel">
       <p data-slot="section-title">
-        <strong>{props.lab.name} token usage.</strong> <span>Daily Axon token volume over the last two months.</span>
+        <strong>{props.lab.name} token usage.</strong>{" "}
+        <span>Daily Axon token volume over the last two months.</span>
       </p>
       <Show
         when={usage().some((item) => item.tokens > 0)}

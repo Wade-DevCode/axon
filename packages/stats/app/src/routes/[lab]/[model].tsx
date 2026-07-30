@@ -333,7 +333,9 @@ function ModelOverview(props: { data: StatsModelData | null }) {
       <SectionTitle title="Overview" description="Recent Axon Go tokens, unique users, and market position." />
       <Show
         when={props.data}
-        fallback={<ModelEmptyState title="No usage summary" description="This model has no Axon Go usage rows yet." />}
+        fallback={
+          <ModelEmptyState title="No usage summary" description="This model has no Axon Go usage rows yet." />
+        }
       >
         {(data) => (
           <div data-component="model-metric-grid">
@@ -375,7 +377,10 @@ function ModelUsageSection(props: { data: ModelUsagePoint[] }) {
 function ModelUsersSection(props: { data: ModelUsagePoint[] }) {
   return (
     <section id="users" data-section="model-panel">
-      <SectionTitle title="Unique Users" description="Daily unique Axon Go users over the recent two-month window." />
+      <SectionTitle
+        title="Unique Users"
+        description="Daily unique Axon Go users over the recent two-month window."
+      />
       <Show
         when={props.data.some((item) => item.users > 0)}
         fallback={
@@ -570,7 +575,9 @@ function ModelGeoBreakdownSection(props: { data: Record<UsageRange, CountryEntry
       <SectionTitle title="Geo Breakdown" description="Axon Go model tokens used by country." />
       <Show
         when={data().length > 0}
-        fallback={<ModelEmptyState title="No geo data" description="No Axon Go geo_stat rows matched this model." />}
+        fallback={
+          <ModelEmptyState title="No geo data" description="No Axon Go geo_stat rows matched this model." />
+        }
       >
         <div data-component="geo-breakdown">
           <div data-slot="geo-map-panel">
