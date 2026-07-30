@@ -1,11 +1,6 @@
 import { createContext, createMemo, useContext, type ParentProps } from "solid-js"
 import { createStore } from "solid-js/store"
-import {
-  initialStartupPhases,
-  startupPhaseOrder,
-  startupSnapshot,
-  type StartupPhase,
-} from "../util/startup"
+import { initialStartupPhases, startupPhaseOrder, startupSnapshot, type StartupPhase } from "../util/startup"
 
 export function createStartupProgress() {
   const [phases, setPhases] = createStore(initialStartupPhases())

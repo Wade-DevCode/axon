@@ -38,11 +38,13 @@
 ### Task 1: Agent Runtime Adds Code And Review
 
 **Files:**
+
 - Modify: `packages/axon/src/agent/agent.ts`
 - Create: `packages/axon/src/agent/prompt/review.txt`
 - Modify: `packages/axon/test/agent/agent.test.ts`
 
 **Interfaces:**
+
 - Produces: built-in primary agents `code` and `review` through `Agent.Service.list()` and `Agent.Service.get(name)`.
 - Produces: `code` permissions equivalent to `build` for Phase 1.
 - Produces: `review` as a visible primary native agent with review-specific prompt.
@@ -198,10 +200,12 @@ git commit -m "feat(axon): add code and review agents"
 ### Task 2: Built-In Review Command Uses Review Agent
 
 **Files:**
+
 - Modify: `packages/axon/src/command/index.ts`
 - Add or modify: `packages/axon/test/command/command.test.ts`
 
 **Interfaces:**
+
 - Produces: `Command.Service.get("review")` returns an `Info` object with `agent: "review"`.
 - Preserves: existing `/review` template, description, hints, and `subtask: true`.
 
@@ -244,17 +248,17 @@ Expected: FAIL because the built-in review command currently has no `agent`.
 Modify `packages/axon/src/command/index.ts`:
 
 ```ts
-      commands[Default.REVIEW] = {
-        name: Default.REVIEW,
-        description: "review changes [commit|branch|pr], defaults to uncommitted",
-        source: "command",
-        agent: "review",
-        get template() {
-          return PROMPT_REVIEW.replace("${path}", ctx.worktree)
-        },
-        subtask: true,
-        hints: hints(PROMPT_REVIEW),
-      }
+commands[Default.REVIEW] = {
+  name: Default.REVIEW,
+  description: "review changes [commit|branch|pr], defaults to uncommitted",
+  source: "command",
+  agent: "review",
+  get template() {
+    return PROMPT_REVIEW.replace("${path}", ctx.worktree)
+  },
+  subtask: true,
+  hints: hints(PROMPT_REVIEW),
+}
 ```
 
 - [ ] **Step 4: Run command test and agent test**
@@ -279,6 +283,7 @@ git commit -m "feat(axon): route review command to review agent"
 ### Task 3: Centralize Agent Product Labels In TUI
 
 **Files:**
+
 - Create: `packages/tui/src/util/agent-label.ts`
 - Create: `packages/tui/test/util/agent-label.test.ts`
 - Modify: `packages/tui/src/component/dialog-agent.tsx`
@@ -286,6 +291,7 @@ git commit -m "feat(axon): route review command to review agent"
 - Modify: `packages/tui/src/routes/session/index.tsx`
 
 **Interfaces:**
+
 - Produces: `agentLabel(agentName: string): string`
 - Produces: `agentDescription(agent: { name: string; native?: boolean; description?: string }): string | undefined`
 - Produces: runtime `build` and `code` display as `Code`.
@@ -401,7 +407,9 @@ import { agentLabel } from "../../util/agent-label"
 2. Replace the agent label render:
 
 ```tsx
-{store.mode === "shell" ? "Shell" : agentLabel(agent().name)}
+{
+  store.mode === "shell" ? "Shell" : agentLabel(agent().name)
+}
 ```
 
 3. Replace visible separator glyphs in this metadata block with ASCII `-` to avoid Windows terminal mojibake:
@@ -423,13 +431,13 @@ Modify `packages/tui/src/routes/session/index.tsx` so `plan_exit` returns to the
 If `local.agent.set("code")` is safe after Task 1, use:
 
 ```ts
-      local.agent.set("code")
+local.agent.set("code")
 ```
 
 If `code` is not present in older connected servers, add a small fallback inline without a helper:
 
 ```ts
-      local.agent.set(local.agent.list().some((agent) => agent.name === "code") ? "code" : "build")
+local.agent.set(local.agent.list().some((agent) => agent.name === "code") ? "code" : "build")
 ```
 
 Keep `plan_enter` as `plan`.
@@ -456,9 +464,11 @@ git commit -m "feat(tui): show codex-like mode labels"
 ### Task 4: Verification And Release Readiness
 
 **Files:**
+
 - No planned source modifications unless verification exposes a bug.
 
 **Interfaces:**
+
 - Produces: passing targeted tests and package typecheck.
 - Produces: a branch ready to push.
 

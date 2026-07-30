@@ -243,7 +243,10 @@ export const layer = Layer.effect(
       const parsed = parse(text)
       if (filepath === path.join(Global.Path.config, "config.json") && isRecord(parsed) && "providers" in parsed) {
         const archived = yield* Effect.promise(() =>
-          fsNode.rename(filepath, `${filepath}.legacy-${Date.now()}`).then(() => true, () => false),
+          fsNode.rename(filepath, `${filepath}.legacy-${Date.now()}`).then(
+            () => true,
+            () => false,
+          ),
         )
         if (archived) return {} as Info
       }

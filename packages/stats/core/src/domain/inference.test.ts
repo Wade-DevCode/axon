@@ -49,15 +49,15 @@ describe("inference stat normalization", () => {
       },
     ])
 
-    expect(
-      toModelAggregate({ ...aggregate("big-pickle", "axon"), provider_model: "claude-sonnet-4-5" }),
-    ).toMatchObject([
-      {
-        provider: "anthropic",
-        model: "claude-sonnet-4-5",
-        provider_model: "claude-sonnet-4-5",
-      },
-    ])
+    expect(toModelAggregate({ ...aggregate("big-pickle", "axon"), provider_model: "claude-sonnet-4-5" })).toMatchObject(
+      [
+        {
+          provider: "anthropic",
+          model: "claude-sonnet-4-5",
+          provider_model: "claude-sonnet-4-5",
+        },
+      ],
+    )
   })
 
   test("provider aggregates never keep axon as the provider", () => {

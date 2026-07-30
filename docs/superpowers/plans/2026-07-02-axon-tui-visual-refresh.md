@@ -35,12 +35,14 @@
 ### Task 1: Product Metadata And Author Surfaces
 
 **Files:**
+
 - Create: `packages/tui/src/util/product.ts`
 - Create: `packages/tui/test/util/product.test.ts`
 - Modify: `packages/tui/src/routes/home.tsx`
 - Modify: `packages/tui/src/component/dialog-status.tsx`
 
 **Interfaces:**
+
 - Produces: `Product.info` object with `name`, `author`, `authorSignature`, `packageName`, `version`.
 - Consumes: `AXON_VERSION` global constant already injected into packaged builds.
 
@@ -142,10 +144,12 @@ git commit -m "feat(tui): add axon product metadata"
 ### Task 2: Default Axon Theme Refresh
 
 **Files:**
+
 - Modify: `packages/tui/src/theme/assets/axon.json`
 - Test: `packages/tui/test/theme.test.ts`
 
 **Interfaces:**
+
 - Consumes: existing `ThemeJson` schema in `packages/tui/src/theme/index.ts`.
 - Produces: same theme keys; no new schema fields required.
 
@@ -175,10 +179,12 @@ git commit -m "feat(tui): refresh default axon theme"
 ### Task 3: Shared Dialog And Selector Polish
 
 **Files:**
+
 - Modify: `packages/tui/src/ui/dialog.tsx`
 - Modify: `packages/tui/src/ui/dialog-select.tsx`
 
 **Interfaces:**
+
 - Consumes: current `Dialog` and `DialogSelect` props unchanged.
 - Produces: no API changes; visual-only changes.
 
@@ -228,9 +234,11 @@ git commit -m "feat(tui): polish dialog surfaces"
 ### Task 4: Session Footer Polish And Build Smoke
 
 **Files:**
+
 - Modify: `packages/tui/src/routes/session/footer.tsx`
 
 **Interfaces:**
+
 - Consumes: existing sync, directory, connection, MCP/LSP, and permission signals.
 - Produces: same footer content with cleaner grouping; no new state.
 

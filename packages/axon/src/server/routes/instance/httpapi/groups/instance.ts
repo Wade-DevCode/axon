@@ -76,8 +76,7 @@ export const InstanceApi = HttpApi.make("instance")
           OpenApi.annotations({
             identifier: "path.get",
             summary: "Get paths",
-            description:
-              "Retrieve the current working directory and related path information for the Axon instance.",
+            description: "Retrieve the current working directory and related path information for the Axon instance.",
           }),
         ),
         HttpApiEndpoint.get("vcs", InstancePaths.vcs, {

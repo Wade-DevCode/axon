@@ -404,8 +404,7 @@ export const dict = {
   "toast.session.unshare.failed.description": "Une erreur s'est produite lors de l'annulation du partage de la session",
   "toast.session.listFailed.title": "Échec du chargement des sessions pour {{project}}",
   "toast.update.title": "Mise à jour disponible",
-  "toast.update.description":
-    "Une nouvelle version d'Axon ({{version}}) est maintenant disponible pour installation.",
+  "toast.update.description": "Une nouvelle version d'Axon ({{version}}) est maintenant disponible pour installation.",
   "toast.update.action.installRestart": "Installer et redémarrer",
   "toast.update.action.notYet": "Pas encore",
   "error.page.title": "Quelque chose s'est mal passé",
@@ -557,8 +556,7 @@ export const dict = {
   "sidebar.workspaces.enable": "Activer les espaces de travail",
   "sidebar.workspaces.disable": "Désactiver les espaces de travail",
   "sidebar.gettingStarted.title": "Commencer",
-  "sidebar.gettingStarted.line1":
-    "Axon inclut des modèles gratuits pour que vous puissiez commencer immédiatement.",
+  "sidebar.gettingStarted.line1": "Axon inclut des modèles gratuits pour que vous puissiez commencer immédiatement.",
   "sidebar.gettingStarted.line2":
     "Connectez n'importe quel fournisseur pour utiliser des modèles, y compris Claude, GPT, Gemini etc.",
   "sidebar.project.recentSessions": "Sessions récentes",

@@ -209,8 +209,7 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     },
     integrations: (integrations) => {
       return integrations.filter(
-        (i) =>
-          i.name !== "Breadcrumbs" && !(import.meta.env.AXON_CHANNEL === "prod" && i.name === "GlobalHandlers"),
+        (i) => i.name !== "Breadcrumbs" && !(import.meta.env.AXON_CHANNEL === "prod" && i.name === "GlobalHandlers"),
       )
     },
   })

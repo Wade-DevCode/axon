@@ -95,9 +95,7 @@ export function createDialogProviderOptions() {
     const value = await DialogPrompt.show(dialog, "Other", {
       placeholder: "Provider id",
       description: () => (
-        <text fg={theme.textMuted}>
-          This only stores a credential. Configure the provider in axon.json to use it.
-        </text>
+        <text fg={theme.textMuted}>This only stores a credential. Configure the provider in axon.json to use it.</text>
       ),
     })
     if (value === null) return
@@ -371,8 +369,7 @@ function ApiMethod(props: ApiMethodProps) {
           axon: (
             <box gap={1}>
               <text fg={theme.textMuted}>
-                Axon Zen gives you access to all the best coding models at the cheapest prices with a single API
-                key.
+                Axon Zen gives you access to all the best coding models at the cheapest prices with a single API key.
               </text>
               <text fg={theme.text}>
                 Go to <span style={{ fg: theme.primary }}>https://opencode.ai/zen</span> to get a key
@@ -382,8 +379,8 @@ function ApiMethod(props: ApiMethodProps) {
           "axon-go": (
             <box gap={1}>
               <text fg={theme.textMuted}>
-                Axon Go is a $10 per month subscription that provides reliable access to popular open coding models
-                with generous usage limits.
+                Axon Go is a $10 per month subscription that provides reliable access to popular open coding models with
+                generous usage limits.
               </text>
               <text fg={theme.text}>
                 Go to <span style={{ fg: theme.primary }}>https://opencode.ai/go</span> and enable Axon Go

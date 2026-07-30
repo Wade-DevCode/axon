@@ -29,8 +29,7 @@ type ToolFixture = { icon: string; label: string; error?: string }
 const tools: readonly ToolFixture[] = [
   {
     icon: "✱",
-    label:
-      'Grep "AXON.*DB|database|sqlite|drizzle|dev.*db|data.*dir|xdg|APPDATA" in packages/axon/src (151 matches)',
+    label: 'Grep "AXON.*DB|database|sqlite|drizzle|dev.*db|data.*dir|xdg|APPDATA" in packages/axon/src (151 matches)',
   },
   {
     icon: "✱",

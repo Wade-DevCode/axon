@@ -33,7 +33,12 @@ export function parseModel(model: string) {
 
 function isStoredModel(value: unknown): value is { providerID: string; modelID: string } {
   if (!value || typeof value !== "object") return false
-  return "providerID" in value && "modelID" in value && typeof value.providerID === "string" && typeof value.modelID === "string"
+  return (
+    "providerID" in value &&
+    "modelID" in value &&
+    typeof value.providerID === "string" &&
+    typeof value.modelID === "string"
+  )
 }
 
 export function recentModels(
@@ -191,9 +196,10 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
         .then((x) => {
           if (!x || typeof x !== "object") return
           const value = x as Record<string, unknown>
-          const legacy = typeof value.model === "object" && value.model !== null
-            ? Object.values(value.model).find(isStoredModel)
-            : undefined
+          const legacy =
+            typeof value.model === "object" && value.model !== null
+              ? Object.values(value.model).find(isStoredModel)
+              : undefined
           const selected = isStoredModel(value.selected) ? value.selected : legacy
           if (selected) setModelStore("selected", selected)
           if (typeof value.model === "object" && value.model !== null)

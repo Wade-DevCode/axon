@@ -67,9 +67,7 @@ export function Footer() {
               </text>
             </Show>
             <text fg={theme.text}>
-              <span
-                style={{ fg: lsp().length > 0 ? theme.success : theme.textMuted, attributes: TextAttributes.BOLD }}
-              >
+              <span style={{ fg: lsp().length > 0 ? theme.success : theme.textMuted, attributes: TextAttributes.BOLD }}>
                 LSP
               </span>{" "}
               <span style={{ fg: theme.textMuted }}>{lsp().length}</span>

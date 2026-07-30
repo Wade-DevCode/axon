@@ -218,9 +218,7 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | AppProce
             return info.formulae[0].versions.stable
           }
           const response = yield* httpOk.execute(
-            HttpClientRequest.get("https://formulae.brew.sh/api/formula/axon.json").pipe(
-              HttpClientRequest.acceptJson,
-            ),
+            HttpClientRequest.get("https://formulae.brew.sh/api/formula/axon.json").pipe(HttpClientRequest.acceptJson),
           )
           const data = yield* HttpClientResponse.schemaBodyJson(BrewFormula)(response)
           return data.versions.stable

@@ -46,6 +46,7 @@
 ### Task 1: Axon Theme and Responsive Density
 
 **Files:**
+
 - Create: `packages/tui/src/theme/assets/axon.json`
 - Create: `packages/tui/src/util/brand-layout.ts`
 - Modify: `packages/tui/src/theme/index.ts:1-38,130-164`
@@ -53,6 +54,7 @@
 - Create: `packages/tui/test/util/brand-layout.test.ts`
 
 **Interfaces:**
+
 - Produces: `brandDensity(width: number, height: number): "compact" | "normal" | "wide"`
 - Produces: `showSplashArtwork(width: number, height: number): boolean`
 - Produces: `DEFAULT_THEMES.Axon` backed by `theme/assets/axon.json`
@@ -185,6 +187,7 @@ git commit -m "feat(tui): add axon brand foundation"
 ### Task 2: Real Startup Progress and Branded Splash
 
 **Files:**
+
 - Create: `packages/tui/src/util/startup.ts`
 - Create: `packages/tui/src/context/startup.tsx`
 - Modify: `packages/tui/src/context/sync.tsx:53-136,429-539`
@@ -194,6 +197,7 @@ git commit -m "feat(tui): add axon brand foundation"
 - Modify: `packages/tui/test/app-lifecycle.test.tsx`
 
 **Interfaces:**
+
 - Produces: `StartupPhase = "configuration" | "workspace" | "providers" | "agents" | "mcp" | "plugins"`
 - Produces: `StartupPhaseState = "pending" | "running" | "complete" | "error"`
 - Produces: `startupSnapshot(phases): { label: string; percent: number; done: boolean; error?: string }`
@@ -261,7 +265,9 @@ export function initialStartupPhases(): StartupPhases {
 
 export function startupSnapshot(phases: StartupPhases) {
   const error = startupPhaseOrder.map((name) => phases[name].error).find(Boolean)
-  const settled = startupPhaseOrder.filter((name) => phases[name].state === "complete" || phases[name].state === "error")
+  const settled = startupPhaseOrder.filter(
+    (name) => phases[name].state === "complete" || phases[name].state === "error",
+  )
   const active = startupPhaseOrder.find((name) => phases[name].state === "running" || phases[name].state === "pending")
   const done = settled.length === startupPhaseOrder.length
   return {
@@ -362,6 +368,7 @@ git commit -m "feat(tui): add branded startup progress"
 ### Task 3: Terminal-Safe Logo, Home, and Composer Shell
 
 **Files:**
+
 - Create: `packages/tui/src/component/axon-logo.tsx`
 - Create: `packages/tui/src/component/axon-composer.tsx`
 - Modify: `packages/tui/src/logo.ts`
@@ -370,6 +377,7 @@ git commit -m "feat(tui): add branded startup progress"
 - Create: `packages/tui/test/cli/tui/axon-home.test.tsx`
 
 **Interfaces:**
+
 - Produces: `<AxonLogo size="full" | "compact" />`
 - Produces: `<AxonComposer density focused>{children}</AxonComposer>`
 - Consumes: `brandDensity`, active semantic theme, existing `Prompt`, home plugin slots, and Prompt refs.
@@ -411,7 +419,9 @@ export const axonMark = String.raw`
   /\ /  \
  /  X    \
 /__/ \____\
-`.trim().split("\n")
+`
+  .trim()
+  .split("\n")
 export const axonWordmark = "A X O N"
 export const axonCompact = "AXON"
 ```
@@ -457,10 +467,12 @@ git commit -m "feat(tui): redesign axon home"
 ### Task 4: Tool and Change Presentation Models
 
 **Files:**
+
 - Create: `packages/tui/src/routes/session/presentation.ts`
 - Create: `packages/tui/test/cli/tui/session-presentation.test.ts`
 
 **Interfaces:**
+
 - Produces: `ToolRow = { id; kind; label; target; status; duration?; additions?; deletions?; error? }`
 - Produces: `toolRow(part: ToolPart): ToolRow`
 - Produces: `ChangeFile = { path; additions?; deletions? }`
@@ -471,13 +483,25 @@ git commit -m "feat(tui): redesign axon home"
 
 ```ts
 test("maps running, completed, failed, and cancelled tool states", () => {
-  expect(toolRow(tool("read", { status: "running", input: { filePath: "src/a.ts" }, time: { start: 100 } }), 120)).toMatchObject({
+  expect(
+    toolRow(tool("read", { status: "running", input: { filePath: "src/a.ts" }, time: { start: 100 } }), 120),
+  ).toMatchObject({
     kind: "Read",
     target: "src/a.ts",
     status: "running",
     duration: 20,
   })
-  expect(toolRow(tool("bash", { status: "error", input: { command: "bun test" }, error: "Request aborted", time: { start: 100, end: 110 } }), 120).status).toBe("cancelled")
+  expect(
+    toolRow(
+      tool("bash", {
+        status: "error",
+        input: { command: "bun test" },
+        error: "Request aborted",
+        time: { start: 100, end: 110 },
+      }),
+      120,
+    ).status,
+  ).toBe("cancelled")
 })
 
 test("aggregates file facts and omits invented prose", () => {
@@ -547,6 +571,7 @@ git commit -m "feat(tui): model session activity panels"
 ### Task 5: Session Header, Grouped Activity, Composer, and Status Bar
 
 **Files:**
+
 - Create: `packages/tui/src/routes/session/tool-panel.tsx`
 - Create: `packages/tui/src/routes/session/change-summary.tsx`
 - Create: `packages/tui/src/routes/session/chrome.tsx`
@@ -556,6 +581,7 @@ git commit -m "feat(tui): model session activity panels"
 - Update: `packages/tui/test/cli/tui/inline-tool-wrap-snapshot.test.tsx`
 
 **Interfaces:**
+
 - Produces: `<AxonSessionHeader session agent branch density />`
 - Produces: `<AxonStatusBar mode shell version changedFiles density />`
 - Produces: `<AxonToolPanel parts now density onOpen />`
@@ -639,10 +665,12 @@ git commit -m "feat(tui): redesign axon sessions"
 ### Task 6: Full Regression, Built-Binary QA, and npm Installation Smoke Test
 
 **Files:**
+
 - Modify only files required to correct failures caused by Tasks 1-5.
 - Do not add unrelated refactors or rename compatibility identifiers during this task.
 
 **Interfaces:**
+
 - Consumes: all previous tasks.
 - Produces: a verified TUI source tree, platform binaries, and npm wrapper smoke-test evidence.
 

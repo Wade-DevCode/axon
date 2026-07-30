@@ -377,8 +377,7 @@ export const dict = {
     "La promozione gratuita di {{model}} è terminata. Puoi continuare a usare il modello abbonandoti a Axon Go - {{link}}",
 
   "black.meta.title": "Axon Black | Accedi ai migliori modelli di coding al mondo",
-  "black.meta.description":
-    "Ottieni l'accesso a Claude, GPT, Gemini e altri con i piani di abbonamento Axon Black.",
+  "black.meta.description": "Ottieni l'accesso a Claude, GPT, Gemini e altri con i piani di abbonamento Axon Black.",
   "black.hero.title": "Accedi ai migliori modelli di coding al mondo",
   "black.hero.subtitle": "Inclusi Claude, GPT, Gemini e altri",
   "black.title": "Axon Black | Prezzi",

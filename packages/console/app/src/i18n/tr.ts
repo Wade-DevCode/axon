@@ -306,8 +306,7 @@ export const dict = {
   "go.problem.item4":
     "GLM-5.2, GLM-5.1, Kimi K2.7 Code, Kimi K2.6, MiMo-V2.5-Pro, MiMo-V2.5, Qwen3.7 Max, Qwen3.7 Plus, Qwen3.6 Plus, MiniMax M2.7, MiniMax M3, DeepSeek V4 Pro ve DeepSeek V4 Flash içerir",
   "go.how.title": "Go nasıl çalışır?",
-  "go.how.body":
-    "Go ilk ay $5, sonrasında ayda 10$ fiyatıyla başlar. Axon veya herhangi bir ajanla kullanabilirsiniz.",
+  "go.how.body": "Go ilk ay $5, sonrasında ayda 10$ fiyatıyla başlar. Axon veya herhangi bir ajanla kullanabilirsiniz.",
   "go.how.step1.title": "Bir hesap oluşturun",
   "go.how.step1.beforeLink": "takip edin",
   "go.how.step1.link": "kurulum talimatları",

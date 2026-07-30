@@ -59,7 +59,9 @@ export function StatusReport() {
           <text width={14} fg={theme.textMuted}>
             Model:
           </text>
-          <text fg={theme.text}>{local.model.parsed().provider} / {local.model.parsed().model}</text>
+          <text fg={theme.text}>
+            {local.model.parsed().provider} / {local.model.parsed().model}
+          </text>
         </box>
         <box flexDirection="row">
           <text width={14} fg={theme.textMuted}>
@@ -88,7 +90,8 @@ export function StatusReport() {
             Components:
           </text>
           <text fg={theme.text}>
-            MCP {connectedMcp()}/{Object.keys(sync.data.mcp).length} · LSP {sync.data.lsp.length} · Formatters {enabledFormatters().length} · Plugins {plugins().length}
+            MCP {connectedMcp()}/{Object.keys(sync.data.mcp).length} · LSP {sync.data.lsp.length} · Formatters{" "}
+            {enabledFormatters().length} · Plugins {plugins().length}
           </text>
         </box>
       </box>
@@ -98,7 +101,9 @@ export function StatusReport() {
           <For each={Object.entries(sync.data.mcp)}>
             {([key, item]) => (
               <box flexDirection="row" gap={1} paddingLeft={1}>
-                <text fg={item.status === "connected" ? theme.success : theme.warning}>[{item.status === "connected" ? "+" : "!"}]</text>
+                <text fg={item.status === "connected" ? theme.success : theme.warning}>
+                  [{item.status === "connected" ? "+" : "!"}]
+                </text>
                 <text fg={theme.text}>
                   <b>{key}</b>{" "}
                   <span style={{ fg: theme.textMuted }}>

@@ -301,13 +301,8 @@ export async function probeWslDistro(name: string, opts?: RunWslOptions): Promis
 
 export async function resolveWslAxon(distro: string, opts?: RunWslOptions) {
   return firstLine(
-    (
-      await runWslSh(
-        'if [ -x "$HOME/.axon/bin/axon" ]; then printf "%s\\n" "$HOME/.axon/bin/axon"; fi',
-        distro,
-        opts,
-      )
-    ).stdout,
+    (await runWslSh('if [ -x "$HOME/.axon/bin/axon" ]; then printf "%s\\n" "$HOME/.axon/bin/axon"; fi', distro, opts))
+      .stdout,
   )
 }
 

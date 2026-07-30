@@ -143,8 +143,7 @@ export const dict = {
   "provider.connect.axonZen.visit.prefix": "",
   "provider.connect.axonZen.visit.link": "opencode.ai/zen",
   "provider.connect.axonZen.visit.suffix": " adresini ziyaret ederek API anahtarınızı alın.",
-  "provider.connect.oauth.code.visit.prefix":
-    "Hesabınızı bağlamak ve Axon'da {{provider}} modellerini kullanmak için ",
+  "provider.connect.oauth.code.visit.prefix": "Hesabınızı bağlamak ve Axon'da {{provider}} modellerini kullanmak için ",
   "provider.connect.oauth.code.visit.link": "bu bağlantıya",
   "provider.connect.oauth.code.visit.suffix": " tıklayarak yetkilendirme kodunuzu alın.",
   "provider.connect.oauth.code.label": "{{method}} yetkilendirme kodu",
@@ -647,8 +646,7 @@ export const dict = {
   "settings.general.row.appearance.title": "Görünüm",
   "settings.general.row.appearance.description": "Axon'un cihazınızdaki görünümünü özelleştirin",
   "settings.general.row.colorScheme.title": "Renk şeması",
-  "settings.general.row.colorScheme.description":
-    "Axon'un sistem, açık veya koyu temayı takip etip etmeyeceğini seçin",
+  "settings.general.row.colorScheme.description": "Axon'un sistem, açık veya koyu temayı takip etip etmeyeceğini seçin",
   "settings.general.row.theme.title": "Tema",
   "settings.general.row.theme.description": "Axon'un temasını özelleştirin.",
   "settings.general.row.font.title": "Kod Yazı Tipi",

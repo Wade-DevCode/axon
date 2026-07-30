@@ -96,9 +96,7 @@ export const TaskTool = Tool.define(
       const cfg = yield* config.get()
       const runInBackground = params.background === true
       if (runInBackground && !flags.experimentalBackgroundSubagents) {
-        return yield* Effect.fail(
-          new Error("Background subagents require AXON_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true"),
-        )
+        return yield* Effect.fail(new Error("Background subagents require AXON_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true"))
       }
 
       if (!ctx.extra?.bypassAgentCheck) {

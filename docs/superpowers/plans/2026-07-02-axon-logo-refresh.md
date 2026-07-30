@@ -20,10 +20,12 @@
 ### Task 1: Simplify Logo Component
 
 **Files:**
+
 - Modify: `packages/tui/src/component/logo.tsx`
 - Modify: `packages/tui/src/logo.ts`
 
 **Interfaces:**
+
 - Consumes: existing `<Logo />` usage in `packages/tui/src/routes/home.tsx`.
 - Produces: same exported `Logo` component.
 
@@ -34,8 +36,12 @@ Update `packages/tui/src/component/logo.tsx` so it renders a compact centered wo
 ```tsx
 <box flexDirection="column" alignItems="center">
   <box flexDirection="row" gap={1}>
-    <text fg={theme.primary} attributes={TextAttributes.BOLD} selectable={false}>AX</text>
-    <text fg={theme.text} attributes={TextAttributes.BOLD} selectable={false}>ON</text>
+    <text fg={theme.primary} attributes={TextAttributes.BOLD} selectable={false}>
+      AX
+    </text>
+    <text fg={theme.text} attributes={TextAttributes.BOLD} selectable={false}>
+      ON
+    </text>
   </box>
 </box>
 ```

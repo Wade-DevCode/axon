@@ -291,9 +291,23 @@
                     },
                     "version": {
                       "type": "string"
+                    },
+                    "runtimeVersion": {
+                      "type": "string"
+                    },
+                    "protocolVersion": {
+                      "type": "number",
+                      "enum": [1]
+                    },
+                    "capabilities": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": ["sessions", "diffs", "permissions"]
+                      }
                     }
                   },
-                  "required": ["healthy", "version"],
+                  "required": ["healthy", "version", "runtimeVersion", "protocolVersion", "capabilities"],
                   "additionalProperties": false,
                   "description": "Health information"
                 }

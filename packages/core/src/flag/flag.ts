@@ -34,9 +34,7 @@ export const Flag = {
   AXON_DISABLE_FFF: fff === undefined ? process.platform === "win32" : truthy("AXON_DISABLE_FFF"),
 
   // Experimental
-  AXON_EXPERIMENTAL_FILEWATCHER: Config.boolean("AXON_EXPERIMENTAL_FILEWATCHER").pipe(
-    Config.withDefault(false),
-  ),
+  AXON_EXPERIMENTAL_FILEWATCHER: Config.boolean("AXON_EXPERIMENTAL_FILEWATCHER").pipe(Config.withDefault(false)),
   AXON_EXPERIMENTAL_DISABLE_FILEWATCHER: Config.boolean("AXON_EXPERIMENTAL_DISABLE_FILEWATCHER").pipe(
     Config.withDefault(false),
   ),

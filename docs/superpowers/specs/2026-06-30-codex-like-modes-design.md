@@ -27,14 +27,14 @@ Phase 1 introduces two user-facing concepts while keeping the existing runtime m
 
 Work mode is the user's intent for the next prompt. It maps to an Axon primary agent.
 
-| User-facing mode | Runtime agent | Purpose |
-| --- | --- | --- |
-| `Code` | `code`, compatible with `build` | Implement, edit, refactor, run tests, and complete coding tasks. |
-| `Ask` | `ask` | Read-only Q&A and explanation. |
-| `Plan` | `plan` | Plan first; avoid regular source edits except plan files. |
-| `Debug` | `debug` | Diagnose failures and fix root causes systematically. |
-| `Review` | `review` | Review local diffs, branch changes, or PR feedback. |
-| `Orchestrator` | `orchestrator` | Break large work into subtasks and coordinate subagents. |
+| User-facing mode | Runtime agent                   | Purpose                                                          |
+| ---------------- | ------------------------------- | ---------------------------------------------------------------- |
+| `Code`           | `code`, compatible with `build` | Implement, edit, refactor, run tests, and complete coding tasks. |
+| `Ask`            | `ask`                           | Read-only Q&A and explanation.                                   |
+| `Plan`           | `plan`                          | Plan first; avoid regular source edits except plan files.        |
+| `Debug`          | `debug`                         | Diagnose failures and fix root causes systematically.            |
+| `Review`         | `review`                        | Review local diffs, branch changes, or PR feedback.              |
+| `Orchestrator`   | `orchestrator`                  | Break large work into subtasks and coordinate subagents.         |
 
 `build` remains accepted everywhere as a legacy alias. New UI should prefer `Code`.
 
@@ -42,12 +42,12 @@ Work mode is the user's intent for the next prompt. It maps to an Axon primary a
 
 Permission posture describes how much autonomy Axon has. Phase 1 only surfaces and maps existing permission behavior; it does not introduce a new sandbox engine.
 
-| User-facing posture | Phase 1 behavior |
-| --- | --- |
-| `Read Only` | Prefer `Ask` or `Plan`; deny edit-like permissions for the active mode. |
-| `Ask Before Edit` | Default posture: allow reads, ask for edits or sensitive commands according to current permission rules. |
-| `Auto Edit` | Use existing saved/session permissions where configured; do not bypass dangerous prompts. |
-| `Full Access` | Reserved label for future explicit high-autonomy configuration; Phase 1 should not silently enable it. |
+| User-facing posture | Phase 1 behavior                                                                                         |
+| ------------------- | -------------------------------------------------------------------------------------------------------- |
+| `Read Only`         | Prefer `Ask` or `Plan`; deny edit-like permissions for the active mode.                                  |
+| `Ask Before Edit`   | Default posture: allow reads, ask for edits or sensitive commands according to current permission rules. |
+| `Auto Edit`         | Use existing saved/session permissions where configured; do not bypass dangerous prompts.                |
+| `Full Access`       | Reserved label for future explicit high-autonomy configuration; Phase 1 should not silently enable it.   |
 
 The TUI can display posture as a summary derived from the active agent and pending/saved permissions. A full persistent posture editor can come later.
 

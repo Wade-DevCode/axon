@@ -1347,19 +1347,9 @@ export function Prompt(props: PromptProps) {
   return (
     <>
       <box ref={(r: BoxRenderable) => (anchor = r)} visible={props.visible !== false} width="100%">
-        <box
-          width="100%"
-        >
+        <box width="100%">
           <Show when={status().type !== "idle"}>
-            <box
-              width="100%"
-              height={1}
-              paddingLeft={3}
-              paddingRight={2}
-              flexDirection="row"
-              gap={1}
-              flexShrink={0}
-            >
+            <box width="100%" height={1} paddingLeft={3} paddingRight={2} flexDirection="row" gap={1} flexShrink={0}>
               <Show when={kv.get("animations_enabled", true)} fallback={<text fg={theme.textMuted}>[⋯]</text>}>
                 <spinner color={spinnerDef().color} frames={spinnerDef().frames} interval={40} />
               </Show>
@@ -1517,14 +1507,7 @@ export function Prompt(props: PromptProps) {
             />
           </box>
         </box>
-        <box
-          width="100%"
-          height={1}
-          flexDirection="column"
-          paddingLeft={2}
-          paddingRight={2}
-          overflow="hidden"
-        >
+        <box width="100%" height={1} flexDirection="column" paddingLeft={2} paddingRight={2} overflow="hidden">
           <box width="100%" flexDirection="row" justifyContent="space-between">
             <Switch>
               <Match when={workspace.notice()}>
