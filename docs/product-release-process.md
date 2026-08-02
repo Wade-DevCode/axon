@@ -676,6 +676,9 @@ The manifest version must be bumped and committed first.
 
 `.github/workflows/release-vscode.yml` has three entry modes.
 
+Every mode installs the pinned supported Axon CLI, verifies its version, and
+runs the extension-host test suite under Xvfb before packaging the VSIX.
+
 Manual `workflow_dispatch`:
 
 - builds the extension;
