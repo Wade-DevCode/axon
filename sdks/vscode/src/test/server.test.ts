@@ -1,8 +1,27 @@
-import { equal, match } from "node:assert/strict"
-import { commands } from "vscode"
+import { equal, match, ok } from "node:assert/strict"
+import { commands, extensions } from "vscode"
 import { AxonCliNotFoundError, AxonServer } from "../server"
 
 suite("Axon server", () => {
+  test("contributes an Activity Bar button", () => {
+    const extension = extensions.getExtension("wanghuimvp.axon-developer-agent")
+    ok(extension)
+    const containers = (
+      extension.packageJSON as {
+        contributes: {
+          viewsContainers: {
+            activitybar?: Array<{ id: string; icon: string }>
+            secondarySidebar?: unknown
+          }
+        }
+      }
+    ).contributes.viewsContainers
+
+    equal(containers.activitybar?.[0]?.id, "axonViewContainer")
+    equal(containers.activitybar?.[0]?.icon, "images/sidebar.svg")
+    equal(containers.secondarySidebar, undefined)
+  })
+
   test("explains how to install a missing CLI", () => {
     match(new AxonCliNotFoundError().message, /npm install -g @wanghuimvp\/axon@latest/)
   })
