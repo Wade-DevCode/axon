@@ -54,6 +54,7 @@ import { useTuiConfig } from "../../config"
 import { usePromptWorkspace } from "./workspace"
 import { usePromptMove } from "./move"
 import { readLocalAttachment } from "./local-attachment"
+import { sessionUsage } from "../../util/session-usage"
 
 export type PromptProps = {
   sessionID?: string
@@ -264,27 +265,15 @@ export function Prompt(props: PromptProps) {
   )
 
   const usage = createMemo(() => {
-    const selected = local.model.parsed()
-    const fallbackModel = sync.data.provider.find((item) => item.id === selected.provider)?.models[selected.model]
-    if (!props.sessionID) {
-      return fallbackModel?.limit.context ? { contextLeft: "100% left" } : undefined
-    }
-
-    const msg = sync.data.message[props.sessionID] ?? []
-    const last = msg.findLast((item): item is AssistantMessage => item.role === "assistant" && item.tokens.output > 0)
-    if (!last) return fallbackModel?.limit.context ? { contextLeft: "100% left" } : undefined
-
-    const tokens =
-      last.tokens.input + last.tokens.output + last.tokens.reasoning + last.tokens.cache.read + last.tokens.cache.write
-    if (tokens <= 0) return fallbackModel?.limit.context ? { contextLeft: "100% left" } : undefined
-
-    const model = sync.data.provider.find((item) => item.id === last.providerID)?.models[last.modelID]
-    const contextLeft = model?.limit.context
-      ? `${Math.max(0, 100 - Math.round((tokens / model.limit.context) * 100))}% left`
-      : undefined
+    const value = sessionUsage({
+      messages: props.sessionID ? (sync.data.message[props.sessionID] ?? []) : [],
+      providers: sync.data.provider,
+      fallback: local.model.current(),
+    })
+    if (!value) return
     return {
-      contextLeft,
-      tokensUsed: `${Locale.number(tokens)} used`,
+      contextLeft: value.percentLeft === undefined ? undefined : `${value.percentLeft}% left`,
+      tokensUsed: value.tokens > 0 ? `${Locale.number(value.tokens)} used` : undefined,
     }
   })
 

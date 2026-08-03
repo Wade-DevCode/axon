@@ -6,6 +6,8 @@ import { useLocal } from "../context/local"
 import { useProject } from "../context/project"
 import { For, Match, Switch, Show, createMemo } from "solid-js"
 import { Product } from "../util/product"
+import { Locale } from "../util/locale"
+import { sessionUsage } from "../util/session-usage"
 
 export function StatusReport() {
   const sync = useSync()
@@ -17,6 +19,59 @@ export function StatusReport() {
   const connectedMcp = createMemo(
     () => Object.values(sync.data.mcp).filter((server) => server.status === "connected").length,
   )
+  const statusSessionID = createMemo(() => local.status.sessionID())
+  const session = createMemo(() => {
+    const sessionID = statusSessionID()
+    if (!sessionID) return
+    return sync.session.get(sessionID)
+  })
+  const usage = createMemo(() => {
+    const sessionID = statusSessionID()
+    return sessionUsage({
+      messages: sessionID ? (sync.data.message[sessionID] ?? []) : [],
+      providers: sync.data.provider,
+      fallback: local.model.current(),
+    })
+  })
+  const account = createMemo(() => {
+    const entries = Object.entries(sync.data.provider_auth_status)
+    const match = entries.find(([providerID, item]) => providerID === "openai" && item.type === "oauth")
+    const fallback = entries.find(([, item]) => item.type === "oauth")
+    const value = match ?? fallback
+    if (!value) return
+    return {
+      providerID: value[0],
+      ...value[1],
+    }
+  })
+  const variant = createMemo(
+    () => local.model.variant.current() ?? (local.model.variant.list().length > 0 ? "default" : undefined),
+  )
+  const permissions = createMemo(() => {
+    const sessionRules = session()?.permission ?? []
+    const rules = [...(local.agent.current()?.permission ?? []), ...sessionRules]
+    if (!rules.length) return "No rules"
+    const allow = rules.filter((rule) => rule.action === "allow").length
+    const ask = rules.filter((rule) => rule.action === "ask").length
+    const deny = rules.filter((rule) => rule.action === "deny").length
+    if (!ask && !deny) return "Full access"
+    const summary = [`${allow} allow`, `${ask} ask`, `${deny} deny`].join(" · ")
+    if (!sessionRules.length) return summary
+    return `${summary} (${sessionRules.length} session overrides)`
+  })
+  const context = createMemo(() => {
+    const value = usage()
+    if (!value) return "Unavailable"
+    if (!value.context) return value.tokens > 0 ? `${Locale.number(value.tokens)} used` : "No usage yet"
+    return `${value.percentLeft}% left (${Locale.number(value.tokens)} used / ${Locale.number(value.context)})`
+  })
+  const accountLabel = createMemo(() => {
+    const value = account()
+    if (!value) return "No OAuth account connected"
+    const identity = value.email ?? value.name ?? "OAuth account"
+    const plan = value.plan ? ` · ${Locale.titlecase(value.plan)}` : ""
+    return `${identity}${plan} · ${value.providerID}`
+  })
 
   const plugins = createMemo(() => {
     const list = sync.data.config.plugin ?? []
@@ -59,7 +114,10 @@ export function StatusReport() {
           <text width={14} fg={theme.textMuted}>
             Model:
           </text>
-          <text fg={theme.text}>{local.model.parsed().provider} / {local.model.parsed().model}</text>
+          <text fg={theme.text}>
+            {local.model.parsed().provider} / {local.model.parsed().model}
+            <Show when={variant()}>{(value) => ` · ${value()}`}</Show>
+          </text>
         </box>
         <box flexDirection="row">
           <text width={14} fg={theme.textMuted}>
@@ -77,6 +135,50 @@ export function StatusReport() {
         </box>
         <box flexDirection="row">
           <text width={14} fg={theme.textMuted}>
+            Permissions:
+          </text>
+          <text fg={theme.text}>{permissions()}</text>
+        </box>
+        <box flexDirection="row">
+          <text width={14} fg={theme.textMuted}>
+            Account:
+          </text>
+          <text fg={account() ? theme.text : theme.warning}>{accountLabel()}</text>
+        </box>
+        <box flexDirection="row">
+          <text width={14} fg={theme.textMuted}>
+            Session:
+          </text>
+          <text fg={theme.text}>{statusSessionID() ?? "None"}</text>
+        </box>
+        <box flexDirection="row">
+          <text width={14} fg={theme.textMuted}>
+            Context:
+          </text>
+          <text fg={theme.text}>{context()}</text>
+        </box>
+        <box flexDirection="row">
+          <text width={14} fg={theme.textMuted}>
+            Instructions:
+          </text>
+          <text fg={theme.text}>
+            {sync.data.config.instructions?.length
+              ? `${sync.data.config.instructions.length} configured sources + automatic discovery`
+              : "Automatic AGENTS.md / CLAUDE.md discovery"}
+          </text>
+        </box>
+        <Show when={sync.data.vcs?.branch}>
+          {(branch) => (
+            <box flexDirection="row">
+              <text width={14} fg={theme.textMuted}>
+                Branch:
+              </text>
+              <text fg={theme.text}>{branch()}</text>
+            </box>
+          )}
+        </Show>
+        <box flexDirection="row">
+          <text width={14} fg={theme.textMuted}>
             Providers:
           </text>
           <text fg={connectedProviders() ? theme.success : theme.warning}>
@@ -88,7 +190,8 @@ export function StatusReport() {
             Components:
           </text>
           <text fg={theme.text}>
-            MCP {connectedMcp()}/{Object.keys(sync.data.mcp).length} · LSP {sync.data.lsp.length} · Formatters {enabledFormatters().length} · Plugins {plugins().length}
+            MCP {connectedMcp()}/{Object.keys(sync.data.mcp).length} · LSP {sync.data.lsp.length} · Formatters{" "}
+            {enabledFormatters().length} · Plugins {plugins().length}
           </text>
         </box>
       </box>
@@ -98,7 +201,9 @@ export function StatusReport() {
           <For each={Object.entries(sync.data.mcp)}>
             {([key, item]) => (
               <box flexDirection="row" gap={1} paddingLeft={1}>
-                <text fg={item.status === "connected" ? theme.success : theme.warning}>[{item.status === "connected" ? "+" : "!"}]</text>
+                <text fg={item.status === "connected" ? theme.success : theme.warning}>
+                  [{item.status === "connected" ? "+" : "!"}]
+                </text>
                 <text fg={theme.text}>
                   <b>{key}</b>{" "}
                   <span style={{ fg: theme.textMuted }}>

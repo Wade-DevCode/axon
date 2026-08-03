@@ -2574,6 +2574,14 @@ export type ProviderAuthMethod = {
   >
 }
 
+export type AuthSummary = {
+  type: "oauth" | "api" | "wellknown"
+  email?: string
+  name?: string
+  plan?: string
+  expires?: number
+}
+
 export type ProviderAuthAuthorization = {
   url: string
   method: "auto" | "code"
@@ -9434,6 +9442,36 @@ export type ProviderAuthResponses = {
 }
 
 export type ProviderAuthResponse = ProviderAuthResponses[keyof ProviderAuthResponses]
+
+export type ProviderAuthStatusData = {
+  body?: never
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/provider/auth/status"
+}
+
+export type ProviderAuthStatusErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+}
+
+export type ProviderAuthStatusError = ProviderAuthStatusErrors[keyof ProviderAuthStatusErrors]
+
+export type ProviderAuthStatusResponses = {
+  /**
+   * Safe provider authentication summaries
+   */
+  200: {
+    [key: string]: AuthSummary
+  }
+}
+
+export type ProviderAuthStatusResponse = ProviderAuthStatusResponses[keyof ProviderAuthStatusResponses]
 
 export type ProviderOauthAuthorizeData = {
   body?: {

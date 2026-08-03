@@ -57,6 +57,7 @@ export function createFetch(override?: FetchHandler) {
       case "/experimental/resource":
       case "/mcp":
       case "/provider/auth":
+      case "/provider/auth/status":
       case "/session/status":
         return json({})
       case "/config/providers":

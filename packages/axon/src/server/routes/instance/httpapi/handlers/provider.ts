@@ -1,4 +1,5 @@
 import { ProviderAuth } from "@/provider/auth"
+import { Auth } from "@/auth"
 import { Config } from "@/config/config"
 import { ModelsDev } from "@axon-ai/core/models-dev"
 import { Provider } from "@/provider/provider"
@@ -36,6 +37,7 @@ export const providerHandlers = HttpApiBuilder.group(InstanceHttpApi, "provider"
     const cfg = yield* Config.Service
     const provider = yield* Provider.Service
     const svc = yield* ProviderAuth.Service
+    const storedAuth = yield* Auth.Service
 
     const list = Effect.fn("ProviderHttpApi.list")(function* () {
       const config = yield* cfg.get()
@@ -60,6 +62,10 @@ export const providerHandlers = HttpApiBuilder.group(InstanceHttpApi, "provider"
 
     const auth = Effect.fn("ProviderHttpApi.auth")(function* () {
       return yield* svc.methods()
+    })
+
+    const authStatus = Effect.fn("ProviderHttpApi.authStatus")(function* () {
+      return yield* storedAuth.summaries().pipe(Effect.orElseSucceed(() => ({})))
     })
 
     const authorize = Effect.fn("ProviderHttpApi.authorize")(function* (ctx: {
@@ -107,6 +113,7 @@ export const providerHandlers = HttpApiBuilder.group(InstanceHttpApi, "provider"
     return handlers
       .handle("list", list)
       .handle("auth", auth)
+      .handle("authStatus", authStatus)
       .handleRaw("authorize", authorizeRaw)
       .handle("callback", callback)
   }),

@@ -1,4 +1,4 @@
-import { describe, expect } from "bun:test"
+import { describe, expect, test } from "bun:test"
 import { Effect, Layer } from "effect"
 import { Auth } from "../../src/auth"
 import { CrossSpawnSpawner } from "@axon-ai/core/cross-spawn-spawner"
@@ -9,6 +9,50 @@ const node = CrossSpawnSpawner.defaultLayer
 const it = testEffect(Layer.mergeAll(Auth.defaultLayer, node))
 
 describe("Auth", () => {
+  test("summarize exposes OAuth account metadata without credentials", () => {
+    const header = Buffer.from(JSON.stringify({ alg: "none" })).toString("base64url")
+    const payload = Buffer.from(
+      JSON.stringify({
+        email: "user@example.com",
+        name: "Axon User",
+        "https://api.openai.com/auth": {
+          chatgpt_plan_type: "plus",
+        },
+      }),
+    ).toString("base64url")
+    const summary = Auth.summarize({
+      type: "oauth",
+      access: `${header}.${payload}.sig`,
+      refresh: "refresh-secret",
+      expires: 123,
+    })
+
+    expect(summary).toEqual({
+      type: "oauth",
+      email: "user@example.com",
+      name: "Axon User",
+      plan: "plus",
+      expires: 123,
+    })
+    expect(summary).not.toHaveProperty("access")
+    expect(summary).not.toHaveProperty("refresh")
+  })
+
+  test("summarize handles opaque credentials", () => {
+    expect(
+      Auth.summarize({
+        type: "oauth",
+        access: "opaque-access-token",
+        refresh: "refresh-secret",
+        expires: 123,
+      }),
+    ).toEqual({
+      type: "oauth",
+      expires: 123,
+    })
+    expect(Auth.summarize({ type: "api", key: "secret" })).toEqual({ type: "api" })
+  })
+
   it.instance("set normalizes trailing slashes in keys", () =>
     Effect.gen(function* () {
       const auth = yield* Auth.Service

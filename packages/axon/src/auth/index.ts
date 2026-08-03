@@ -35,6 +35,51 @@ export class WellKnown extends Schema.Class<WellKnown>("WellKnownAuth")({
 export const Info = Schema.Union([Oauth, Api, WellKnown]).annotate({ discriminator: "type", identifier: "Auth" })
 export type Info = Schema.Schema.Type<typeof Info>
 
+export class Summary extends Schema.Class<Summary>("AuthSummary")({
+  type: Schema.Literals(["oauth", "api", "wellknown"]),
+  email: Schema.optional(Schema.String),
+  name: Schema.optional(Schema.String),
+  plan: Schema.optional(Schema.String),
+  expires: Schema.optional(NonNegativeInt),
+}) {}
+
+export const Summaries = Schema.Record(Schema.String, Summary)
+export type Summaries = Schema.Schema.Type<typeof Summaries>
+
+export function summarize(info: Info): Summary {
+  if (info.type !== "oauth") return new Summary({ type: info.type })
+
+  const claims = parseJwtClaims(info.access)
+  const auth = recordClaim(claims?.["https://api.openai.com/auth"])
+  const profile = recordClaim(claims?.["https://api.openai.com/profile"])
+  return new Summary({
+    type: info.type,
+    email: stringClaim(claims?.email, profile?.email, auth?.email),
+    name: stringClaim(claims?.name, profile?.name, auth?.name),
+    plan: stringClaim(claims?.chatgpt_plan_type, auth?.chatgpt_plan_type),
+    expires: info.expires,
+  })
+}
+
+function parseJwtClaims(token: string) {
+  const parts = token.split(".")
+  if (parts.length !== 3) return
+  try {
+    return recordClaim(JSON.parse(Buffer.from(parts[1], "base64url").toString()))
+  } catch {
+    return
+  }
+}
+
+function recordClaim(value: unknown): Record<string, unknown> | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return
+  return value as Record<string, unknown>
+}
+
+function stringClaim(...values: unknown[]) {
+  return values.find((value): value is string => typeof value === "string" && value.length > 0)
+}
+
 export class AuthError extends Schema.TaggedErrorClass<AuthError>()("AuthError", {
   message: Schema.String,
   cause: Schema.optional(Schema.Defect()),
@@ -43,6 +88,7 @@ export class AuthError extends Schema.TaggedErrorClass<AuthError>()("AuthError",
 export interface Interface {
   readonly get: (providerID: string) => Effect.Effect<Info | undefined, AuthError>
   readonly all: () => Effect.Effect<Record<string, Info>, AuthError>
+  readonly summaries: () => Effect.Effect<Summaries, AuthError>
   readonly set: (key: string, info: Info) => Effect.Effect<void, AuthError>
   readonly remove: (key: string) => Effect.Effect<void, AuthError>
 }
@@ -70,6 +116,10 @@ export const layer = Layer.effect(
       return (yield* all())[providerID]
     })
 
+    const summaries = Effect.fn("Auth.summaries")(function* () {
+      return Record.map(yield* all(), summarize)
+    })
+
     const set = Effect.fn("Auth.set")(function* (key: string, info: Info) {
       const norm = key.replace(/\/+$/, "")
       const data = yield* all()
@@ -88,7 +138,7 @@ export const layer = Layer.effect(
       yield* fsys.writeJson(file, data, 0o600).pipe(Effect.mapError(fail("Failed to write auth data")))
     })
 
-    return Service.of({ get, all, set, remove })
+    return Service.of({ get, all, summaries, set, remove })
   }),
 )
 

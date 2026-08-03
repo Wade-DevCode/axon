@@ -1,5 +1,6 @@
 import { ProviderAuth } from "@/provider/auth"
 import { Provider } from "@/provider/provider"
+import { Auth } from "@/auth"
 
 import { Schema } from "effect"
 import { HttpApi, HttpApiEndpoint, HttpApiGroup, OpenApi } from "effect/unstable/httpapi"
@@ -53,6 +54,16 @@ export const ProviderApi = HttpApi.make("provider")
             identifier: "provider.auth",
             summary: "Get provider auth methods",
             description: "Retrieve available authentication methods for all AI providers.",
+          }),
+        ),
+        HttpApiEndpoint.get("authStatus", `${root}/auth/status`, {
+          query: WorkspaceRoutingQuery,
+          success: described(Auth.Summaries, "Safe provider authentication summaries"),
+        }).annotateMerge(
+          OpenApi.annotations({
+            identifier: "provider.authStatus",
+            summary: "Get provider auth status",
+            description: "Retrieve safe authentication summaries without exposing provider credentials.",
           }),
         ),
         HttpApiEndpoint.post("authorize", `${root}/:providerID/oauth/authorize`, {

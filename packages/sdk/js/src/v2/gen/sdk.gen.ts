@@ -141,6 +141,8 @@ import type {
   Prompt,
   ProviderAuthErrors,
   ProviderAuthResponses,
+  ProviderAuthStatusErrors,
+  ProviderAuthStatusResponses,
   ProviderListErrors,
   ProviderListResponses,
   ProviderOauthAuthorizeErrors,
@@ -3339,6 +3341,36 @@ export class Provider extends HeyApiClient {
     )
     return (options?.client ?? this.client).get<ProviderAuthResponses, ProviderAuthErrors, ThrowOnError>({
       url: "/provider/auth",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Get provider auth status
+   *
+   * Retrieve safe authentication summaries without exposing provider credentials.
+   */
+  public authStatus<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+      workspace?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).get<ProviderAuthStatusResponses, ProviderAuthStatusErrors, ThrowOnError>({
+      url: "/provider/auth/status",
       ...options,
       ...params,
     })

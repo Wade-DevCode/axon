@@ -19,6 +19,7 @@ import type {
   VcsInfo,
   SnapshotFileDiff,
   ConsoleState,
+  AuthSummary,
 } from "@axon-ai/sdk/v2"
 import { createStore, produce, reconcile } from "solid-js/store"
 import { useProject } from "./project"
@@ -72,6 +73,7 @@ export const {
         experimentalBackgroundSubagents: boolean
       }
       provider_auth: Record<string, ProviderAuthMethod[]>
+      provider_auth_status: Record<string, AuthSummary>
       agent: Agent[]
       command: Command[]
       permission: {
@@ -117,6 +119,7 @@ export const {
         experimentalBackgroundSubagents: false,
       },
       provider_auth: {},
+      provider_auth_status: {},
       config: {},
       status: "loading",
       agent: [],
@@ -543,6 +546,10 @@ export const {
             setStore("session_status", reconcile(x.data ?? {}))
           }),
           sdk.client.provider.auth({ workspace }).then((x) => setStore("provider_auth", reconcile(x.data ?? {}))),
+          sdk.client.provider
+            .authStatus({ workspace })
+            .then((x) => setStore("provider_auth_status", reconcile(x.data ?? {})))
+            .catch(() => {}),
           sdk.client.vcs.get({ workspace }).then((x) => setStore("vcs", reconcile(x.data))),
           project.workspace.sync(),
         ]).then(() => {
