@@ -1,6 +1,6 @@
 // @refresh reload
 
-import { createEffect, onMount } from "solid-js"
+import { createEffect, onCleanup, onMount } from "solid-js"
 import { createStore } from "solid-js/store"
 import { makeEventListener } from "@solid-primitives/event-listener"
 import { createSimpleContext } from "../context/helper"
@@ -8,6 +8,7 @@ import oc2ThemeJson from "./themes/oc-2.json"
 import { resolveThemeVariant, themeToCss } from "./resolve"
 import { resolveThemeVariantV2, themeV2ToCss } from "./v2/resolve"
 import type { DesktopTheme } from "./types"
+import { resolveSystemMode } from "./system-mode"
 
 export type ColorScheme = "light" | "dark" | "system"
 
@@ -127,7 +128,11 @@ function ensureThemeStyleElement(): HTMLStyleElement {
 
 function getSystemMode(): "light" | "dark" {
   if (typeof window !== "object") return "light"
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  return resolveSystemMode({
+    host: typeof document === "object" ? document.documentElement.dataset.axonHost : undefined,
+    bodyClasses: typeof document === "object" ? (document.body?.classList ?? []) : [],
+    prefersDark: window.matchMedia("(prefers-color-scheme: dark)").matches,
+  })
 }
 
 function applyThemeCss(theme: DesktopTheme, themeId: string, mode: "light" | "dark") {
@@ -258,6 +263,12 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
         setStore("mode", getSystemMode())
       }
       makeEventListener(mediaQuery, "change", onMedia)
+
+      if (document.documentElement.dataset.axonHost === "vscode") {
+        const observer = new MutationObserver(onMedia)
+        observer.observe(document.body, { attributes: true, attributeFilter: ["class"] })
+        onCleanup(() => observer.disconnect())
+      }
 
       const rawTheme = read(STORAGE_KEYS.THEME_ID)
       const savedTheme = normalize(rawTheme ?? props.defaultTheme) ?? "oc-2"

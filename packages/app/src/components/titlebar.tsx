@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createResource, createSignal, Match, Show, Switch, untrack } from "solid-js"
+import { createEffect, createMemo, createResource, createSignal, Match, onCleanup, Show, Switch, untrack } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useLocation, useNavigate, useParams } from "@solidjs/router"
 import { IconButton } from "@axon-ai/ui/icon-button"
@@ -10,6 +10,7 @@ import { IconButtonV2 } from "@axon-ai/ui/v2/icon-button-v2"
 import { Icon as IconV2 } from "@axon-ai/ui/v2/icon"
 import { KeybindV2 } from "@axon-ai/ui/v2/keybind-v2"
 import { TooltipV2 } from "@axon-ai/ui/v2/tooltip-v2"
+import { useDialog } from "@axon-ai/ui/context/dialog"
 
 import { LayoutRoute, useLayout } from "@/context/layout"
 import { usePlatform } from "@/context/platform"
@@ -27,6 +28,7 @@ import { ServerConnection, useServer } from "@/context/server"
 import { tabKey, useTabs } from "@/context/tabs"
 import "./titlebar.css"
 import { newTabTooltipKeybind } from "./command-tooltip-keybind"
+import { isVsCode } from "@/utils/vscode"
 
 type TauriDesktopWindow = {
   startDragging?: () => Promise<void>
@@ -62,6 +64,7 @@ export type TitlebarUpdate = {
 
 export function Titlebar(props: { update?: TitlebarUpdate }) {
   const layout = useLayout()
+  const dialog = useDialog()
   const platform = usePlatform()
   const command = useCommand()
   const language = useLanguage()
@@ -72,6 +75,20 @@ export function Titlebar(props: { update?: TitlebarUpdate }) {
   const location = useLocation()
   const params = useParams()
   const useV2Titlebar = createMemo(() => settings.general.newLayoutDesigns())
+  const vscode = isVsCode()
+  let settingsDialogRun = 0
+  onCleanup(() => settingsDialogRun++)
+  const openSettings = () => {
+    if (!vscode) {
+      command.trigger("settings.open")
+      return
+    }
+    const run = ++settingsDialogRun
+    void import("@/components/settings-v2").then((module) => {
+      if (run !== settingsDialogRun) return
+      dialog.show(() => <module.DialogSettings />)
+    })
+  }
   const mobile = createMediaQuery("(max-width: 767px)")
   const bottom = createMemo(() => useV2Titlebar() && mobile() && settings.general.mobileTitlebarPosition() === "bottom")
 
@@ -481,6 +498,19 @@ export function Titlebar(props: { update?: TitlebarUpdate }) {
                     />
                   </TooltipV2>
                 </Show>
+                <Show when={vscode}>
+                  <TooltipV2 placement="bottom" value={language.t("command.settings.open")}>
+                    <IconButtonV2
+                      type="button"
+                      variant="ghost-muted"
+                      size="large"
+                      class="shrink-0"
+                      icon={<IconV2 name="settings-gear" />}
+                      onClick={openSettings}
+                      aria-label={language.t("command.settings.open")}
+                    />
+                  </TooltipV2>
+                </Show>
                 <TitlebarV2Right state={v2RightState()} />
                 <Show when={windows() && !electronWindows()}>
                   <div data-tauri-decorum-tb class="flex flex-row" />
@@ -503,7 +533,7 @@ export function Titlebar(props: { update?: TitlebarUpdate }) {
               <Show when={windows() || linux()}>
                 <WindowsAppMenu command={command} platform={platform} />
               </Show>
-              <Show when={mac()}>
+              <Show when={mac() && !vscode}>
                 {/*<div class="h-full shrink-0" style={{ width: `${72 / zoom()}px` }} />*/}
                 <div class="xl:hidden w-10 shrink-0 flex items-center justify-center">
                   <IconButton
@@ -516,7 +546,7 @@ export function Titlebar(props: { update?: TitlebarUpdate }) {
                   />
                 </div>
               </Show>
-              <Show when={!mac()}>
+              <Show when={!mac() && !vscode}>
                 <div class="xl:hidden w-[48px] shrink-0 flex items-center justify-center">
                   <IconButton
                     icon="menu"
@@ -636,6 +666,32 @@ export function Titlebar(props: { update?: TitlebarUpdate }) {
               data-tauri-drag-region
               onMouseDown={drag}
             >
+              <Show when={vscode}>
+                <div class="flex shrink-0 items-center gap-1">
+                  <Tooltip placement="bottom" value={language.t("command.session.new")}>
+                    <IconButton
+                      icon="plus"
+                      variant="ghost"
+                      class="titlebar-icon rounded-md"
+                      disabled={!params.dir}
+                      onClick={() => {
+                        if (!params.dir) return
+                        navigate(`/${params.dir}/session`)
+                      }}
+                      aria-label={language.t("command.session.new")}
+                    />
+                  </Tooltip>
+                  <Tooltip placement="bottom" value={language.t("command.settings.open")}>
+                    <IconButton
+                      icon="settings-gear"
+                      variant="ghost"
+                      class="titlebar-icon rounded-md"
+                      onClick={openSettings}
+                      aria-label={language.t("command.settings.open")}
+                    />
+                  </Tooltip>
+                </div>
+              </Show>
               <div id="axon-titlebar-right" class="flex items-center gap-1 shrink-0 justify-end" />
               <Show when={windows()}>
                 {!tauriApi() && <div class="shrink-0" style={{ width: windowsControlsWidth() }} />}

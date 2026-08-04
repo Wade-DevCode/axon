@@ -1,5 +1,29 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" fill="#131010"/>
-  <path d="M320 224V352H192V224H320Z" fill="#5A5858"/>
-  <path fill-rule="evenodd" clip-rule="evenodd" d="M384 416H128V96H384V416ZM320 160H192V352H320V160Z" fill="#FFFFFF"/>
+  <defs>
+    <linearGradient id="background" x1="72" y1="48" x2="440" y2="464" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#202532"/>
+      <stop offset="1" stop-color="#0C0F15"/>
+    </linearGradient>
+    <linearGradient id="signal" x1="166" y1="128" x2="350" y2="384" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF8A5B"/>
+      <stop offset="1" stop-color="#FFB45C"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(256 126) rotate(90) scale(238)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF8A5B" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#FF8A5B" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="91" y="75" width="330" height="350" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#000000" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+  <rect x="20" y="20" width="472" height="472" rx="112" fill="url(#background)"/>
+  <rect x="20.75" y="20.75" width="470.5" height="470.5" rx="111.25" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1.5"/>
+  <rect x="20" y="20" width="472" height="472" rx="112" fill="url(#glow)"/>
+  <g filter="url(#shadow)">
+    <path d="M132 376L244 126C248.8 115.3 263.2 115.3 268 126L380 376" stroke="#F7F4EF" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M192 286H320" stroke="url(#signal)" stroke-width="32" stroke-linecap="round"/>
+    <circle cx="256" cy="118" r="25" fill="url(#signal)"/>
+    <circle cx="132" cy="376" r="19" fill="url(#signal)"/>
+    <circle cx="380" cy="376" r="19" fill="url(#signal)"/>
+  </g>
 </svg>

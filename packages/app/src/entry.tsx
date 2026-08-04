@@ -23,6 +23,7 @@ type VsCodeBootstrap = {
   modelState?: { recent: ModelKey[]; variant: Record<string, string> }
 }
 const vscode = (window as typeof window & { __AXON_VSCODE__?: VsCodeBootstrap }).__AXON_VSCODE__
+if (vscode) document.documentElement.dataset.axonHost = "vscode"
 
 const getLocale = () => {
   if (typeof navigator !== "object") return "en" as const
