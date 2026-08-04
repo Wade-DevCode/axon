@@ -9,6 +9,7 @@ import { resolveThemeVariant, themeToCss } from "./resolve"
 import { resolveThemeVariantV2, themeV2ToCss } from "./v2/resolve"
 import type { DesktopTheme } from "./types"
 import { resolveSystemMode } from "./system-mode"
+import { restorePreviewTheme } from "./restore-preview"
 
 export type ColorScheme = "light" | "dark" | "system"
 
@@ -369,11 +370,21 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
         setStore("previewScheme", null)
       },
       cancelPreview: () => {
+        const themeId = store.themeId
+        const mode = store.mode
         setStore("previewThemeId", null)
         setStore("previewScheme", null)
-        void load(store.themeId).then((theme) => {
-          if (!theme) return
-          applyTheme(theme, store.themeId, store.mode)
+        void restorePreviewTheme({
+          themeId,
+          mode,
+          theme: store.themes[themeId],
+          load: () => load(themeId),
+          current: () => ({
+            themeId: store.themeId,
+            mode: store.mode,
+            previewing: !!store.previewThemeId || !!store.previewScheme,
+          }),
+          apply: applyTheme,
         })
       },
     }
