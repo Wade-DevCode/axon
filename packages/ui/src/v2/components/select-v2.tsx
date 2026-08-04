@@ -164,8 +164,8 @@ export function SelectV2<T>(props: SelectV2Props<T>) {
       )}
       onChange={(next) => {
         const v = next == null ? null : Array.isArray(next) ? ((next[0] as T) ?? null) : (next as T)
-        local.onSelect?.(v)
         stop()
+        local.onSelect?.(v)
       }}
       onOpenChange={(open) => {
         local.onOpenChange?.(open)

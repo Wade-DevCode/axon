@@ -1,4 +1,4 @@
-import { Component, Show, createMemo, createResource, onMount } from "solid-js"
+import { Component, For, Show, createMemo, createResource, onMount } from "solid-js"
 import { createMediaQuery } from "@solid-primitives/media"
 import { ButtonV2 } from "@axon-ai/ui/v2/button-v2"
 import { SelectV2 } from "@axon-ai/ui/v2/select-v2"
@@ -27,6 +27,7 @@ import {
 } from "@/context/settings"
 import { decode64 } from "@/utils/base64"
 import { playSoundById, SOUND_OPTIONS } from "@/utils/sound"
+import { isVsCode } from "@/utils/vscode"
 import { Link } from "../link"
 import { SettingsListV2 } from "./parts/list"
 import { SettingsRowV2 } from "./parts/row"
@@ -418,22 +419,44 @@ export const SettingsGeneralV2: Component = () => {
           title={language.t("settings.general.row.colorScheme.title")}
           description={language.t("settings.general.row.colorScheme.description")}
         >
-          <SelectV2
-            appearance="inline"
-            data-action="settings-color-scheme"
-            options={colorSchemeOptions()}
-            current={colorSchemeOptions().find((o) => o.value === theme.colorScheme())}
-            placement="bottom-end"
-            gutter={6}
-            value={(o) => o.value}
-            label={(o) => o.label}
-            onSelect={(option) => option && theme.setColorScheme(option.value)}
-            onHighlight={(option) => {
-              if (!option) return
-              theme.previewColorScheme(option.value)
-              return () => theme.cancelPreview()
-            }}
-          />
+          <Show
+            when={isVsCode()}
+            fallback={
+              <SelectV2
+                appearance="inline"
+                data-action="settings-color-scheme"
+                options={colorSchemeOptions()}
+                current={colorSchemeOptions().find((o) => o.value === theme.colorScheme())}
+                placement="bottom-end"
+                gutter={6}
+                value={(o) => o.value}
+                label={(o) => o.label}
+                onSelect={(option) => option && theme.setColorScheme(option.value)}
+                onHighlight={(option) => {
+                  if (!option) return
+                  theme.previewColorScheme(option.value)
+                  return () => theme.cancelPreview()
+                }}
+              />
+            }
+          >
+            <div class="settings-v2-color-scheme" role="group" aria-label={language.t("settings.general.row.colorScheme.title")}>
+              <For each={colorSchemeOptions()}>
+                {(option) => (
+                  <ButtonV2
+                    type="button"
+                    size="small"
+                    variant={theme.colorScheme() === option.value ? "contrast" : "ghost"}
+                    data-action={`settings-color-scheme-${option.value}`}
+                    aria-pressed={theme.colorScheme() === option.value}
+                    onClick={() => theme.setColorScheme(option.value)}
+                  >
+                    {option.label}
+                  </ButtonV2>
+                )}
+              </For>
+            </div>
+          </Show>
         </SettingsRowV2>
 
         <SettingsRowV2

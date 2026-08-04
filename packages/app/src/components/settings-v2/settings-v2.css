@@ -274,6 +274,19 @@ html[data-axon-host="vscode"] [data-component="settings-v2-row"] {
   padding-block: 16px;
 }
 
+html[data-axon-host="vscode"] .settings-v2-color-scheme {
+  display: inline-flex;
+  padding: 2px;
+  border: 0.5px solid var(--v2-border-border-muted);
+  border-radius: 6px;
+  background: var(--v2-background-bg-layer-02);
+}
+
+html[data-axon-host="vscode"] .settings-v2-color-scheme [data-component="button-v2"] {
+  min-width: 52px;
+  border-radius: 4px;
+}
+
 .settings-v2-legacy-panel {
   height: 100%;
   overflow: hidden;
