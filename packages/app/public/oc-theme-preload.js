@@ -25,7 +25,10 @@
   var css = localStorage.getItem("axon-theme-css-" + mode)
   if (css) {
     var style = document.createElement("style")
+    var nonceSource = document.querySelector("script[nonce]")
+    var nonce = nonceSource && (nonceSource.nonce || nonceSource.getAttribute("nonce"))
     style.id = "oc-theme-preload"
+    if (nonce) style.setAttribute("nonce", nonce)
     style.textContent =
       ":root{color-scheme:" +
       mode +

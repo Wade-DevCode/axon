@@ -10,6 +10,7 @@ import { resolveThemeVariantV2, themeV2ToCss } from "./v2/resolve"
 import type { DesktopTheme } from "./types"
 import { resolveSystemMode } from "./system-mode"
 import { restorePreviewTheme } from "./restore-preview"
+import { inheritCspNonce } from "./csp-nonce"
 
 export type ColorScheme = "light" | "dark" | "system"
 
@@ -120,10 +121,11 @@ function clear() {
 
 function ensureThemeStyleElement(): HTMLStyleElement {
   const existing = document.getElementById(THEME_STYLE_ID) as HTMLStyleElement | null
-  if (existing) return existing
-  const element = document.createElement("style")
-  element.id = THEME_STYLE_ID
-  document.head.appendChild(element)
+  const element = inheritCspNonce(existing ?? document.createElement("style"))
+  if (!existing) {
+    element.id = THEME_STYLE_ID
+    document.head.appendChild(element)
+  }
   return element
 }
 

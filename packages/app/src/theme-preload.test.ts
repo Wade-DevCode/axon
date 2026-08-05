@@ -48,6 +48,18 @@ describe("theme preload", () => {
     expect(document.getElementById("oc-theme-preload")?.textContent).toContain("--background-base:#fff;")
   })
 
+  test("copies the VS Code CSP nonce to cached theme styles", () => {
+    const script = document.createElement("script")
+    script.setAttribute("nonce", "webview-nonce")
+    document.head.appendChild(script)
+    localStorage.setItem("axon-theme-id", "cobalt2")
+    localStorage.setItem("axon-theme-css-light", "--v2-background-bg-deep:#e8f5ff;")
+
+    run()
+
+    expect(document.getElementById("oc-theme-preload")?.getAttribute("nonce")).toBe("webview-nonce")
+  })
+
   test("uses the active theme background in dark mode", () => {
     localStorage.setItem("axon-theme-id", "cobalt2")
     localStorage.setItem("axon-theme-css-dark", "--v2-background-bg-deep:#041f32;")
