@@ -158,7 +158,6 @@ function applyThemeCss(theme: DesktopTheme, themeId: string, mode: "light" | "da
   ensureThemeStyleElement().textContent = fullCss
   document.documentElement.dataset.theme = themeId
   document.documentElement.dataset.colorScheme = mode
-  document.documentElement.style.backgroundColor = isDark ? "#080808" : "#fafafa"
 
   // Update theme-color meta tag to match light/dark mode
   const meta = document.querySelector('meta[name="theme-color"]')
@@ -247,6 +246,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
         void load(next).then((theme) => {
           if (!theme || store.themeId !== next) return
           cacheThemeVariants(theme, next)
+          applyTheme(theme, next, store.mode)
         })
       }
       if (e.key === STORAGE_KEYS.COLOR_SCHEME && e.newValue) {
@@ -284,6 +284,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
       void load(savedTheme).then((theme) => {
         if (!theme || store.themeId !== savedTheme) return
         cacheThemeVariants(theme, savedTheme)
+        applyTheme(theme, savedTheme, store.mode)
       })
     })
 
@@ -313,6 +314,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
         if (!theme || store.themeId !== next) return
         cacheThemeVariants(theme, next)
         write(STORAGE_KEYS.THEME_ID, next)
+        applyTheme(theme, next, store.mode)
       })
     }
 
