@@ -1,6 +1,12 @@
 import { describe, expect, test } from "bun:test"
 import type { Part, ToolPart, ToolState } from "@axon-ai/sdk/v2"
-import { changeSummary, sessionActivity, sessionTimeline, toolRow } from "../../../src/routes/session/presentation"
+import {
+  changeSummary,
+  sessionActivity,
+  sessionTimeline,
+  statusReportIndex,
+  toolRow,
+} from "../../../src/routes/session/presentation"
 
 function tool(name: string, state: ToolState, id = `${name}-part`): ToolPart {
   return {
@@ -150,6 +156,23 @@ describe("sessionTimeline", () => {
       { type: "tools", parts: [read, grep] },
       { type: "content", part: after },
     ])
+  })
+})
+
+describe("statusReportIndex", () => {
+  test("keeps the status report at its original timeline boundary as messages arrive", () => {
+    const initial = [{ id: "user" }, { id: "assistant" }]
+    expect(statusReportIndex(initial, "assistant")).toBe(2)
+    expect(statusReportIndex([...initial, { id: "followup" }], "assistant")).toBe(2)
+  })
+
+  test("places a report before the first future message in an empty session", () => {
+    expect(statusReportIndex([])).toBe(0)
+    expect(statusReportIndex([{ id: "future" }])).toBe(0)
+  })
+
+  test("hides a report whose anchor has left the loaded timeline", () => {
+    expect(statusReportIndex([{ id: "current" }], "missing")).toBe(-1)
   })
 })
 

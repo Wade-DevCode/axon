@@ -792,7 +792,7 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
               duration: 3000,
             })
           }
-          local.status.show(route.data.sessionID)
+          local.status.show(route.data.sessionID, sync.data.message[route.data.sessionID]?.at(-1)?.id)
         },
         category: "System",
       },

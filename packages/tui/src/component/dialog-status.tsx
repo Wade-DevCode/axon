@@ -9,7 +9,7 @@ import { Product } from "../util/product"
 import { Locale } from "../util/locale"
 import { sessionUsage } from "../util/session-usage"
 
-export function StatusReport() {
+export function StatusReport(props: { sessionID: string }) {
   const sync = useSync()
   const local = useLocal()
   const project = useProject()
@@ -19,20 +19,14 @@ export function StatusReport() {
   const connectedMcp = createMemo(
     () => Object.values(sync.data.mcp).filter((server) => server.status === "connected").length,
   )
-  const statusSessionID = createMemo(() => local.status.sessionID())
-  const session = createMemo(() => {
-    const sessionID = statusSessionID()
-    if (!sessionID) return
-    return sync.session.get(sessionID)
-  })
-  const usage = createMemo(() => {
-    const sessionID = statusSessionID()
-    return sessionUsage({
-      messages: sessionID ? (sync.data.message[sessionID] ?? []) : [],
+  const session = createMemo(() => sync.session.get(props.sessionID))
+  const usage = createMemo(() =>
+    sessionUsage({
+      messages: sync.data.message[props.sessionID] ?? [],
       providers: sync.data.provider,
       fallback: local.model.current(),
-    })
-  })
+    }),
+  )
   const account = createMemo(() => {
     const entries = Object.entries(sync.data.provider_auth_status)
     const match = entries.find(([providerID, item]) => providerID === "openai" && item.type === "oauth")
@@ -149,7 +143,7 @@ export function StatusReport() {
           <text width={14} fg={theme.textMuted}>
             Session:
           </text>
-          <text fg={theme.text}>{statusSessionID() ?? "None"}</text>
+          <text fg={theme.text}>{props.sessionID}</text>
         </box>
         <box flexDirection="row">
           <text width={14} fg={theme.textMuted}>

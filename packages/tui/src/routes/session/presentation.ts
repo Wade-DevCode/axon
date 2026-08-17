@@ -60,6 +60,12 @@ export function sessionTimeline(parts: readonly Part[]): TimelineEntry[] {
   }, [])
 }
 
+export function statusReportIndex(messages: readonly { id: string }[], afterMessageID?: string) {
+  if (afterMessageID === undefined) return 0
+  const index = messages.findIndex((message) => message.id === afterMessageID)
+  return index < 0 ? -1 : index + 1
+}
+
 export function sessionActivity(parts: readonly Part[], final: boolean, mode: string) {
   if (final) return titleCase(mode)
   const active = parts.findLast(
