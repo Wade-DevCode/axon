@@ -3,7 +3,7 @@ import { SessionV1 } from "@axon-ai/core/v1/session"
 import type { NamedError } from "@axon-ai/core/util/error"
 import { APICallError } from "ai"
 import { setTimeout as sleep } from "node:timers/promises"
-import { Effect, Schedule, Schema } from "effect"
+import { Effect, Exit, Schedule, Schema } from "effect"
 import { LayerNode } from "@axon-ai/core/effect/layer-node"
 import { CrossSpawnSpawner } from "@axon-ai/core/cross-spawn-spawner"
 import { SessionRetry } from "../../src/session/retry"
@@ -113,6 +113,28 @@ describe("session.retry.delay", () => {
         attempt: 2,
         message: "boom",
       })
+    }),
+  )
+
+  it.instance("stops retrying after the maximum number of attempts", () =>
+    Effect.gen(function* () {
+      const error = apiError({ "retry-after-ms": "0" })
+      const attempts: number[] = []
+      const exit = yield* Effect.fail(error).pipe(
+        Effect.retry(
+          SessionRetry.policy({
+            provider: "test",
+            parse: Schema.decodeUnknownSync(SessionV1.APIError.Schema),
+            set: (info) => Effect.sync(() => attempts.push(info.attempt)),
+          }),
+        ),
+        Effect.exit,
+      )
+
+      expect(Exit.isFailure(exit)).toBe(true)
+      expect(attempts).toEqual(
+        Array.from({ length: SessionRetry.RETRY_MAX_ATTEMPTS - 1 }, (_, index) => index + 1),
+      )
     }),
   )
 })
