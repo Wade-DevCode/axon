@@ -22,7 +22,7 @@ import { useSync } from "../../context/sync"
 import { useEvent } from "../../context/event"
 import { SplitBorder } from "../../ui/border"
 import { useTuiPaths, useTuiTerminalEnvironment } from "../../context/runtime"
-import { Spinner, ThinkingIndicator } from "../../component/spinner"
+import { Spinner } from "../../component/spinner"
 import { createSyntaxStyleMemo, generateSubtleSyntax, selectedForeground, useTheme } from "../../context/theme"
 import { BoxRenderable, ScrollBoxRenderable, addDefaultParsers, TextAttributes, RGBA } from "@opentui/core"
 import { Prompt, type PromptRef } from "../../component/prompt"
@@ -1749,7 +1749,9 @@ function ReasoningHeader(props: {
   return (
     <Switch>
       <Match when={!props.done}>
-        <ThinkingIndicator color={fg()} text={props.title ? "Thinking: " + props.title : "Thinking"} />
+        <box flexDirection="row">
+          <Spinner color={fg()}>{props.title ? "Thinking: " + props.title : "Thinking"}</Spinner>
+        </box>
       </Match>
       <Match when={true}>
         <text fg={fg()} wrapMode="none">
