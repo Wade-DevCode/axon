@@ -80,7 +80,7 @@ import { DialogVariant } from "./component/dialog-variant"
 import { createTuiAttention } from "./attention"
 import * as TuiAudio from "./audio"
 import { win32DisableProcessedInput, win32FlushInputBuffer } from "./terminal-win32"
-import { createTerminalTitleController, destroyRenderer, setTerminalProgress } from "./util/renderer"
+import { destroyRenderer, setTerminalProgress } from "./util/renderer"
 import { cliErrorMessage, errorFormat } from "./util/error"
 import { registerSpinner } from "opentui-spinner/solid"
 import { StartupProvider, useStartupProgress } from "./context/startup"
@@ -390,8 +390,6 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
   const pluginRuntime = usePluginRuntime()
   const attention = createTuiAttention({ renderer, config: tuiConfig, kv })
   const clipboard = useClipboard()
-  const terminalTitle = createTerminalTitleController(renderer)
-  renderer.once("destroy", terminalTitle.dispose)
 
   const api = createTuiApi(
     createTuiApiAdapters({
@@ -450,7 +448,6 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
   onCleanup(() => {
     offSelectionKeys()
     attention.dispose()
-    terminalTitle.dispose()
   })
 
   // Wire up console copy-to-clipboard via opentui's onCopySelection callback
@@ -473,39 +470,39 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
   createEffect(() => {
     if (!terminalTitleEnabled() || Flag.AXON_DISABLE_TERMINAL_TITLE) {
       setTerminalProgress(false)
-      terminalTitle.set("", false)
       return
     }
 
     if (route.data.type === "home") {
       setTerminalProgress(false)
-      terminalTitle.set("Axon", false)
+      renderer.setTerminalTitle("Axon")
       return
     }
 
     if (route.data.type === "session") {
       const status = sync.data.session_status[route.data.sessionID]
       const working = status ? status.type !== "idle" : sync.session.status(route.data.sessionID) !== "idle"
-      setTerminalProgress(false)
+      setTerminalProgress(working)
       const session = sync.session.get(route.data.sessionID)
       if (!session || isDefaultTitle(session.title)) {
-        terminalTitle.set("Axon", working)
+        renderer.setTerminalTitle("Axon")
         return
       }
 
       const title = session.title.length > 40 ? session.title.slice(0, 37) + "..." : session.title
-      terminalTitle.set(`Axon | ${title}`, working)
+      renderer.setTerminalTitle(`Axon | ${title}`)
       return
     }
 
     if (route.data.type === "plugin") {
       setTerminalProgress(false)
-      terminalTitle.set(`Axon | ${route.data.id}`, false)
+      renderer.setTerminalTitle(`Axon | ${route.data.id}`)
     }
   })
 
   const args = useArgs()
   onMount(() => {
+    setTerminalProgress(false)
     batch(() => {
       if (args.agent) local.agent.set(args.agent)
       if (args.model) {
