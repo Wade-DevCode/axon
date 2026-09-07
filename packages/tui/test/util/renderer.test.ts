@@ -1,5 +1,29 @@
 import { expect, test } from "bun:test"
-import { destroyRenderer } from "../../src/util/renderer"
+import { createTerminalTitleController, destroyRenderer } from "../../src/util/renderer"
+
+test("uses the same Braille spinner frames in the terminal title", async () => {
+  const calls: string[] = []
+  const controller = createTerminalTitleController({
+    setTerminalTitle(title) {
+      calls.push(title)
+    },
+  })
+
+  try {
+    controller.set("Axon | Dream11", true)
+    expect(calls[0]).toBe("⠋ Axon | Dream11")
+    await Bun.sleep(120)
+    expect(calls).toContain("⠙ Axon | Dream11")
+
+    controller.set("Axon | Dream11", false)
+    expect(calls.at(-1)).toBe("Axon | Dream11")
+    const stopped = calls.length
+    await Bun.sleep(120)
+    expect(calls).toHaveLength(stopped)
+  } finally {
+    controller.dispose()
+  }
+})
 
 test("clears the terminal title before destroying the renderer", () => {
   const calls: string[] = []

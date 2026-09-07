@@ -2,6 +2,8 @@ import type { ColorInput } from "@opentui/core"
 import { RGBA } from "@opentui/core"
 import type { ColorGenerator } from "opentui-spinner"
 
+export const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+
 interface AdvancedGradientOptions {
   colors: ColorInput[]
   trailLength: number

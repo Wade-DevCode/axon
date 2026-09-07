@@ -4,8 +4,9 @@ import { useKV } from "../context/kv"
 import type { JSX } from "@opentui/solid"
 import type { RGBA } from "@opentui/core"
 import "opentui-spinner/solid"
+import { SPINNER_FRAMES } from "../ui/spinner"
 
-export const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+export { SPINNER_FRAMES } from "../ui/spinner"
 
 export function Spinner(props: { children?: JSX.Element; color?: RGBA }) {
   const { theme } = useTheme()
