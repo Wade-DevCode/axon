@@ -31,6 +31,7 @@ import { ModelV2 } from "@axon-ai/core/model"
 import { ModelStatus } from "./model-status"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { ProviderError } from "./error"
+import { OpenAIWebSocketPool } from "@/plugin/openai/ws-pool"
 
 const OPENAI_HEADER_TIMEOUT_DEFAULT = 10_000
 
@@ -1146,6 +1147,7 @@ interface State {
   sdk: Map<string, BundledSDK>
   modelLoaders: Record<string, CustomModelLoader>
   varsLoaders: Record<string, CustomVarsLoader>
+  websocketFetches: Set<ReturnType<typeof OpenAIWebSocketPool.createWebSocketFetch>>
 }
 
 export class Service extends Context.Service<Service, Interface>()("@axon/Provider") {}
@@ -1327,6 +1329,13 @@ export const layer = Layer.effect(
           [providerID: string]: CustomVarsLoader
         } = {}
         const sdk = new Map<string, BundledSDK>()
+        const websocketFetches = new Set<ReturnType<typeof OpenAIWebSocketPool.createWebSocketFetch>>()
+        yield* Effect.addFinalizer(() =>
+          Effect.sync(() => {
+            for (const websocketFetch of websocketFetches) websocketFetch.close()
+            websocketFetches.clear()
+          }),
+        )
         const discoveryLoaders: {
           [providerID: string]: CustomDiscoverModels
         } = {}
@@ -1630,6 +1639,7 @@ export const layer = Layer.effect(
           sdk,
           modelLoaders,
           varsLoaders,
+          websocketFetches,
         }
       }),
     )
@@ -1640,6 +1650,29 @@ export const layer = Layer.effect(
       try {
         const provider = s.providers[model.providerID]
         const options = { ...provider.options }
+        const supportsWebSockets =
+          model.api.npm === "@ai-sdk/openai" &&
+          (options.supportsWebSockets === true ||
+            options.supports_websockets === true ||
+            model.options.supportsWebSockets === true ||
+            model.options.supports_websockets === true)
+
+        if (supportsWebSockets) {
+          const configuredFetch = options.fetch
+          const websocketFetch = OpenAIWebSocketPool.createWebSocketFetch({
+            httpFetch: typeof configuredFetch === "function" ? configuredFetch : fetch,
+          })
+          options.fetch = websocketFetch
+          s.websocketFetches.add(websocketFetch)
+        }
+
+        // These are Axon transport settings, not options understood by the AI SDK.
+        delete options.supportsWebSockets
+        delete options.supports_websockets
+        delete options.wireApi
+        delete options.wire_api
+        delete options.omitMaxOutputTokens
+        delete options.omit_max_output_tokens
 
         if (
           model.providerID === "google-vertex" &&
@@ -1818,7 +1851,17 @@ export const layer = Layer.effect(
                 },
                 model,
               )
-            : sdk.languageModel(model.api.id)
+            : (() => {
+                const languageSDK = sdk as unknown as BundledSDK
+                const wireApi =
+                  provider.options.wireApi ??
+                  provider.options.wire_api ??
+                  model.options.wireApi ??
+                  model.options.wire_api
+                if (wireApi === "chat" && languageSDK.chat) return languageSDK.chat(model.api.id)
+                if (wireApi === "responses" && languageSDK.responses) return languageSDK.responses(model.api.id)
+                return languageSDK.languageModel(model.api.id)
+              })()
           s.models.set(key, language)
           return language
         },
