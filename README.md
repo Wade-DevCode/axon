@@ -107,6 +107,35 @@ axon debug paths
 
 Axon remains compatible with legacy `opencode.json`, `opencode.jsonc`, and `.opencode/` configuration. When both forms exist, Axon-named configuration takes precedence.
 
+### OpenAI-compatible endpoints
+
+Custom providers that use `@ai-sdk/openai` accept a few Axon transport options next to `baseURL` and `apiKey`. They can be set on the provider `options` or on an individual model's `options`:
+
+| Option                   | Effect                                                                                                     |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `wire_api`               | `"responses"` (default) uses the Responses API; `"chat"` uses Chat Completions for gateways without it.    |
+| `supports_websockets`    | `true` streams Responses over a pooled WebSocket per session and falls back to HTTP after repeated errors. |
+| `omit_max_output_tokens` | `true` stops Axon from sending a max output token limit, for endpoints that reject it.                     |
+
+```jsonc
+{
+  "provider": {
+    "my-gateway": {
+      "npm": "@ai-sdk/openai",
+      "options": {
+        "baseURL": "https://gateway.example.com/v1",
+        "apiKey": "{env:MY_GATEWAY_KEY}",
+        "wire_api": "responses",
+        "supports_websockets": true,
+      },
+      "models": { "gpt-5.4": {} },
+    },
+  },
+}
+```
+
+camelCase spellings (`wireApi`, `supportsWebSockets`, `omitMaxOutputTokens`) are accepted too.
+
 ## Platforms
 
 The npm installer and each GitHub Release include native binaries for:
@@ -119,7 +148,9 @@ The npm installer and each GitHub Release include native binaries for:
 
 - Install or update through npm: `npm install -g @wanghuimvp/axon@latest`
 - Update an existing installation: `axon upgrade`
-- Download standalone archives and checksums from [GitHub Releases](https://github.com/Wade-DevCode/axon/releases/latest)
+- Install without npm on macOS, Linux, or Git Bash: `curl -fsSL https://raw.githubusercontent.com/Wade-DevCode/axon/main/install | bash` (verifies the archive against the release `checksums.txt`)
+- Check the installation, configuration, providers, and tools: `axon doctor` (`--json` for scripts)
+- Download standalone archives and checksums from [GitHub Releases](https://github.com/Wade-DevCode/axon/releases?q=cli-v&expanded=true)
 
 ## Build from source
 
@@ -144,7 +175,7 @@ See [SECURITY.md](./SECURITY.md) for the threat model and reporting process.
 
 Axon is built from [OpenCode](https://github.com/anomalyco/opencode) and remains close to its configuration and extension ecosystem. General engine improvements should be contributed upstream when possible; Axon-specific branding and integration work belongs in this repository.
 
-Axon and Axon are distributed under the [MIT License](./LICENSE). Credit and thanks go to the Axon maintainers and contributors whose work forms the foundation of this project.
+OpenCode and Axon are distributed under the [MIT License](./LICENSE). Credit and thanks go to the OpenCode maintainers and contributors whose work forms the foundation of this project.
 
 ## Author
 

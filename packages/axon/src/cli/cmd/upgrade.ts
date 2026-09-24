@@ -10,7 +10,7 @@ export const UpgradeCommand = {
   builder: (yargs: Argv) => {
     return yargs
       .positional("target", {
-        describe: "version to upgrade to, for ex '0.1.48' or 'v0.1.48'",
+        describe: "version to upgrade to, for ex '0.5.84', 'v0.5.84', or 'cli-v0.5.84'",
         type: "string",
       })
       .option("method", {
@@ -43,7 +43,7 @@ export const UpgradeCommand = {
       }
     }
     prompts.log.info("Using method: " + method)
-    const target = args.target ? args.target.replace(/^v/, "") : await Installation.latest()
+    const target = args.target ? args.target.replace(/^(?:cli-)?v/, "") : await Installation.latest()
 
     if (InstallationVersion === target) {
       prompts.log.warn(`axon upgrade skipped: ${target} is already installed`)

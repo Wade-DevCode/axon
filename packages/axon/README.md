@@ -26,13 +26,14 @@ axon --continue                   # continue the latest session
 axon models                       # list available models
 axon providers login              # connect a model provider
 axon serve                        # start the headless server
+axon doctor                       # check installation, config, and providers
 axon --help                       # show all commands
 ```
 
 Axon includes agents for building, planning, coding, Q&A, debugging, review, and orchestration. It also supports MCP servers, plugins, custom agents, skills, LSP integration, a web interface, and ACP.
 
 - [Documentation and source](https://github.com/Wade-DevCode/axon)
-- [GitHub Releases](https://github.com/Wade-DevCode/axon/releases/latest)
+- [GitHub Releases](https://github.com/Wade-DevCode/axon/releases?q=cli-v&expanded=true)
 - [License](https://github.com/Wade-DevCode/axon/blob/main/LICENSE)
 
 Axon is built from [OpenCode](https://github.com/anomalyco/opencode) and distributed under the MIT License.
