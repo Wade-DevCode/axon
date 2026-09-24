@@ -357,6 +357,16 @@ it.instance(
 )
 
 it.instance(
+  "defaultModel falls back to any available provider when the provider config map is empty",
+  Effect.gen(function* () {
+    yield* setProcessEnv("ANTHROPIC_API_KEY", "test-api-key")
+    const model = yield* Provider.use.defaultModel()
+    expect(Object.keys(yield* list)).toContain(String(model.providerID))
+  }),
+  { config: { provider: {} } },
+)
+
+it.instance(
   "defaultModel returns a typed error when config excludes every provider",
   Effect.gen(function* () {
     const error = yield* Provider.use.defaultModel().pipe(Effect.flip)
