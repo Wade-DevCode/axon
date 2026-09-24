@@ -103,12 +103,13 @@ async function packageReleaseAssets() {
 
 async function verifyRegistry() {
   const names = [...expected, wrapperName]
-  for (const attempt of Array.from({ length: 12 }, (_, index) => index + 1)) {
+  // Fresh versions can take several minutes to reach every registry edge.
+  for (const attempt of Array.from({ length: 60 }, (_, index) => index + 1)) {
     const packages = await Promise.all(names.map((name) => registryPackage(name)))
     if (packages.every((item) => item?.version === version)) return
-    if (attempt < 12) await Bun.sleep(5_000)
+    if (attempt < 60) await Bun.sleep(10_000)
   }
-  throw new Error(`npm registry did not expose every ${version} package after 60 seconds`)
+  throw new Error(`npm registry did not expose every ${version} package after 10 minutes`)
 }
 
 async function verifyCleanInstall() {
