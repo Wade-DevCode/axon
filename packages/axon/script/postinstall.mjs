@@ -129,11 +129,15 @@ function installPackage(name) {
 
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), "axon-install-"))
   try {
-    const result = childProcess.spawnSync(
-      "npm",
-      ["install", "--ignore-scripts", "--no-save", "--loglevel=error", "--prefix", temp, `${name}@${version}`],
-      { stdio: "inherit", windowsHide: true },
-    )
+    const result = runNpm([
+      "install",
+      "--ignore-scripts",
+      "--no-save",
+      "--loglevel=error",
+      "--prefix",
+      temp,
+      `${name}@${version}`,
+    ])
     if (result.status !== 0) return
     const packageDir = path.join(temp, "node_modules", name)
     copyBinary(path.join(packageDir, "bin", sourceBinary), targetBinary)
@@ -141,6 +145,21 @@ function installPackage(name) {
   } finally {
     fs.rmSync(temp, { recursive: true, force: true })
   }
+}
+
+function runNpm(args) {
+  const options = { stdio: "inherit", windowsHide: true }
+  // Prefer the npm CLI that is running this postinstall. On Windows `npm` is
+  // `npm.cmd`, which cannot be spawned without a shell.
+  const npmCli = process.env.npm_execpath
+  if (npmCli && /npm-cli\.[cm]?js$/.test(npmCli)) {
+    return childProcess.spawnSync(process.execPath, [npmCli, ...args], options)
+  }
+  if (process.platform === "win32") {
+    const quoted = args.map((arg) => (/[\s"]/.test(arg) ? `"${arg.replace(/"/g, '\\"')}"` : arg))
+    return childProcess.spawnSync(["npm", ...quoted].join(" "), { ...options, shell: true })
+  }
+  return childProcess.spawnSync("npm", args, options)
 }
 
 function copyBinary(source, target) {

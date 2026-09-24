@@ -58,23 +58,21 @@ function testLayer(
 
 describe("installation", () => {
   describe("latest", () => {
-    testEffect(testLayer(() => jsonResponse({ tag_name: "v1.2.3" }))).effect(
-      "reads release version from GitHub releases",
-      () =>
+    for (const method of ["unknown", "curl", "scoop"] as const) {
+      const calls: string[] = []
+      testEffect(
+        testLayer((request) => {
+          calls.push(request.url)
+          return jsonResponse({ version: "1.2.3" })
+        }),
+      ).effect(`reads ${method} versions from the npm registry, not GitHub releases`, () =>
         Effect.gen(function* () {
-          const result = yield* Installation.use.latest("unknown")
+          const result = yield* Installation.use.latest(method)
           expect(result).toBe("1.2.3")
+          expect(calls).toEqual([`https://registry.npmjs.org/@wanghuimvp%2faxon/${InstallationChannel}`])
         }),
-    )
-
-    testEffect(testLayer(() => jsonResponse({ tag_name: "v4.0.0-beta.1" }))).effect(
-      "strips v prefix from GitHub release tag",
-      () =>
-        Effect.gen(function* () {
-          const result = yield* Installation.use.latest("curl")
-          expect(result).toBe("4.0.0-beta.1")
-        }),
-    )
+      )
+    }
 
     const npmCalls: string[] = []
     testEffect(
@@ -115,13 +113,6 @@ describe("installation", () => {
         const result = yield* Installation.use.latest("pnpm")
         expect(result).toBe("1.7.0")
         expect(pnpmCalls).toContain(`https://registry.npmjs.org/@wanghuimvp%2faxon/${InstallationChannel}`)
-      }),
-    )
-
-    testEffect(testLayer(() => jsonResponse({ version: "2.3.4" }))).effect("reads scoop manifest versions", () =>
-      Effect.gen(function* () {
-        const result = yield* Installation.use.latest("scoop")
-        expect(result).toBe("2.3.4")
       }),
     )
 

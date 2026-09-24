@@ -60,7 +60,6 @@ export class UpgradeFailedError extends Schema.TaggedErrorClass<UpgradeFailedErr
 }
 
 // Response schemas for external version APIs
-const GitHubRelease = Schema.Struct({ tag_name: Schema.String })
 const NpmPackage = Schema.Struct({ version: Schema.String })
 const BrewFormula = Schema.Struct({ versions: Schema.Struct({ stable: Schema.String }) })
 const BrewInfoV2 = Schema.Struct({
@@ -69,7 +68,6 @@ const BrewInfoV2 = Schema.Struct({
 const ChocoPackage = Schema.Struct({
   d: Schema.Struct({ results: Schema.Array(Schema.Struct({ Version: Schema.String })) }),
 })
-const ScoopManifest = NpmPackage
 
 export interface Interface {
   readonly info: () => Effect.Effect<Info>
@@ -144,7 +142,7 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | AppProce
     const upgradeCurl = Effect.fnUntraced(
       function* (target: string) {
         const response = yield* httpOk.execute(
-          HttpClientRequest.get("https://raw.githubusercontent.com/Wade-DevCode/axon/dev/install"),
+          HttpClientRequest.get("https://raw.githubusercontent.com/Wade-DevCode/axon/main/install"),
         )
         const body = yield* response.text
         const bodyBytes = new TextEncoder().encode(body)
@@ -218,22 +216,10 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | AppProce
             return info.formulae[0].versions.stable
           }
           const response = yield* httpOk.execute(
-            HttpClientRequest.get("https://formulae.brew.sh/api/formula/axon.json").pipe(
-              HttpClientRequest.acceptJson,
-            ),
+            HttpClientRequest.get("https://formulae.brew.sh/api/formula/axon.json").pipe(HttpClientRequest.acceptJson),
           )
           const data = yield* HttpClientResponse.schemaBodyJson(BrewFormula)(response)
           return data.versions.stable
-        }
-
-        if (detectedMethod === "npm" || detectedMethod === "bun" || detectedMethod === "pnpm") {
-          const response = yield* httpOk.execute(
-            HttpClientRequest.get(
-              `${yield* NpmConfig.registry(process.cwd())}/@wanghuimvp%2faxon/${InstallationChannel}`,
-            ).pipe(HttpClientRequest.acceptJson),
-          )
-          const data = yield* HttpClientResponse.schemaBodyJson(NpmPackage)(response)
-          return data.version
         }
 
         if (detectedMethod === "choco") {
@@ -246,23 +232,16 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | AppProce
           return data.d.results[0].Version
         }
 
-        if (detectedMethod === "scoop") {
-          const response = yield* httpOk.execute(
-            HttpClientRequest.get(
-              "https://raw.githubusercontent.com/ScoopInstaller/Main/master/bucket/opencode.json",
-            ).pipe(HttpClientRequest.setHeaders({ Accept: "application/json" })),
-          )
-          const data = yield* HttpClientResponse.schemaBodyJson(ScoopManifest)(response)
-          return data.version
-        }
-
+        // npm is the source of truth for every CLI release. GitHub's "latest release"
+        // is not usable here because CLI releases are tagged cli-vX.Y.Z and are not
+        // marked latest, so curl, npm, pnpm, bun, yarn, and unknown installs all use it.
         const response = yield* httpOk.execute(
-          HttpClientRequest.get("https://api.github.com/repos/Wade-DevCode/axon/releases/latest").pipe(
-            HttpClientRequest.acceptJson,
-          ),
+          HttpClientRequest.get(
+            `${yield* NpmConfig.registry(process.cwd())}/@wanghuimvp%2faxon/${InstallationChannel}`,
+          ).pipe(HttpClientRequest.acceptJson),
         )
-        const data = yield* HttpClientResponse.schemaBodyJson(GitHubRelease)(response)
-        return data.tag_name.replace(/^v/, "")
+        const data = yield* HttpClientResponse.schemaBodyJson(NpmPackage)(response)
+        return data.version
       }, Effect.orDie),
       upgrade: Effect.fn("Installation.upgrade")(function* (m: Method, target: string) {
         let upgradeResult: { code: number; stdout: string; stderr: string } | undefined
